@@ -64,6 +64,7 @@ namespace C2AP
                 //Log.Debug($"Text: true");
                 if (!lastInGameStatus)
                 {
+                    //Log.Information("Entered in-game state");
                     BaseHooks.Initialize();
                 }
                 lastInGameStatus = true;
@@ -72,6 +73,7 @@ namespace C2AP
             //Log.Debug($"Text: false");
             if (lastInGameStatus)
             {
+                //Log.Information("Exited in-game state");
                 BaseHooks.UnInitialize();
             }
             lastInGameStatus = false;

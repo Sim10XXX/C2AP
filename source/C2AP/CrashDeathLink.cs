@@ -40,7 +40,7 @@ namespace C2AP
         {
             
             Log.Logger.Information("DeathLink received, killing Crash");
-            CrashEvent.EnqueueEvent(CrashEvent.Event.KillCrash);
+            CrashEvent.EnqueueEvent(CrashEvent.EventType.KillCrash);
 
             // 10 second grace period where the first death doesn't send deathlink
             // Paused when the game or emu is paused

@@ -12,7 +12,7 @@ namespace C2AP
 {
     internal class CrashEvent
     {
-        public enum Event
+        public enum EventType
         {
             KillCrash,
             GiveLife,
@@ -23,30 +23,36 @@ namespace C2AP
             InterruptCrash,
             LandCrash,
             TakeOffJetpack,
-            Event9,
-            Event58,
-            Event56,
-            Event34,
-            Event21,
-            Event0,
+            BasicEvent,
+            //Event9,
+            //Event58,
+            //Event56,
+            //Event34,
+            //Event21,
+            //Event0,
         }
-        private static Dictionary<Event, uint> EventPriority = new Dictionary<Event, uint>
+        private class Event
         {
-            { Event.KillCrash, 0 },
-            { Event.LandCrash, 1  },
-            { Event.TakeOffJetpack, 1  },
-            { Event.LockInput, 3 },
-            { Event.InterruptCrash, 4 },
-            { Event.Event9, 5 },
-            { Event.Event58, 5 },
-            { Event.Event56, 5 },
-            { Event.Event34, 5 },
-            { Event.Event21, 5 },
-            { Event.Event0, 5  },
-            { Event.UnlockInput, 6 },
-            { Event.SyncGlobalValue, 9 },
-            { Event.GiveLife, 10 },
-            { Event.GiveWumpa, 10 },
+            public EventType Type;
+            //public uint Priority;
+            public uint EventId;
+            public uint[] EventArgv = [];
+            public uint ResultState;
+        }
+
+        private static Dictionary<EventType, uint> EventPriority = new Dictionary<EventType, uint>
+        {
+            { EventType.KillCrash, 0 },
+            
+            { EventType.TakeOffJetpack, 1  },
+            { EventType.LockInput, 3 },
+            { EventType.InterruptCrash, 4 },
+            { EventType.BasicEvent, 5 },
+            { EventType.LandCrash, 6  },
+            { EventType.UnlockInput, 7 },
+            { EventType.SyncGlobalValue, 9 },
+            { EventType.GiveLife, 10 },
+            { EventType.GiveWumpa, 10 },
 
         };
         public static CustomHook sendEvent = new CustomHook(["nop"]);
@@ -60,18 +66,18 @@ namespace C2AP
             if (BaseHooks.ApItemsHook == null) return;
             if (BaseHooks.ApItemsHook._freeAddress == 0)
             {
-                Log.Error("CrashFunction must be initialized after BaseHooks");
+                Log.Error("CrashEvent must be initialized after BaseHooks");
                 return;
             }
             sendEvent.InsertHook(0x15A04, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + 0x4);
 
-            // Call a dummy event in order to have the correct value for CrashFunction.sendEvent._hookSize
+            // Call a dummy event in order to have the correct value for CrashEvent.sendEvent._hookSize
             CallSendEvent(0, 0, 0, 0, []);
 
             // Set this flag to 0 so the dummy event isn't actually executed
             Memory.Write(Addresses.SendEventFlag, 0);
 
-            Log.Information("initialized CrashFunction");
+            Log.Information("initialized CrashEvent");
             
                 //processEventTimer = new Timer(25);
             processEventTimer.Elapsed += (s, ev) =>
@@ -80,17 +86,26 @@ namespace C2AP
             };
         }
 
-        public static void EnqueueEvent(Event eventType)
+        public static void EnqueueEvent(EventType eventType, uint eventId, uint[] eventArgv, uint resultState)
         {
             //Log.Logger.Information($"Enqueue event : {eventType}");
-            eventQueue.Enqueue(eventType, EventPriority[eventType]);
+            
+            EnqueueEvent(new Event { Type = eventType, EventId = eventId, EventArgv = eventArgv, ResultState = resultState });
+        }
+        public static void EnqueueEvent(EventType eventType)
+        {
+            EnqueueEvent(eventType, 0, [], 0);
+        }
+        private static void EnqueueEvent(Event ev)
+        {
+            eventQueue.Enqueue(ev, EventPriority[ev.Type]);
             processEventTimer.Start();
         }
         private static void ProcessNextEvent()
         {
             if (Memory.ReadUInt(Addresses.SendEventFlag) != 0) return;
-            Event eventType = eventQueue.Dequeue();
-            if (CallEvent(eventType))
+            Event nextEvent = eventQueue.Dequeue();
+            if (CallEvent(nextEvent))
             {
                 if (eventQueue.Count == 0)
                 {
@@ -99,17 +114,19 @@ namespace C2AP
             }
             else
             {
-                EnqueueEvent(eventType);
+                EnqueueEvent(nextEvent);
             }
         }
-        private static bool CallEvent(Event eventType)
+        private static bool CallEvent(Event ev)
         {
             uint crashAddress = CrashObject.FindObjectAddress(0, 0);
             if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) return false;
             //Log.Logger.Information($"Running event : {eventType}");
-            switch (eventType)
+            uint state = Memory.ReadUInt(crashAddress + 0x1C);
+            Log.Logger.Information($"crash state: {state}");
+            switch (ev.Type)
             {
-                case Event.KillCrash:
+                case EventType.KillCrash:
                     /** relevant crash states:
                      * 4: walking
                      * 11: hanging still
@@ -122,7 +139,10 @@ namespace C2AP
                      * 65: victory dance
                      * 66 - 70: various warp in/out animations
                      * 68: standing on lift
+                     * 71: crash dance
+                     * 76: something jetpack related
                      * 78 - 87: jetpack
+                     * 90: burnt jetpack
                      * 94: taking off jetpack
                      * 96: entering jetboard
                      * 97: jetboard
@@ -134,178 +154,132 @@ namespace C2AP
                      * 117 - 118: underground
                      * 123, 124, 127: Ngin fight
                      */
-                    uint state = Memory.ReadUInt(crashAddress + 0x1C);
-                    Log.Logger.Information($"crash state: {state}");
+                    
                     {
-                        if (state == 38 || (state >= 65 && state <= 70) || state == 100 || state == 105 || state == 117 || state == 118)
+                        if (state == 69) 
+                            return false;
+                        uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
+                        if (state == 38 || (state >= 65 && state <= 68) || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
                         {
+
                             // these states need to be interrupted with event 39
                             // so if we are on a level where event 39 is unavailable, we must wait
                             // bear it, rock it, pack attack, cortex
-                            uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
+                            
                             if (levelId == 0x1D00 || levelId == 0x1200 || levelId == 0x1A00 || levelId == 0x0700)
                             {
                                 return false;
                             }
-                            EnqueueEvent(Event.LockInput);
-                            EnqueueEvent(Event.InterruptCrash);
-                            EnqueueEvent(Event.Event9);
-                            EnqueueEvent(Event.UnlockInput);
+                            //EnqueueEvent(Event.LockInput);
+                            EnqueueEvent(EventType.InterruptCrash);
+                            //EnqueueEvent(EventType.BasicEvent, 70, [100], 51);
+                            //EnqueueEvent(Event.UnlockInput);
+                        }
+                        //else
+                        //{
+                            //EnqueueEvent(Event.LockInput);
+                            //EnqueueEvent(EventType.Event9);
+                        if (levelId == 0x0700) 
+                        {
+                            // Event 70 crashes in Cortex
+                            if (App.crashState.Jetpack == true)
+                            {
+                                EnqueueEvent(EventType.BasicEvent, 31, [100], 90);
+                            }
+                            else
+                            {
+                                // If crash doesn't have a jetpack in Cortex, he's as good as dead anyways,
+                                // so we'll just use event 12 and not worry about the possibility of the event getting blocked
+                                EnqueueEvent(EventType.BasicEvent, 12, [], 0);
+                            }
+                            
                         }
                         else
                         {
-                            EnqueueEvent(Event.LockInput);
-                            EnqueueEvent(Event.Event9);
-                            EnqueueEvent(Event.UnlockInput);
+                            EnqueueEvent(EventType.BasicEvent, 70, [100], 51);
                         }
+                        
+                            //EnqueueEvent(Event.UnlockInput);
+                        //}
                     }
                     return true;
-                    if (state == 78)
-                    {
-                        Log.Logger.Information($"running event 70");
-                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 70 << 8, 1, [100 << 8]);
-                        return true;
-                    }
-
-                    if (InputLock.GetLockedInputs() == InputFlag.All && (state == 4 || (state >= 12 && state <= 14) || state == 56 || state == 64 || (state >= 94 && state <= 99) || (state >= 123 && state <= 127)))
-                    {
-                        // for these states, input must already be locked
-                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 9 << 8, 1, [100 << 8]);
-                        return true;
-                    }
-                    if (InputLock.GetLockedInputs() == InputFlag.All && (state >= 116 && state <= 119))
-                    {
-                        // for the digging states, input must already be locked
-                        if (state == 117 || state == 118)
-                        {
-                            // Underground states need to be interrupted
-                            CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 39 << 8, 1, [100 << 8]);
-                            return false;
-                        }
-                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 9 << 8, 1, [100 << 8]);
-                    }
-
-                    if (state == 4 || (state >= 12 && state <= 14) || state == 16 || state == 18 || state == 24 || state == 56 || state == 64 || (state >= 79 && state <= 87) || (state >= 94 && state <= 99) || (state >= 116 && state <= 119) || (state >= 123 && state <= 127))
-                    {
-                        // These are the states where no event is able to reach crash
-                        // We lock input in order to force crash into a more favorable state
-                        if (Helpers.IsGamePaused())
-                        {
-                            return false;
-                        }
-                        EnqueueEvent(Event.LockInput);
-                        EnqueueEvent(Event.KillCrash);
-                        EnqueueEvent(Event.UnlockInput);
-                        return true;
-                    }
-                    if (state == 38 || (state >= 65 && state <= 70) || state == 100 || state == 105 || state == 109)
-                    {
-                        // Sending event 39 is able to interrupt these states and set crash's state to 50
-                        // All we need to do is just send another kill event after by returning false
-
-                        // However, Event 39 is unavailable in these levels (it'll crash the game), so in those cases we just delay:
-                        // bear it, rock it, pack attack, cortex
-                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 39 << 8, 1, [100 << 8]);
-
-                        // A successful event 39 puts Crash in state 50, but holding input during state 50 causes event 9 to fail
-                        // So we lock input to make sure that doesn't happen
-                        EnqueueEvent(Event.LockInput);
-                        EnqueueEvent(Event.KillCrash);
-                        EnqueueEvent(Event.UnlockInput);
-                        return true;
-                    }
-                    if (state == 28)
-                    {
-                        //CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 12 << 8, 1, [100 << 8]);
-                        //return true;
-
-                        // Must delay in these cases
-                        return false;
-                    }
-
-                    // there are too many cases where event 38 will either crash the game or not kill Crash, whereas event 9 works just fine
-                    Log.Logger.Information($"running event 9");
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 9 << 8, 1, [100 << 8]);
-                    //Memory.WriteByte(crashAddress + CrashObject.cacheOffset + Addresses.MaskOffset, 0);
-                    //uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
-                    //if (levelId == 0x0200 || levelId == 0x0900 || levelId == 0x1200 || levelId == 0x1A00)
-                    //{
-                    //    // If level is Warp Room, N. Gin, Rock It, or Pack Attack, only use this death
-                    //    // this is because event 38 can crash the game in these levels
-                    //    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 9 << 8, 1, [100 << 8]);
-                    //}
-                    //else
-                    //{
-                    //    // Otherwise, randomly pick either 9 or 38
-                    //    if (rnd.Next(2) == 0)
-                    //        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 9 << 8, 1, [100 << 8]);
-                    //    else
-                    //        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 38 << 8, 1, [100 << 8]);
-                    //}
-                    break;
+                    //break;
                 //case Event.GiveWumpa:
-                //    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 36 << 8, 1, [1 << 8]);
+                //    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 36, 1, [1]);
                 //    EnqueueEvent(Event.SyncGlobalValue);
                 //    break;
                 //case Event.GiveLife:
-                //    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 17 << 8, 1, [1 << 8]);
+                //    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 17, 1, [1]);
                 //    EnqueueEvent(Event.SyncGlobalValue);
                 //    break;
-                case Event.LandCrash:
+                case EventType.LandCrash:
                     //EnqueueEvent(Event.LockInput);
-                    EnqueueEvent(Event.Event56);
+                    //EnqueueEvent(EventType.Event56);
+                    //EnqueueEvent(Event.UnlockInput);
+                    
+                    if (ev.EventId != 0)
+                    {
+                        Log.Logger.Information($"Event landcrash {ev.EventId}");
+                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, ev.EventId, (uint) ev.EventArgv.Length, ev.EventArgv);
+                    }
+                    else
+                    {
+                        Log.Logger.Information($"Event landcrash 56");
+                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 56, 0, []);
+                    }
+                    if (state >= 30)
+                        return false;
+                    break;
+                case EventType.TakeOffJetpack:
+                    //EnqueueEvent(Event.Event58);
+                    //EnqueueEvent(Event.LockInput);
+                    //EnqueueEvent(Event.Event0);
+                    Log.Logger.Information($"Event takeoffjetpack");
+                    EnqueueEvent(EventType.BasicEvent, 34, [], 32);
+                    EnqueueEvent(EventType.LandCrash, 21, [100], 0);
+                    //EnqueueEvent(EventType.Event9);
+
                     //EnqueueEvent(Event.UnlockInput);
                     break;
-                case Event.TakeOffJetpack:
-                    //EnqueueEvent(Event.Event58);
-                    EnqueueEvent(Event.LockInput);
-                    //EnqueueEvent(Event.Event0);
-                    //EnqueueEvent(Event.Event34);
-                    //EnqueueEvent(Event.Event21);
-                    EnqueueEvent(Event.Event9);
-
-                    EnqueueEvent(Event.UnlockInput);
-                    break;
-                case Event.SyncGlobalValue:
+                case EventType.SyncGlobalValue:
                     Memory.WriteByte(Addresses.LivesGlobalAddress, Memory.ReadByte(crashAddress + Addresses.LivesOffset));
                     Memory.WriteByte(Addresses.WumpaGlobalAddress, Memory.ReadByte(crashAddress + Addresses.WumpaOffset));
                     break;
-                case Event.LockInput:
+                case EventType.LockInput:
                     InputLock.UnlockInput(InputFlag.All);
                     InputLock.LockInput(InputFlag.All);
                     CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0, 0, []);
                     break;
-                case Event.UnlockInput:
+                case EventType.UnlockInput:
                     InputLock.LockInput(InputFlag.All);
                     InputLock.UnlockInput(InputFlag.All);
                     CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0, 0, []);
                     break;
-                case Event.Event9:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 9 << 8, 1, [100 << 8]);
+                case EventType.BasicEvent:
+                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, ev.EventId, (uint) ev.EventArgv.Length, ev.EventArgv);
+                    if (ev.ResultState != 0)
+                    {
+                        if (state != ev.ResultState)
+                        {
+                            //if (ev.ResultState == 90 && state == 58) // both with & without jetpack should return true
+                            //    break;
+                            return false;
+                        }
+                    }
                     break;
-                case Event.Event58:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 58 << 8, 1, [100 << 8]);
-                    break;
-                case Event.Event56:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 56 << 8, 1, [100 << 8]);
-                    break;
-                case Event.Event34:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 34 << 8, 1, [100 << 8]);
-                    break;
-                case Event.Event21:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 21 << 8, 1, [100 << 8]);
-                    break;
-                case Event.Event0:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0, 0, []);
-                    break;
-                case Event.InterruptCrash:
-                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 39 << 8, 1, [100 << 8]);
+                case EventType.InterruptCrash:
+                    //EnqueueEvent(EventType.BasicEvent, 39, [], 50);
+                    CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 39, 0, []);
+                    if (state != 50)
+                    {
+                        return false;
+                    }
                     break;
 
             }
             return true;
         }
-        public static void CallSendEvent(uint sender, uint receiver, uint eventID, uint eventArgc, uint[] eventArgv)
+        public static void CallSendEvent(uint sender, uint receiver, uint eventId, uint eventArgc, uint[] eventArgv)
         {
             if (eventArgv.Length != eventArgc)
             {
@@ -317,6 +291,16 @@ namespace C2AP
                 Log.Error($"CallSendEvent: Providing more than 11 args is not currently supported");
             }
 
+            // make sure everything is at 8-bit offset
+            if ((eventId & 0xFF) != 0)
+                eventId = eventId << 8;
+            
+            for (uint i = 0; i < eventArgv.Length; i++)
+            {
+                if ((eventArgv[i] & 0xFF) != 0)
+                    eventArgv[i] = eventArgv[i] << 8;
+            }
+
             // write event args
             for (uint i = 0; i < eventArgc && i <= 11; i++)
             {
@@ -324,23 +308,7 @@ namespace C2AP
             }
 
             sendEvent.ReplaceAsm([
-                //
-
-                //"addiu $t1, $zero, 0xFFE8",
-                //"addiu $t2, $zero, 0xFFE8",
-                //"addiu $t3, $zero, 0xFFE8",
-                //"addiu $t4, $zero, 0xFFE8",
-                //"addiu $t5, $zero, 0xFFE8",
-                //"addiu $t6, $zero, 0xFFE8",
-                //"addiu $t7, $zero, 0xFFE8",
-                //"addiu $t8, $zero, 0xFFE8",
-                //"addiu $t9, $zero, 0xFFE8",
-                //"addiu $v0, $zero, 0xFFE8",
-                //"addiu $v1, $zero, 0xFFE8",
-                //
-
-
-
+               
                 $"la $t1, 0x{Addresses.SendEventFlag + Addresses.CacheOffset:X}",
                 "lw $t0, 0($t1)",
                 "nop",
@@ -366,11 +334,16 @@ namespace C2AP
                 // also save $ra because jal overwrites it
                 "sw $ra, 0x1C($sp)",
 
+                
+
                 // setup args for "Send Event".  This assembly code can be optimized (instead of using la use addiu with $zero for args that don't use the upper 16 bits)
                 $"la $a0, 0x{sender:X}",
                 $"la $a1, 0x{receiver:X}",
-                $"la $a2, 0x{eventID:X}",
+                $"la $a2, 0x{eventId:X}",
                 $"la $a3, 0x{eventArgc:X}",
+
+                // zero the block flag for the receiver
+                // $"sw $zero, 0xb0($a1)",
 
                 $"jal 0x{Addresses.SendEventFunction:X}",
                 "nop",

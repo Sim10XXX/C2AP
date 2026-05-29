@@ -56,6 +56,8 @@ public partial class App : Application
 
     private static uint[] _execParam = [];
 
+    private static int testValue = 0;
+
     public class CrashState
     {
         public uint Crystals;
@@ -166,12 +168,15 @@ public partial class App : Application
                 break;
             case "exec":
                 if (args.Length > 1) break;
+
+                CrashDeathLink.OnDeathLinkReceived(new("test"));
+
                 crashAddress = CrashObject.FindObjectAddress(0, 0);
                 if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) break;
                 uint state = Memory.ReadUInt(crashAddress + 0x1C);
                 Log.Logger.Information($"crash state: {state}");
                 //{
-                //    //    Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
+                Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
                 //    //    //Log.Logger.Information($"trans x: {Memory.ReadFloat(crashAddress + 0x60)}");
                 //    //    Log.Logger.Information($"trans y: {Memory.ReadInt(crashAddress + 0x64)}");
                 //    //    //Log.Logger.Information($"trans z: {Memory.ReadFloat(crashAddress + 0x68)}");
@@ -187,7 +192,7 @@ public partial class App : Application
                 //    // CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0x2300, 1, [0x6400]);
                 //}
 
-                ////// CrashDeathLink.OnDeathLinkReceived(new("test"));
+                
 
 
                 //    Log.Logger.Information($"trans x: {Memory.ReadFloat(crashAddress + 0x60)}");
@@ -196,17 +201,17 @@ public partial class App : Application
 
 
                 //}
-                uint bearAddress = CrashObject.FindObjectAddress(48, 0);
-                if (bearAddress != 0 && bearAddress != CrashObject.cacheOffset)
-                {
-                    //Memory.Write(bearAddress, 0);
-                    Memory.Write(bearAddress + 0x64, 0x0fffffff);
-                    //Memory.Write(bearAddress + 0x78, 0);
-                    //Memory.Write(bearAddress + 0x7C, 0);
-                    //Memory.Write(bearAddress + 0x80, 0);
-                    //Log.Logger.Information($"Bear object set to 0.");
-                    //Log.Logger.Information($"Bear object set to 0.");
-                }
+                //uint bearAddress = CrashObject.FindObjectAddress(48, 0);
+                //if (bearAddress != 0 && bearAddress != CrashObject.cacheOffset)
+                //{
+                //    //Memory.Write(bearAddress, 0);
+                //    Memory.Write(bearAddress + 0x64, 0x0fffffff);
+                //    //Memory.Write(bearAddress + 0x78, 0);
+                //    //Memory.Write(bearAddress + 0x7C, 0);
+                //    //Memory.Write(bearAddress + 0x80, 0);
+                //    //Log.Logger.Information($"Bear object set to 0.");
+                //    //Log.Logger.Information($"Bear object set to 0.");
+                //}
 
                 // Bear: everything but last jump in Totally Bear
                 // Jetpack: rock it crystal is impossible
@@ -299,6 +304,8 @@ public partial class App : Application
             }
             if (args[0] == "exec")
             {
+                //Memory.Write(0xf2ec, 0x1234);
+                //return;
                 List<uint> eventArgv = new();
                 //Log.Logger.Information($"try exec");
                 for (int i = 2; i < args.Length; i++)
@@ -412,6 +419,14 @@ public partial class App : Application
         CrashObjectMod.Initialize();
         GimmickLock.Initialize();
         Helpers.StartCheckEmulationPaused();
+
+        Timer testTimer = new Timer(100);
+        testTimer.Elapsed += (s, ev) =>
+        {
+            testValue++;
+            Memory.Write(0xF2EC, (uint)testValue);
+        };
+        testTimer.Start();
     }
 
     
