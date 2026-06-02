@@ -1,0 +1,1 @@
+from .world import Crash2World as Crash2World
