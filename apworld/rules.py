@@ -197,7 +197,7 @@ def set_all_location_rules(world: Crash2World) -> None:
                 #level_name = location.name[:location.name.find(" Secret Entrance")]
                 if level_name == "Road to Ruin" and world.options.speedrun_logic:
                     continue
-                access_item = level_name + " Secret Entrance"
+                access_item = level_name + ": Secret Entrance"
                 add_rule(location,
                          lambda state, access_item=access_item: state.has(access_item, world.player))
                 # print("rule: " + location.name + ", needs: " + level_name + " Secret Entrance")

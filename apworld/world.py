@@ -39,7 +39,8 @@ def setup_groups():
     item_name_groups = {
         "Colored Gems": {"Blue Gem", "Yellow Gem", "Red Gem", "Purple Gem", "Green Gem"},
         "Filler": {"Life", "Wumpa Fruit"},
-        "Traps": {"Big Crash Trap", "Small Crash Trap", "No Lives Trap", "Jetpack Controls Trap"}
+        "Traps": {"Big Crash Trap", "Small Crash Trap", "No Lives Trap", "Jetpack Controls Trap"},
+        "Gimmicks": {"Jetpack", "Jetboard", "Polar", "Fireflies"}
     }
 
     # the below creates the following:
