@@ -45,19 +45,8 @@ namespace C2AP
         {
             if (FruitIdToBundle == null || Bundles == null)
             {
-                App.Client.Options.TryGetValue("fruit_sanity", out var fruit_sanity_option);
-                
-                if (fruit_sanity_option != null)
-                {
-                    Log.Logger.Debug($"option: {fruit_sanity_option}");
-                }
-                else
-                {
-                    Log.Logger.Debug($"option: null");
-                    return;
-                }
-                int fruit_sanity = Convert.ToInt32(fruit_sanity_option.ToString()); //Convert.ToInt32(fruit_sanity_option);
-                if (fruit_sanity == 0) return;
+                int fruit_sanity = Helpers.GetOptionValue("fruit_sanity");
+                if (fruit_sanity == 0 || fruit_sanity == -1) return;
                 try
                 {
                     var assembly = Assembly.GetExecutingAssembly();

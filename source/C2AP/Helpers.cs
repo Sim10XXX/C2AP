@@ -64,7 +64,7 @@ namespace C2AP
                 Log.Logger.Error($"{optionName} option null");
                 return -1;
             }
-            Log.Information($"{optionName} option : {optionValue}");
+            //Log.Information($"{optionName} option : {optionValue}");
             return Convert.ToInt32(optionValue.ToString());
         }
         public static bool IsInGame()

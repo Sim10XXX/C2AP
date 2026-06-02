@@ -149,8 +149,10 @@ namespace C2AP
                      * 16, 18: crouch & crawl
                      * 24: slide/crouch jump
                      * 28: mid-air from taking damage
+                     * 30: bounce
                      * 38: stuck riding platform
                      * 56, 64: damage animations
+                     * 61: drowning
                      * 65: victory dance
                      * 66 - 70: various warp in/out animations
                      * 68: standing on lift
@@ -174,7 +176,7 @@ namespace C2AP
                         if (state == 69) 
                             return false;
                         uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
-                        if (state == 38 || (state >= 65 && state <= 68) || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
+                        if (state == 30 || state == 38 || (state >= 65 && state <= 68) || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
                         {
 
                             // these states need to be interrupted with event 39
@@ -211,7 +213,7 @@ namespace C2AP
                         }
                         else
                         {
-                            EnqueueEvent(EventType.BasicEvent, 70, [100], 51);
+                            EnqueueEvent(EventType.BasicEvent, 70, [100], 0);
                         }
                         
                             //EnqueueEvent(Event.UnlockInput);
@@ -285,10 +287,10 @@ namespace C2AP
                 case EventType.InterruptCrash:
                     //EnqueueEvent(EventType.BasicEvent, 39, [], 50);
                     CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 39, 0, []);
-                    if (state != 50)
-                    {
-                        return false;
-                    }
+                    //if (state != 50)
+                    //{
+                    //    return false;
+                    //}
                     break;
 
             }

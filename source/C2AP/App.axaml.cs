@@ -216,15 +216,15 @@ public partial class App : Application
                 // Bear: everything but last jump in Totally Bear
                 // Jetpack: rock it crystal is impossible
                 break;
-            case "c":
-                if (args.Length > 1) break;
-                crashAddress = CrashObject.FindObjectAddress(0, 0);
-                if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) break;
-                Log.Logger.Information($"Running Event Id: {_execCount}");
-                Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
-                CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, _execCount << 8, (uint)_execParam.Length, _execParam);
-                _execCount++;
-                break;
+            //case "c":
+            //    if (args.Length > 1) break;
+            //    crashAddress = CrashObject.FindObjectAddress(0, 0);
+            //    if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) break;
+            //    Log.Logger.Information($"Running Event Id: {_execCount}");
+            //    Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
+            //    CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, _execCount << 8, (uint)_execParam.Length, _execParam);
+            //    _execCount++;
+            //    break;
             case "itemstate":
                 if (Client.ItemState == null) break;
                 List<Item> items = Client.ItemState.ReceivedItems.OfType<Item>().ToList();
@@ -331,18 +331,18 @@ public partial class App : Application
                     
                 }
             }
-            if (args[0] == "c")
-            {
-                List<uint> eventArgv = new();
-                //Log.Logger.Information($"try exec");
-                for (int i = 2; i < args.Length; i++)
-                {
-                    //Log.Logger.Information($"adding: {Convert.ToUInt32(args[i]) << 8}");
-                    eventArgv.Add(Convert.ToUInt32(args[i]) << 8);
-                }
-                _execCount = Convert.ToUInt32(args[1]);
-                _execParam = eventArgv.AsArray();
-            }
+            //if (args[0] == "c")
+            //{
+            //    List<uint> eventArgv = new();
+            //    //Log.Logger.Information($"try exec");
+            //    for (int i = 2; i < args.Length; i++)
+            //    {
+            //        //Log.Logger.Information($"adding: {Convert.ToUInt32(args[i]) << 8}");
+            //        eventArgv.Add(Convert.ToUInt32(args[i]) << 8);
+            //    }
+            //    _execCount = Convert.ToUInt32(args[1]);
+            //    _execParam = eventArgv.AsArray();
+            //}
         }
     }
     private async void Context_ConnectClicked(object? sender, ConnectClickedEventArgs e)

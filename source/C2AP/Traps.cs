@@ -136,17 +136,8 @@ namespace C2AP
                     ApplyTraps();
                 };
             }
-
-            App.Client.Options.TryGetValue("trap_duration", out var trapDurationSeconds);
-            if (trapDurationSeconds != null)
-            {
-                Log.Logger.Debug($"option: {trapDurationSeconds}");
-            }
-            else
-            {
-                Log.Logger.Debug($"option: null");
-                return;
-            }
+            int trapDurationSeconds = Helpers.GetOptionValue("trap_duration");
+            if (trapDurationSeconds == -1) return;
             //App.Client.Options.TryGetValue("small_crash_size", out var smallCrashSize);
             //if (smallCrashSize != null)
             //{
@@ -354,7 +345,7 @@ namespace C2AP
                 Log.Error("Traps must be initialized after CrashFunction");
                 return;
             }
-            Log.Information($"Free add: {BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8 :X}");
+            //Log.Information($"Free add: {BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8 :X}");
             jetpackControlsHook.InsertHook(0x15A38, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8);
         }
 

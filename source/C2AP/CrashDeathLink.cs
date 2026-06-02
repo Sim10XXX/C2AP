@@ -20,15 +20,8 @@ namespace C2AP
 
         public static void Initialize(string name)
         {
-            App.Client.Options.TryGetValue("death_link", out var deathLink);
-            if (deathLink == null)
-            {
-                Log.Logger.Error($"option null");
-                return;
-            }
-            Log.Information($"option : {deathLink}");
-            if (Convert.ToInt32(deathLink.ToString()) != 1) return;
-            
+            if (Helpers.GetOptionValue("death_link") != 1) return;
+
             deathLinkService = App.Client.EnableDeathLink();
             deathLinkService.EnableDeathLink();
             deathLinkService.OnDeathLinkReceived += OnDeathLinkReceived;
