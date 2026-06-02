@@ -153,7 +153,7 @@ class Crash2World(World):
         return {
             "options": self.options.as_dict(
                 "fruit_sanity", "randomize_warp_destinations", "non_randomized_warp_destinations",
-                "trap_duration", "death_link"
+                "trap_duration", "death_link", "gimmick_lock", "jetpack_lock_logic", "jetboard_lock_logic", "polar_lock_logic", "firefly_lock_logic"
             ),
             "warp_room_destinations": self.warp_room,
             "secret_warp_room_entrances": self.secret_warp_room_entrance_ids,

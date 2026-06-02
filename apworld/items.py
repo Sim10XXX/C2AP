@@ -25,6 +25,10 @@ ITEM_NAME_TO_ID = {
     "Small Crash Trap" : 11,
     "No Lives Trap" : 12,
     "Jetpack Controls Trap" : 13,
+    "Polar" : 14,
+    "Jetpack" : 15,
+    "Jetboard" : 16,
+    "Fireflies" : 17,
 }
 
 # Items should have a defined default classification.
@@ -43,6 +47,10 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Small Crash Trap" : ItemClassification.trap,
     "No Lives Trap" : ItemClassification.trap,
     "Jetpack Controls Trap" : ItemClassification.trap,
+    "Polar" : ItemClassification.progression | ItemClassification.useful,
+    "Jetpack" : ItemClassification.progression | ItemClassification.useful,
+    "Jetboard" : ItemClassification.progression | ItemClassification.useful,
+    "Fireflies" : ItemClassification.progression | ItemClassification.useful,
 }
 
 
@@ -126,6 +134,16 @@ def create_all_items(world: Crash2World) -> None:
         itempool += [world.create_item("Crystal")]
     for i in range(37):
         itempool += [world.create_item("Clear Gem")]
+
+    if world.options.gimmick_lock:
+        if world.options.jetpack_lock_logic != 0:
+            itempool += [world.create_item("Jetpack")]
+        if world.options.jetboard_lock_logic != 0:
+            itempool += [world.create_item("Jetboard")]
+        if world.options.polar_lock_logic != 0:
+            itempool += [world.create_item("Polar")]
+        if world.options.firefly_lock_logic != 0:
+            itempool += [world.create_item("Fireflies")]
 
     # Some items may only exist if the player enables certain options.
     # In our case, If the hammer option is enabled, the sixth item is the Hammer.

@@ -431,22 +431,22 @@ def create_events(world: Crash2World) -> None:
     )
 
     world.get_region("Air Crash").add_event(
-        "Air Crash Secret Exit Event", "Snow Go Secret Entrance", location_type=Crash2Location, item_type=items.Crash2Item
+        "Air Crash: Secret Exit Event", "Snow Go: Secret Entrance", location_type=Crash2Location, item_type=items.Crash2Item
     )
     world.get_region("Bear Down").add_event(
-        "Bear Down Secret Exit Event", "Air Crash Secret Entrance", location_type=Crash2Location,
+        "Bear Down: Secret Exit Event", "Air Crash: Secret Entrance", location_type=Crash2Location,
         item_type=items.Crash2Item
     )
     world.get_region("Un-Bearable").add_event(
-        "Un-Bearable Secret Exit Event", "Totally Bear Secret Entrance", location_type=Crash2Location,
+        "Un-Bearable: Secret Exit Event", "Totally Bear: Secret Entrance", location_type=Crash2Location,
         item_type=items.Crash2Item
     )
     world.get_region("Hangin' Out").add_event(
-        "Hangin' Out Secret Exit Event", "Totally Fly Secret Entrance", location_type=Crash2Location,
+        "Hangin' Out: Secret Exit Event", "Totally Fly: Secret Entrance", location_type=Crash2Location,
         item_type=items.Crash2Item
     )
     world.get_region("Diggin' It").add_event(
-        "Diggin' It Secret Exit Event", "Road to Ruin Secret Entrance", location_type=Crash2Location,
+        "Diggin' It: Secret Exit Event", "Road to Ruin: Secret Entrance", location_type=Crash2Location,
         item_type=items.Crash2Item
     )
     # # Sometimes, the player may perform in-game actions that allow them to progress which are not related to Items.
