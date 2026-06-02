@@ -16,6 +16,7 @@ namespace C2AP
         private static uint previousLives = 0;
         private static string playerName = "";
         private static Timer checkDeathTimer = new Timer(250);
+        private static uint previousLevelId = 0;
 
         public static void Initialize(string name)
         {
@@ -51,8 +52,23 @@ namespace C2AP
         private static void CheckDeath()
         {
             if (!App.Client.IsConnected) return;
+            if (deathLinkService == null) return;
             uint time = Memory.ReadUInt(Addresses.Timer);
-            
+
+
+            uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
+            //Log.Logger.Information($"Level ID: {levelId:X}");
+            if (levelId != previousLevelId)
+            {
+                //Log.Logger.Information($"Level changed: {previousLevelId:X} -> {levelId:X}");
+                if (levelId == 0x3B00) // ID of game over screen
+                {
+                    Log.Logger.Information("Sending DeathLink");
+                    deathLinkService.SendDeathLink(new DeathLink(playerName));
+                }
+            }
+            previousLevelId = levelId;
+
 
             uint crashAddress = CrashObject.FindObjectAddress(0, 0);
             if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset)
@@ -72,7 +88,6 @@ namespace C2AP
             if (lives == previousLives - 1)
             {
                 if (Traps.storedLives == 1) return;
-                if (deathLinkService == null) return;
 
                 if (pardonDeath <= 0)
                 {
