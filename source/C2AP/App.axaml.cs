@@ -56,7 +56,7 @@ public partial class App : Application
 
     private static uint[] _execParam = [];
 
-    private static int testValue = 0;
+    public static uint testValue = 0;
 
     public class CrashState
     {
@@ -265,9 +265,9 @@ public partial class App : Application
                 UpdateCrashState();
 
                 break;
-                //case "debug_sendgoal":
-                //    Client.SendGoalCompletion();
-                //    break;
+            //case "debug_sendgoal":
+            //    Client.SendGoalCompletion();
+            //    break;
 
                 //address = CrystalAddress + (uint)levelid / 8;
                 //int bit = levelid % 8;
@@ -304,8 +304,15 @@ public partial class App : Application
             }
             if (args[0] == "exec")
             {
-                //Memory.Write(0xf2ec, 0x1234);
+                //uint fireflyAddress = CrashObject.FindObjectAddress(57, 1);
+                //if (fireflyAddress != 0 && fireflyAddress != CrashObject.cacheOffset)
+                //{
+                //    uint offset = Convert.ToUInt32(args[1], 16);
+                //    Memory.Write(fireflyAddress + offset, 0);
+                //}
                 //return;
+                    //Memory.Write(0xf2ec, 0x1234);
+                    //return;
                 List<uint> eventArgv = new();
                 //Log.Logger.Information($"try exec");
                 for (int i = 2; i < args.Length; i++)
@@ -420,13 +427,13 @@ public partial class App : Application
         GimmickLock.Initialize();
         Helpers.StartCheckEmulationPaused();
 
-        Timer testTimer = new Timer(100);
-        testTimer.Elapsed += (s, ev) =>
-        {
-            testValue++;
-            Memory.Write(0xF2EC, (uint)testValue);
-        };
-        testTimer.Start();
+        //Timer testTimer = new Timer(100);
+        //testTimer.Elapsed += (s, ev) =>
+        //{
+        //    testValue++;
+        //    Memory.Write(0xF2EC, (uint)testValue);
+        //};
+        //testTimer.Start();
     }
 
     
@@ -622,6 +629,18 @@ public partial class App : Application
                 case "Yellow Gem":
                     crashState.YellowGem = true;
                     break;
+                case "Jetpack":
+                    crashState.Jetpack = true;
+                    break;
+                case "Jetboard":
+                    crashState.Jetboard = true;
+                    break;
+                case "Polar":
+                    crashState.Polar = true;
+                    break;
+                case "Fireflies":
+                    crashState.Fireflies = true;
+                    break;
             }
         }
         if (crashState.Crystals < crystalCount)
@@ -659,6 +678,18 @@ public partial class App : Application
                 break;
             case "Yellow Gem":
                 crashState.YellowGem = true;
+                break;
+            case "Jetpack":
+                crashState.Jetpack = true;
+                break;
+            case "Jetboard":
+                crashState.Jetboard = true;
+                break;
+            case "Polar":
+                crashState.Polar = true;
+                break;
+            case "Fireflies":
+                crashState.Fireflies = true;
                 break;
             case "Life":
                 //CrashFunction.EnqueueEvent(CrashFunction.Event.GiveLife);

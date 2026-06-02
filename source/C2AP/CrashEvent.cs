@@ -5,6 +5,7 @@ using Silk.NET.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.AccessControl;
 using System.Timers;
 
@@ -101,6 +102,20 @@ namespace C2AP
             eventQueue.Enqueue(ev, EventPriority[ev.Type]);
             processEventTimer.Start();
         }
+        public static void EnqueueUniqueEvent(EventType eventType, uint eventId, uint[] eventArgv, uint resultState)
+        {
+            if (eventQueue.UnorderedItems.Any(e => e.Element.Type == eventType && e.Element.EventId == eventId && e.Element.EventArgv.SequenceEqual(eventArgv)))
+                return;
+
+            EnqueueEvent(new Event { Type = eventType, EventId = eventId, EventArgv = eventArgv, ResultState = resultState });
+        }
+        public static void EnqueueUniqueEvent(EventType eventType)
+        {
+            if (eventQueue.UnorderedItems.Any(e => e.Element.Type == eventType))
+                return;
+            EnqueueEvent(eventType, 0, [], 0);
+        }
+        
         private static void ProcessNextEvent()
         {
             if (Memory.ReadUInt(Addresses.SendEventFlag) != 0) return;
@@ -224,19 +239,19 @@ namespace C2AP
                     }
                     else
                     {
-                        Log.Logger.Information($"Event landcrash 56");
-                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 56, 0, []);
+                        Log.Logger.Information($"Event landcrash 75");
+                        CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 75, 1, [100]);
                     }
-                    if (state >= 30)
-                        return false;
+                    //if (state >= 30)
+                    //    return false;
                     break;
                 case EventType.TakeOffJetpack:
                     //EnqueueEvent(Event.Event58);
                     //EnqueueEvent(Event.LockInput);
                     //EnqueueEvent(Event.Event0);
                     Log.Logger.Information($"Event takeoffjetpack");
-                    EnqueueEvent(EventType.BasicEvent, 34, [], 32);
-                    EnqueueEvent(EventType.LandCrash, 21, [100], 0);
+                    EnqueueUniqueEvent(EventType.BasicEvent, 34, [], 32);
+                    EnqueueUniqueEvent(EventType.LandCrash, 21, [100], 0);
                     //EnqueueEvent(EventType.Event9);
 
                     //EnqueueEvent(Event.UnlockInput);

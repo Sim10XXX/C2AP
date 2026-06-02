@@ -24,7 +24,7 @@ namespace C2AP
 
         private static uint crashAddress;
         private const int defaultCrashSize = 0x1000;
-        private static int storedLives;
+        public static int storedLives;
         private static double bigCrashSizeMult = 1.5;
         private static double smallCrashSizeMult = 0.33;
 
@@ -329,6 +329,8 @@ namespace C2AP
                 Memory.Write(Addresses.LivesGlobalAddress, storedLives);
                 if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
                 {
+                    if (storedLives > 99)
+                        storedLives = 99;
                     Memory.Write(crashAddress + Addresses.LivesOffset, storedLives);
                 }
                 storedLives = 0;

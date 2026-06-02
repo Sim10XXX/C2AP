@@ -71,6 +71,7 @@ namespace C2AP
             
             if (lives == previousLives - 1)
             {
+                if (Traps.storedLives == 1) return;
                 if (deathLinkService == null) return;
 
                 if (pardonDeath <= 0)
