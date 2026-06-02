@@ -350,7 +350,7 @@ F-94
 27-17D
 #level: Hang Eight
 19
-#Before Checkpoint 1
+#Before Checkpoint 1^
 0-86
 0-85
 0-84
@@ -851,7 +851,7 @@ F-119
 5-4E
 #level: Bear It
 1D
-#Start Zig Zag
+#Start Zig Zag^
 0-19
 0-18
 0-17
@@ -860,10 +860,10 @@ F-119
 0-14
 0-13
 0-12
-#Checkpoint 1
+#Checkpoint 1^
 1-23
 1-22
-#Checkpoint 2
+#Checkpoint 2^
 2-36
 2-35
 2-34
@@ -871,11 +871,11 @@ F-119
 2-32
 2-31
 2-30
-#before Checkpoint 3
+#before Checkpoint 3^
 3-48
 3-46
 3-45
-#Ending
+#Ending^
 4-5F
 4-5E
 4-5D
@@ -1169,7 +1169,7 @@ D-63
 D-62
 #level: Plant Food
 21
-#Before Checkpoint 1
+#Before Checkpoint 1^
 0-1F
 0-1E
 0-1D
@@ -1261,12 +1261,12 @@ D-62
 5-8F
 #level: Bear Down
 22
-#Before First Statues
+#Before First Statues&
 0-17
 0-16
 0-15
 0-14
-#Uphill
+#Uphill&
 1-25
 1-24
 1-22
@@ -1277,35 +1277,35 @@ D-62
 1-1D
 1-1C
 1-1B
-#Before Second Statues
+#Before Second Statues&
 2-28
 2-27
 2-26
-#First Checkpoint Before Metal Crates
+#First Checkpoint Before Metal Crates&
 3-32
 3-31
 3-30
-#First Checkpoint Before TNT
+#First Checkpoint Before TNT&
 4-39
 4-38
 4-37
 4-36
 4-35
 4-34
-#Second Checkpoint Ice
+#Second Checkpoint Ice&
 5-4D
 5-4C
 5-48
 5-47
-#Second Checkpoint Left Side
+#Second Checkpoint Left Side&
 6-54
 6-53
 6-52
-#Second Checkpoint Statues
+#Second Checkpoint Statues&
 7-5B
 7-5A
 7-59
-#Third Checkpoint Uphill*
+#Third Checkpoint Uphill&
 8-6D
 8-6B
 8-6A
@@ -1313,14 +1313,14 @@ D-62
 8-68
 8-67
 8-66
-#Ending Part 1
+#Ending Part 1&
 9-75
 9-73
 9-74
 9-71
 9-72
 9-70
-#Ending Part 2
+#Ending Part 2&
 A-7C
 A-7B
 A-79
@@ -1412,47 +1412,47 @@ C-105
 C-104
 #level: Un-Bearable
 17
-#Start
+#Start^
 0-13A
 0-13B
 0-13C
 0-13F
 0-13D
 0-13E
-#First Bear Electric Fence
+#First Bear Electric Fence^
 1-130
 1-131
 1-132
 1-134
-#First Bear Before Wooden Fence
+#First Bear Before Wooden Fence^
 2-128
 2-129
 2-12C
 2-12D
 2-12E
 2-12F
-#First Bear Ending
+#First Bear Ending^
 3-F6
 3-F7
 3-F8
-#Second Bear Booster
+#Second Bear Booster^
 4-DB
 4-DC
 4-DD
 4-DE
 4-DF
 4-E0
-#Before Bonus
+#Before Bonus^
 5-89
 5-8A
 5-8D
 5-8F
 5-91
 5-90
-#Secret Area Start
+#Secret Area Start^
 6-1A0
 6-19F
-#Secret Area Big Wumpa Cross Part 1
+#Secret Area Big Wumpa Cross Part 1^
 7-1BE
 7-1A6
 7-1B0
@@ -1461,7 +1461,7 @@ C-104
 7-1A9
 7-1AF
 7-1AE
-#Secret Area Big Wumpa Cross Part 2
+#Secret Area Big Wumpa Cross Part 2^
 8-1AD
 8-1A7
 8-1AB
@@ -1470,7 +1470,7 @@ C-104
 8-1B2
 8-1BF
 8-1B1
-#Secret Area High Platforms Jump
+#Secret Area High Platforms Jump^
 9-1C0
 9-1BD
 9-1BC
@@ -1479,22 +1479,22 @@ C-104
 9-1B9
 9-1B8
 9-1B7
-#Secret Area Above Metal Crates
+#Secret Area Above Metal Crates^
 A-1CB
 A-1C9
 A-1C4
-#Secret Area Between Turtles 1
+#Secret Area Between Turtles 1^
 B-1D1
 B-1D0
 B-1CF
 B-1CE
 B-1CD
-#Secret Area Between Turtles 2
+#Secret Area Between Turtles 2^
 C-1D6
 C-1D5
 C-1D4
 C-1D3
-#Secret Area Arrow Crate
+#Secret Area Arrow Crate^
 D-20B
 D-20C
 D-20D
@@ -1504,13 +1504,13 @@ D-211
 D-210
 D-20E
 D-20F
-#Secret Area Drop Down Part 1
+#Secret Area Drop Down Part 1^
 E-21A
 E-219
 E-218
 E-216
 E-215
-#Secret Area Drop Down Part 2
+#Secret Area Drop Down Part 2^
 F-21B
 F-21C
 F-21D
@@ -1518,44 +1518,44 @@ F-21E
 F-21F
 F-221
 F-220
-#Secret Area Tight Bullet Section
+#Secret Area Tight Bullet Section^
 10-1DC
 10-1DB
-#Secret Area Jump to Rats Part 1
+#Secret Area Jump to Rats Part 1^
 11-1E6
 11-1E5
 11-1E4
 11-1E3
 11-1E2
 11-1E1
-#Secret Area Jump to Rats Part 2
+#Secret Area Jump to Rats Part 2^
 12-1E8
 12-1E9
 12-1EA
 12-1EC
 12-1EB
 12-1E7
-#Secret Area After Rats Part 1
+#Secret Area After Rats Part 1^
 13-1F2
 13-1F1
 13-1F0
 13-1EF
 13-1ED
 13-1EE
-#Secret Area After Rats Part 2
+#Secret Area After Rats Part 2^
 14-1F6
 14-1F5
 14-1F8
 14-1F7
 14-1F4
 14-1F3
-#Secret Area Around Aku Aku Crate
+#Secret Area Around Aku Aku Crate^
 15-1F9
 15-1FA
 15-1FC
 15-1FE
 15-1FD
-#Bonus Bottom Path Part 1
+#Bonus Bottom Path Part 1^
 16-151
 16-150
 16-14E
@@ -1564,7 +1564,7 @@ F-220
 16-14B
 16-14A
 16-149
-#Bonus Bottom Path Part 2
+#Bonus Bottom Path Part 2^
 17-15B
 17-15C
 17-158
@@ -1573,7 +1573,7 @@ F-220
 17-154
 17-153
 17-152
-#Bonus Bottom Path Part 3
+#Bonus Bottom Path Part 3^
 18-165
 18-166
 18-163
@@ -1582,7 +1582,7 @@ F-220
 18-162
 18-15D
 18-160
-#Bonus Bottom Path Part 4
+#Bonus Bottom Path Part 4^
 19-173
 19-172
 19-171
@@ -1591,7 +1591,7 @@ F-220
 19-16E
 19-16D
 19-16C
-#Bonus Bottom Path Part 5
+#Bonus Bottom Path Part 5^
 1A-17C
 1A-17B
 1A-179
@@ -1600,7 +1600,7 @@ F-220
 1A-176
 1A-175
 1A-174
-#Bonus Jump Part 1
+#Bonus Jump Part 1^
 1B-18F
 1B-18E
 1B-18D
@@ -1610,7 +1610,7 @@ F-220
 1B-189
 1B-188
 1B-187
-#Bonus Jump Part 2
+#Bonus Jump Part 2^
 1C-198
 1C-197
 1C-196
@@ -1619,34 +1619,34 @@ F-220
 1C-192
 1C-191
 1C-190
-#Third Bear Booster 1
+#Third Bear Booster 1^
 1D-7E
 1D-80
 1D-7F
 1D-81
 1D-82
 1D-83
-#Third Bear Booster 2
+#Third Bear Booster 2^
 1E-53
 1E-54
 1E-55
 1E-59
 1E-5B
 1E-5C
-#Third Bear Electric Fence 1
+#Third Bear Electric Fence 1^
 1F-39
 1F-3E
 1F-3F
-#Third Bear Electric Fence 2
+#Third Bear Electric Fence 2^
 20-26
 20-27
 20-28
-#Fourth Bear TNT
+#Fourth Bear TNT&
 21-1C
 21-1D
 21-1E
 21-1F
-#Fourth Bear Around Electric Fences
+#Fourth Bear Around Electric Fences&
 22-14
 22-15
 22-17
@@ -1655,32 +1655,32 @@ F-220
 22-1B
 #level: Totally Bear
 25
-#Start
+#Start&
 0-14
 0-13
 0-12
-#Start Before Big Jump
+#Start Before Big Jump&
 1-20
 1-1F
 1-1E
-#First Checkpoint Uphill
+#First Checkpoint Uphill&
 2-28
 2-2B
 2-27
 2-26
-#First Checkpoint After Statues
+#First Checkpoint After Statues&
 3-2E
 3-2D
 3-2C
-#First Checkpoint Before Big Jump
+#First Checkpoint Before Big Jump&
 4-32
 4-31
 4-30
-#Before Second Checkpoint
+#Before Second Checkpoint&
 5-3B
 5-3A
 5-39
-#Second Checkpoint Line
+#Second Checkpoint Line&
 6-44
 6-43
 6-42
@@ -1688,18 +1688,18 @@ F-220
 6-40
 6-3E
 6-3D
-#Second Checkpoint Before TNT
+#Second Checkpoint Before TNT&
 7-49
 7-48
 7-47
-#Second Checkpoint Under Metal Boxes
+#Second Checkpoint Under Metal Boxes&
 8-52
 8-51
-#After Third Checkpoint 
+#After Third Checkpoint&
 9-59
 9-57
 9-56
-#Third Checkpoint Uphill
+#Third Checkpoint Uphill*&
 A-61
 A-60
 A-5F
@@ -1707,7 +1707,7 @@ A-5E
 A-5D
 A-5C
 A-5B
-#Ending
+#Ending&
 B-75
 B-74
 B-73
@@ -1803,18 +1803,18 @@ A-4F
 A-4E
 #level: Totally Fly
 27
-#First Firefly
+#First Firefly^
 0-10
 0-F
 0-E
-#Second Firefly
+#Second Firefly&
 1-19
 1-18
 1-17
 1-15
 1-14
 1-13
-#Third Firefly
+#Third Firefly&
 2-1F
 2-1E
 2-1D
@@ -1830,7 +1830,7 @@ A-4E
 5-3E
 5-3D
 5-3C
-#Bonus Starting Platforms
+#Bonus Starting Platforms&
 6-86
 6-85
 6-84
@@ -1851,7 +1851,7 @@ A-4E
 8-7C
 8-7A
 8-79
-#Bonus Ending
+#Bonus Ending&
 9-9F
 9-9E
 9-75
@@ -2581,7 +2581,7 @@ A-DF
 A-DE
 #level: Rock It
 12
-#Start
+#Start^
 0-15
 0-14
 0-13
@@ -2589,7 +2589,7 @@ A-DE
 0-11
 0-10
 0-F
-#Around Laser 1
+#Around Laser 1^
 1-20
 1-1F
 1-1E
@@ -2598,30 +2598,30 @@ A-DE
 1-1B
 1-1A
 1-19
-#Around Laser 2
+#Around Laser 2^
 2-24
 2-26
 2-25
 2-23
-#Checkpoint 1
+#Checkpoint 1^
 3-30
 3-2F
 3-2D
 3-2C
-#Wumpa Ring Part 1
+#Wumpa Ring Part 1^
 4-40
 4-44
 4-47
 4-4B
 4-50
 4-4E
-#Wumpa Ring Part 2
+#Wumpa Ring Part 2&
 5-51
 5-41
 5-3F
 5-3D
 5-3E
-#Wumpa Ring Part 3
+#Wumpa Ring Part 3^
 6-4A
 6-48
 6-45
@@ -2630,13 +2630,13 @@ A-DE
 6-46
 #level: Night Fight
 0C
-#Bonus First Wumpa Chain Part 1
+#Bonus First Wumpa Chain Part 1&
 0-6C
 0-6B
 0-69
 0-68
 0-67
-#Bonus First Wumpa Chain Part 2
+#Bonus First Wumpa Chain Part 2&
 1-75
 1-73
 1-72
@@ -2669,7 +2669,7 @@ A-DE
 4-89
 4-88
 4-87
-#Bonus Second Wumpa Chain Part 1
+#Bonus Second Wumpa Chain Part 1&
 5-92
 5-91
 5-90
@@ -2714,24 +2714,24 @@ A-BF
 A-C0
 #level: Pack Attack
 1A
-#Under The Pipe
+#Under The Pipe^
 0-11
 0-10
 0-F
 0-E
-#Over The Pipe
+#Over The Pipe^
 1-15
 1-14
 1-13
 1-12
-#Left of The Pipe
+#Left of The Pipe^
 2-1E
 2-1C
 2-1B
 2-1A
 2-18
 2-17
-#Right Before First Checkpoint
+#Right Before First Checkpoint^
 3-2B
 3-2A
 3-29
@@ -2740,7 +2740,7 @@ A-C0
 3-26
 3-25
 3-24
-#At The Aku Aku Box
+#At The Aku Aku Box&
 4-4A
 4-49
 4-48
@@ -2749,14 +2749,14 @@ A-C0
 4-45
 4-44
 4-42
-#Third Checkpoint Part 1
+#Third Checkpoint Part 1^
 5-5A
 5-59
 5-58
 5-57
 5-55
 5-54
-#Third Checkpoint Part 2
+#Third Checkpoint Part 2&
 6-68
 6-63
 6-61

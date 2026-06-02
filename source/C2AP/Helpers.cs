@@ -1,6 +1,7 @@
 ﻿using Archipelago.Core.Models;
 using Archipelago.Core.Util;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -55,6 +56,17 @@ namespace C2AP
             return Memory.ReadUInt(Addresses.PausedFlag) != 0;
         }
 
+        public static int GetOptionValue(string optionName)
+        {
+            App.Client.Options.TryGetValue(optionName, out var optionValue);
+            if (optionValue == null)
+            {
+                Log.Logger.Error($"{optionName} option null");
+                return -1;
+            }
+            Log.Information($"{optionName} option : {optionValue}");
+            return Convert.ToInt32(optionValue.ToString());
+        }
         public static bool IsInGame()
         {
             //Log.Debug($"Text: {Addresses.StaticText}");
@@ -64,6 +76,7 @@ namespace C2AP
                 //Log.Debug($"Text: true");
                 if (!lastInGameStatus)
                 {
+                    //Log.Information("Entered in-game state");
                     BaseHooks.Initialize();
                 }
                 lastInGameStatus = true;
@@ -72,6 +85,7 @@ namespace C2AP
             //Log.Debug($"Text: false");
             if (lastInGameStatus)
             {
+                //Log.Information("Exited in-game state");
                 BaseHooks.UnInitialize();
             }
             lastInGameStatus = false;

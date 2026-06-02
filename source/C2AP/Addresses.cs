@@ -82,6 +82,8 @@ namespace C2AP
         public const uint EventArgv = 0x0000E9D0; // enough space for 11 arguments
         public const uint SendEventFunction = 0x0001CD48;
 
+        public const uint LastEventId = 0x0000E9CC;
+
         public const uint Timer = 0x0006cdfc;
         public const uint PausedFlag = 0x0005f418;
         public const uint SecretEntranceFlags = 0x0006d060;

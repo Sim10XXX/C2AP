@@ -22,10 +22,14 @@ namespace C2AP
             uint gemAddressDelta = Addresses.GemLocationsAddress - Addresses.GemsReceivedAddress;
             uint offset = 0x80000000;
 
-            //make sure first that the hook is removed if initialize is called multiple times in a row
+            //check if initialize is called multiple times in a row
             if (ApItemsHook != null)
             {
-                ApItemsHook.RemoveHook();
+                if (ApItemsHook._freeAddress != 0)
+                {
+                    return;
+                }
+                //ApItemsHook.RemoveHook();
             }
             //make sure nothing is left over in the "free" addresses
 
