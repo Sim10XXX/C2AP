@@ -41,12 +41,13 @@ You may upload this to [the Archipelago website](https://archipelago.gg/uploads)
 2. Double click the apworld to install to your Archipelago installation.
 3. Open Duckstation and load into Crash 2.
 4. In Duckstation, navigate to Settings > Game Properties > Console and select "Interpreter" under "Execution Mode".
-5. Start a new game (or if continuing an existing seed, load into that save file).
-6. Open C2AP.Desktop.exe, the Crash 2 client.  You will likely want to do so as an administrator.
-7. In the top left of the Crash 2 client, click the "burger" menu to open the settings page.
-8. Enter your host, slot, and optionally your password.
-9. Click Connect. The first time you connect, a few error messages may appear - these are okay.
-10. Start playing!
+5. Make sure that Runahead (inside of Emulation Settings) is disabled
+6. Start a new game (or if continuing an existing seed, load into that save file).
+7. Open C2AP.Desktop.exe, the Crash 2 client.  You will likely want to do so as an administrator.
+8. In the top left of the Crash 2 client, click the "burger" menu to open the settings page.
+9. Enter your host, slot, and optionally your password.
+10. Click Connect. The first time you connect, a few error messages may appear - these are okay.
+11. Start playing!
 
 ## What does randomization do to this game?
 
