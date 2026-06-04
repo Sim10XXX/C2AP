@@ -121,7 +121,7 @@ namespace C2AP
 
             ApItemsHook.InsertHook(0x3A8C0, 0xf030);
 
-            WarpRoomRandomizer.Initialize();
+            
 
             //App.SyncGameState();
 
