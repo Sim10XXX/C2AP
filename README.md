@@ -55,7 +55,7 @@ When the player completes a task (such as collecting a crystal or gem), an item 
 Collecting one of these may not increment the player's crystal/gem counter,
 while a check received from another game may do so.
 
-This does not randomize the location of crystals or gems, shuffle entrances, or make large-scale cosmetic changes to the game.
+This does not randomize the location of crystals or gems.
 
 Unlocking warp rooms requires collecting enough crystal items through Archipelago, and unlocking colored gem platforms requires collecting the respective colored gem through Archipelago.  Unlike the vanilla game, you may not need to complete
 the crystal check for every level to advance. The in-game pause menu keeps track what items you have received and the warp room crytals/gems keep track of what locations you have checked
@@ -63,6 +63,8 @@ the crystal check for every level to advance. The in-game pause menu keeps track
 ## What items and locations get shuffled?
 Crystals and gems are always shuffled
 lives and wumpa fruit will be added as "filler" based on the player's options into the item pool
+
+Depending on what randomization options are selected, traps and other unlocks can also be put into the item pool
 
 ## Which items can be in another player's world?
 
