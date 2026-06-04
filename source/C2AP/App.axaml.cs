@@ -113,7 +113,7 @@ public partial class App : Application
     public void Start()
     {
         Context = new MainWindowViewModel("0.6.2");
-        Context.ClientVersion = "v0.4.0-pre2";
+        Context.ClientVersion = "v0.4.0-pre3";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
         {
@@ -168,7 +168,8 @@ public partial class App : Application
                 break;
             case "exec":
                 if (args.Length > 1) break;
-
+                //Memory.Write(Addresses.SecretEntranceFlags, 0);
+                //break;
                 CrashDeathLink.OnDeathLinkReceived(new("test"));
 
                 crashAddress = CrashObject.FindObjectAddress(0, 0);
@@ -311,8 +312,10 @@ public partial class App : Application
                 //    Memory.Write(fireflyAddress + offset, 0);
                 //}
                 //return;
-                    //Memory.Write(0xf2ec, 0x1234);
-                    //return;
+                //Memory.Write(0xf2ec, 0x1234);
+                //return;
+                //Memory.WriteBit(Addresses.SecretEntranceFlags, Convert.ToInt32(args[1]), true);
+                //return;
                 List<uint> eventArgv = new();
                 //Log.Logger.Information($"try exec");
                 for (int i = 2; i < args.Length; i++)
@@ -412,7 +415,7 @@ public partial class App : Application
         //    Log.Logger.Error("Failed to login.  Please check your host, name, and password.");
         //}
 
-        
+        WarpRoomRandomizer.Initialize();
         CrashDeathLink.Initialize(e.Slot);
         
         Client.MonitorLocations(GameLocations);
@@ -580,12 +583,13 @@ public partial class App : Application
         List<Location> locations = Client.LocationState.CompletedLocations.OfType<Location>().ToList();
         foreach (Location location in locations)
         {
+            //Log.Information($"Syncing location {location.Name} with address {location.Address:X} and bit {location.AddressBit}");
             if (location.Id >= 10000)
             {
                 FruitCheck.CompleteBundle(location.Id);
                 continue;
             }
-            if (location.Address == 0 || location.AddressBit == 0) continue;
+            if (location.Address == 0/* || location.AddressBit == 0*/) continue;
             if (location.Address >= Addresses.GemLocationsAddress && location.Address < Addresses.GemLocationsAddress + 8)
             {
                 crashState.GemLocations[location.Address - Addresses.GemLocationsAddress] |= (byte)(0x1 << location.AddressBit);
@@ -596,7 +600,29 @@ public partial class App : Application
             }
             else if (location.Address >= Addresses.LevelExitsAddress && location.Address < Addresses.LevelExitsAddress + 8)
             {
+                uint levelId = ((uint)location.Address - Addresses.LevelExitsAddress) * 8 + (uint)location.AddressBit;
+                //Log.Information($"Marking level exit complete for location {location.Name} with level id {levelId}");
                 crashState.LevelExitLocations[location.Address - Addresses.LevelExitsAddress] |= (byte)(0x1 << location.AddressBit);
+                
+                // For any secret exit, open up its corresponding secret entrance
+                switch (levelId)
+                {
+                    case 43: // Air Crash Secret Exit
+                        Memory.WriteBit(Addresses.SecretEntranceFlags, 4, true); // Snow Go Secret Entrance
+                        break;
+                    case 44: // Bear Down Secret Exit
+                        Memory.WriteBit(Addresses.SecretEntranceFlags, 3, true); // Bear Down Secret Entrance
+                        break;
+                    case 45: // Diggin' It Secret Exit
+                        Memory.WriteBit(Addresses.SecretEntranceFlags, 0, true); // Road To Ruin Secret Entrance
+                        break;
+                    case 46: // Un-Bearable Secret Exit
+                        Memory.WriteBit(Addresses.SecretEntranceFlags, 1, true); // Totally Bear Secret Entrance
+                        break;
+                    case 47: // Hangin' Out Secret Exit
+                        Memory.WriteBit(Addresses.SecretEntranceFlags, 2, true); // Totally Fly Secret Entrance
+                        break;
+                }
             }
         }
 

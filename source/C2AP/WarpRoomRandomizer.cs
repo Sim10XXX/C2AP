@@ -1,5 +1,6 @@
 ﻿using Archipelago.Core.Util;
 using Newtonsoft.Json.Linq;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -59,73 +60,77 @@ namespace C2AP
 
         public static void Initialize()
         {
+            //Log.Information("Initializing warp room randomizer");
             App.Client.Options.TryGetValue("randomize_warp_destinations", out var option_randomize_warp_room);
             if (option_randomize_warp_room == null)
                 return;
             int randomize_warp_room = Convert.ToInt32(option_randomize_warp_room.ToString());
-            if (randomize_warp_room == 0)
-                return;
-            App.SlotData.TryGetValue("warp_room_destinations", out var data_warp_room_destinations);
-            App.SlotData.TryGetValue("secret_warp_room_entrances", out var data_secret_warp_room_entrances);
-            if (data_warp_room_destinations != null && data_secret_warp_room_entrances != null)
+            //Log.Information($"Randomize warp room destinations option: {randomize_warp_room}");
+            if (randomize_warp_room != 0)
             {
-                List<int> new_montyhall_spawn_list = new();
-                foreach (string val in data_warp_room_destinations.ToString().Split(","))
+                App.SlotData.TryGetValue("warp_room_destinations", out var data_warp_room_destinations);
+                App.SlotData.TryGetValue("secret_warp_room_entrances", out var data_secret_warp_room_entrances);
+                //Log.Information($"Warp room destinations from slot data: {data_warp_room_destinations}");
+                //Log.Information($"Secret warp room entrances from slot data: {data_secret_warp_room_entrances}");
+                if (data_warp_room_destinations != null && data_secret_warp_room_entrances != null)
                 {
-                    new_montyhall_spawn_list.Add(Convert.ToInt32(Regex.Replace(val, @"\D", "")));
-                }
-                List<int> new_montyhall_secret_entrances = new();
-                foreach (string val in data_secret_warp_room_entrances.ToString().Split(","))
-                {
-                    new_montyhall_secret_entrances.Add(Convert.ToInt32(Regex.Replace(val, @"\D", "")));
-                }
-                // remap to patch spawn list
-                Dictionary<int, int> montyhall_remap = new();
-                // set up remap and modify destinations list
-                for (int i = 0; i < OriginalMontyHallDestinations.Length; ++i)
-                {
-                    montyhall_remap.Add(OriginalMontyHallDestinations[i], new_montyhall_spawn_list[i]);
-                    MontyHallDestinations[i] = new_montyhall_spawn_list[i] & 0x3F;
-                }
-                // now modify spawn list
-                for (int i = 0; i < OriginalMontyHallSpawnList.Length; ++i)
-                {
-                    int corrected_spawn_index = GameLevelIdToApWorldSecretLevelId(OriginalMontyHallSpawnList[i]);
-                    if (!montyhall_remap.ContainsKey(corrected_spawn_index))
-                        continue;
-                    MontyHallSpawnList[i] = ApWorldSecretLevelIdToGameLevelId(montyhall_remap[corrected_spawn_index]);
-                }
+                    List<int> new_montyhall_spawn_list = new();
+                    foreach (string val in data_warp_room_destinations.ToString().Split(","))
+                    {
+                        new_montyhall_spawn_list.Add(Convert.ToInt32(Regex.Replace(val, @"\D", "")));
+                    }
+                    List<int> new_montyhall_secret_entrances = new();
+                    foreach (string val in data_secret_warp_room_entrances.ToString().Split(","))
+                    {
+                        new_montyhall_secret_entrances.Add(Convert.ToInt32(Regex.Replace(val, @"\D", "")));
+                    }
+                    // remap to patch spawn list
+                    Dictionary<int, int> montyhall_remap = new();
+                    // set up remap and modify destinations list
+                    for (int i = 0; i < OriginalMontyHallDestinations.Length; ++i)
+                    {
+                        montyhall_remap.Add(OriginalMontyHallDestinations[i], new_montyhall_spawn_list[i]);
+                        MontyHallDestinations[i] = new_montyhall_spawn_list[i] & 0x3F;
+                    }
+                    // now modify spawn list
+                    for (int i = 0; i < OriginalMontyHallSpawnList.Length; ++i)
+                    {
+                        int corrected_spawn_index = GameLevelIdToApWorldSecretLevelId(OriginalMontyHallSpawnList[i]);
+                        if (!montyhall_remap.ContainsKey(corrected_spawn_index))
+                            continue;
+                        MontyHallSpawnList[i] = ApWorldSecretLevelIdToGameLevelId(montyhall_remap[corrected_spawn_index]);
+                    }
 
-                // now patch memory
-                byte[] bytes = new byte[MontyHallSpawnList.Length * 4];
-                Buffer.BlockCopy(MontyHallSpawnList, 0, bytes, 0, bytes.Length);
-                Memory.Write(Addresses.MontyHallSpawnIndexList, bytes);
+                    // now patch memory
+                    byte[] bytes = new byte[MontyHallSpawnList.Length * 4];
+                    Buffer.BlockCopy(MontyHallSpawnList, 0, bytes, 0, bytes.Length);
+                    Memory.Write(Addresses.MontyHallSpawnIndexList, bytes);
 
-                //if (WarpLevelOverridesLeveldHook != null)
-                //{
-                //    WarpLevelOverridesLeveldHook.RemoveHook();
-                //}
-                //// make it so the exit level override for totally fly is whatever level unlocks totally fly
-                //WarpLevelOverridesLeveldHook = new CustomHook([
-                //    $"ori $v1, $zero, 0x{new_montyhall_secret_entrances[0]:X}"
-                //]);
-                //Log.Error("WarpLevelOverridesLeveldHook and Inputlock currently use overlapping free address");
-                //WarpLevelOverridesLeveldHook.InsertHookInJumptable(Addresses.JumptableWarpLevelOverrideLevelD, Addresses.JumptableWarpLevelOverrideBreak, 0xf020);
+                    //if (WarpLevelOverridesLeveldHook != null)
+                    //{
+                    //    WarpLevelOverridesLeveldHook.RemoveHook();
+                    //}
+                    //// make it so the exit level override for totally fly is whatever level unlocks totally fly
+                    //WarpLevelOverridesLeveldHook = new CustomHook([
+                    //    $"ori $v1, $zero, 0x{new_montyhall_secret_entrances[0]:X}"
+                    //]);
+                    //Log.Error("WarpLevelOverridesLeveldHook and Inputlock currently use overlapping free address");
+                    //WarpLevelOverridesLeveldHook.InsertHookInJumptable(Addresses.JumptableWarpLevelOverrideLevelD, Addresses.JumptableWarpLevelOverrideBreak, 0xf020);
 
-                Memory.WriteByte(Addresses.WarpLevelOverrideTotallyBear, (byte)new_montyhall_secret_entrances[1]); // needs to be whatever level unlocks totally bear
-                Memory.WriteByte(Addresses.WarpLevelOverrideRooWin, (byte)montyhall_remap[0x11]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideRooNotWin, (byte)montyhall_remap[0x1e]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideKimodoWinAgain, (byte)montyhall_remap[0x21]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideKimodoWin, (byte)montyhall_remap[0x21]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideKimodoNotWinAndRooWinQuit, (byte)montyhall_remap[0x11]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideTazWin, (byte)montyhall_remap[0xd]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideTazNotWin, (byte)montyhall_remap[0x21]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideNGinWinAgain, (byte)montyhall_remap[0x10]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideNGinWin, (byte)montyhall_remap[0x10]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideTazWinQuitAndNGinNotWin, (byte)montyhall_remap[0xd]);
-                Memory.WriteByte(Addresses.WarpLevelOverrideCortex, (byte)montyhall_remap[0x10]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideTotallyBear, (byte)new_montyhall_secret_entrances[1]); // needs to be whatever level unlocks totally bear
+                    Memory.WriteByte(Addresses.WarpLevelOverrideRooWin, (byte)montyhall_remap[0x11]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideRooNotWin, (byte)montyhall_remap[0x1e]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideKimodoWinAgain, (byte)montyhall_remap[0x21]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideKimodoWin, (byte)montyhall_remap[0x21]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideKimodoNotWinAndRooWinQuit, (byte)montyhall_remap[0x11]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideTazWin, (byte)montyhall_remap[0xd]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideTazNotWin, (byte)montyhall_remap[0x21]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideNGinWinAgain, (byte)montyhall_remap[0x10]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideNGinWin, (byte)montyhall_remap[0x10]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideTazWinQuitAndNGinNotWin, (byte)montyhall_remap[0xd]);
+                    Memory.WriteByte(Addresses.WarpLevelOverrideCortex, (byte)montyhall_remap[0x10]);
+                }
             }
-            
         }
 
         public static void UnInitialize()
