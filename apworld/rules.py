@@ -230,12 +230,15 @@ def set_all_location_rules(world: Crash2World) -> None:
     road_to_ruin = True if "road_to_ruin_gem" in world.options.speedrun_logic.value else False
     ruination_skip_green = True if "ruination_skip_green" in world.options.speedrun_logic.value else False
 
-    set_rule(world.get_location("Snow Go: Red Gem"),
-             lambda state: state.has("Snow Go: Secret Entrance", world.player) or red_gem)
-    set_rule(world.get_location("Road to Ruin: Clear Gem (Box Gem)"),
-             lambda state: state.has("Road to Ruin: Secret Entrance", world.player) or road_to_ruin)
-    set_rule(world.get_location("Ruination: Clear Gem (Green Gem Path)"),
-             lambda state: state.has("Green Gem", world.player) or ruination_skip_green)
+    if not red_gem:
+        set_rule(world.get_location("Snow Go: Red Gem"),
+                 lambda state: state.has("Snow Go: Secret Entrance", world.player))
+    if not road_to_ruin:
+        set_rule(world.get_location("Road to Ruin: Clear Gem (Box Gem)"),
+                 lambda state: state.has("Road to Ruin: Secret Entrance", world.player))
+    if not ruination_skip_green:
+        set_rule(world.get_location("Ruination: Clear Gem (Green Gem Path)"),
+                 lambda state: state.has("Green Gem", world.player))
 
 
     # Gimmick Lock Rules
