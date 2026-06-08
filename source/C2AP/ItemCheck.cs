@@ -13,13 +13,13 @@ using System.Timers;
 
 namespace C2AP
 {
-    internal class FruitCheck
+    internal class ItemCheck
     {
-        public class FruitBundle
+        public class ItemBundle
         {
-            public SortedSet<uint> collectedFruits = new SortedSet<uint>();
-            public SortedSet<uint> requiredFruits = new SortedSet<uint>();
-            public int requiredFruitCount;
+            public SortedSet<uint> collectedItems = new SortedSet<uint>();
+            public SortedSet<uint> requiredItems = new SortedSet<uint>();
+            public int requiredItemCount;
             public int locationId;
             public string locationName = "";
         }
@@ -30,22 +30,24 @@ namespace C2AP
         //    public int locationId;
         //}
 
-        private static Dictionary<uint, int> ?FruitIdToBundle;
+        private static Dictionary<uint, int> ?ItemIdToBundle;
 
-        public static List<FruitBundle> ?Bundles;
+        public static List<ItemBundle> ?Bundles;
 
         private static Dictionary<uint, (int start, int end)> ?LevelIdToBundle;
 
         private static Dictionary<int, int> ?LocationIdToBundle;
 
-        private static Timer checkFruitTimer = new Timer();
+        private static Timer checkItemTimer = new Timer();
 
         private static uint lastLevelId = 0;
         public static void Initialize()
         {
-            if (FruitIdToBundle == null || Bundles == null)
+            if (ItemIdToBundle == null || Bundles == null)
             {
                 int fruit_sanity = Helpers.GetOptionValue("fruit_sanity");
+                //int life_sanity = Helpers.GetOptionValue("life_sanity");
+
                 if (fruit_sanity == 0 || fruit_sanity == -1) return;
                 try
                 {
@@ -56,9 +58,9 @@ namespace C2AP
                     using (StreamReader reader = new StreamReader(stream))
                     {
                         //if (reader == null) return;
-                        FruitIdToBundle = new Dictionary<uint, int>();
+                        ItemIdToBundle = new Dictionary<uint, int>();
                         LocationIdToBundle = new Dictionary<int, int>();
-                        Bundles = new List<FruitBundle>();
+                        Bundles = new List<ItemBundle>();
                         LevelIdToBundle = new Dictionary<uint, (int start, int end)>();
 
                         int bundleLocationIdOffset = 10000;
@@ -74,7 +76,7 @@ namespace C2AP
                         string levelname = "";
                         string bundlename = "";
                         int start = 0;
-                        FruitBundle bundle = new();
+                        ItemBundle bundle = new();
                         while ((line = reader.ReadLine()) != null)
                         {
                             if (line[0] == '#')
@@ -89,7 +91,7 @@ namespace C2AP
                                     {                   //level_name + " " + bundle_name + " bundle (" + str(wumpa_count) + " wumpas)"
                                         if (fruit_sanity == 1)
                                         {
-                                            bundle.locationName = $"{levelname} {bundlename}  bundle ({bundle.requiredFruitCount} wumpas)";
+                                            bundle.locationName = $"{levelname} {bundlename}  bundle ({bundle.requiredItemCount} wumpas)";
                                         }
                                         else // == 2
                                         {
@@ -117,7 +119,7 @@ namespace C2AP
                                 if (fruit_sanity == 2 || Convert.ToInt32(split[0], 16) != currentBundle)
                                 {
                                     currentBundle = Convert.ToInt32(split[0], 16);
-                                    Bundles.Add(new FruitBundle());
+                                    Bundles.Add(new ItemBundle());
                                     bundle = Bundles.Last();
                                     bundle.locationId = bundleLocationIdOffset + totalBundles;
                                     LocationIdToBundle[bundle.locationId] = totalBundles;
@@ -127,9 +129,9 @@ namespace C2AP
                                 id = Convert.ToUInt32(split[1], 16);
                                 id = id << 8;
                                 id += levelid;
-                                FruitIdToBundle[id] = totalBundles - 1;
-                                bundle.requiredFruits.Add(id);
-                                bundle.requiredFruitCount++;
+                                ItemIdToBundle[id] = totalBundles - 1;
+                                bundle.requiredItems.Add(id);
+                                bundle.requiredItemCount++;
                             }
                         }
                         //using (FileStream fs = File.Create("ctestfile-wumpabundles.txt"))
@@ -153,9 +155,9 @@ namespace C2AP
                     Log.Logger.Error($"An error occurred: {e.Message}");
                 }
             }
-            checkFruitTimer.Interval = 1400; // ms - adjust to desired tick rate
-            checkFruitTimer.AutoReset = true;
-            checkFruitTimer.Elapsed += (s, ev) =>
+            checkItemTimer.Interval = 1400; // ms - adjust to desired tick rate
+            checkItemTimer.AutoReset = true;
+            checkItemTimer.Elapsed += (s, ev) =>
             {
                 uint levelid = Memory.ReadByte(Addresses.LevelIdAddress + 1);
                 
@@ -170,22 +172,22 @@ namespace C2AP
                         lastLevelId = levelid;
                     }
                 } 
-                ScanCollectedFruitList();
+                ScanCollectedItemList();
             };
-            checkFruitTimer.Enabled = true;
+            checkItemTimer.Enabled = true;
         }
         public static bool IsInitialized()
         {
-            return FruitIdToBundle != null && Bundles != null;
+            return ItemIdToBundle != null && Bundles != null;
         }
-        public static void ScanCollectedFruitList()
+        public static void ScanCollectedItemList()
         {
             //Memory.Write(Addresses.CurrentEntityFlagList + 0x1E * 4, 2);
             //Memory.Write(Addresses.CurrentEntityFlagList + 0x21 * 4, 2);
             //Memory.Write(Addresses.CurrentEntityFlagList + 0x23 * 4, 2);
             //Memory.Write(Addresses.CurrentEntityFlagList + 0x25 * 4, 2);
 
-            if (FruitIdToBundle == null) return;
+            if (ItemIdToBundle == null) return;
             if (Bundles == null) return;
 
             uint len = Memory.ReadUInt(Addresses.FruitCollectedListStart);
@@ -224,17 +226,17 @@ namespace C2AP
         private static void CheckId(uint id)
         {
             if (Helpers.IsInDemo()) return;
-            if (!FruitIdToBundle.TryGetValue(id, out int value))
+            if (!ItemIdToBundle.TryGetValue(id, out int value))
             {
-                Log.Logger.Warning($"Unknown fruit id: {id:X}");
+                Log.Logger.Warning($"Unknown item id: {id:X}");
                 return;
             }
             //Log.Logger.Information("scanning3");
-            SetDeadFlagForFruitId(id);
-            FruitBundle bundle = Bundles[value];
-            if (bundle.collectedFruits.Add(id))
+            SetDeadFlagForItemId(id);
+            ItemBundle bundle = Bundles[value];
+            if (bundle.collectedItems.Add(id))
             {
-                if (bundle.collectedFruits.Count == bundle.requiredFruitCount)
+                if (bundle.collectedItems.Count == bundle.requiredItemCount)
                 {
                     App.Client.SendLocation(new Location {
                         Name = bundle.locationName,
@@ -247,29 +249,29 @@ namespace C2AP
             //Log.Logger.Information("scanning6");
         }
 
-        private static void SetDeadFlags(uint levelid)
+        private static void SetDeadFlags(uint levelId)
         {
-            Log.Debug($"setting dead flags for level {levelid:X}");
+            Log.Debug($"setting dead flags for level {levelId:X}");
             if (LevelIdToBundle == null) return;
             if (Bundles == null) return;
 
-            if (!LevelIdToBundle.TryGetValue(levelid, out (int start, int end) indices)) return;
+            if (!LevelIdToBundle.TryGetValue(levelId, out (int start, int end) indices)) return;
             
             //(int start, int end) indices = LevelIdToBundle[levelid];
             Log.Debug($"start: {indices.start}, end: {indices.end}");
             for (int i = indices.start; i < indices.end; i++)
             {
-                FruitBundle bundle = Bundles[i];
-                foreach (uint fruitid in bundle.collectedFruits)
+                ItemBundle bundle = Bundles[i];
+                foreach (uint fruitid in bundle.collectedItems)
                 {
-                    SetDeadFlagForFruitId(fruitid);
+                    SetDeadFlagForItemId(fruitid);
                 }
             }
-            Log.Debug($"finished setting dead flags for level {levelid:X}");
+            Log.Debug($"finished setting dead flags for level {levelId:X}");
         }
-        private static void SetDeadFlagForFruitId(uint fruitid)
+        private static void SetDeadFlagForItemId(uint itemId)
         {
-            uint id = fruitid >> 8;
+            uint id = itemId >> 8;
             Memory.Write(Addresses.CurrentEntityFlagList + id * 4, 2);
             Memory.Write(Addresses.ContinuePointFlagList + id * 4, 2);
             Memory.Write(Addresses.ContinuePoint2FlagList + id * 4, 2);
@@ -286,13 +288,13 @@ namespace C2AP
                 Log.Logger.Warning($"Unknown bundle location id: {locationId}");
                 return;
             }
-            FruitBundle bundle = Bundles[bundleIndex];
-            foreach (uint fruitid in bundle.requiredFruits)
+            ItemBundle bundle = Bundles[bundleIndex];
+            foreach (uint fruitid in bundle.requiredItems)
             {
-                bundle.collectedFruits.Add(fruitid);
+                bundle.collectedItems.Add(fruitid);
             }
         }
-        public static List<uint> DebugScanFruitList()
+        public static List<uint> DebugScanItemList()
         {
             List<uint> list = new List<uint>();
             //if (FruitIdToBundle == null) return list;

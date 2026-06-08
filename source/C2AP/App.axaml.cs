@@ -113,7 +113,7 @@ public partial class App : Application
     public void Start()
     {
         Context = new MainWindowViewModel("0.6.2");
-        Context.ClientVersion = "v0.4.0-pre3";
+        Context.ClientVersion = "v0.4.1-pre";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
         {
@@ -586,7 +586,7 @@ public partial class App : Application
             //Log.Information($"Syncing location {location.Name} with address {location.Address:X} and bit {location.AddressBit}");
             if (location.Id >= 10000)
             {
-                FruitCheck.CompleteBundle(location.Id);
+                ItemCheck.CompleteBundle(location.Id);
                 continue;
             }
             if (location.Address == 0/* || location.AddressBit == 0*/) continue;
@@ -899,9 +899,9 @@ public partial class App : Application
         // Repopulate hint list.  There is likely a better way to do this using the Get network protocol
         // with keys=[$"hints_{team}_{slot}"].
         Client?.SendMessage("!hint");
-        if (!FruitCheck.IsInitialized())
+        if (!ItemCheck.IsInitialized())
         {
-            FruitCheck.Initialize();
+            ItemCheck.Initialize();
         }
         SyncGameState();
         UpdateCrashState();
