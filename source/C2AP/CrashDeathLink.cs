@@ -73,7 +73,7 @@ namespace C2AP
             if (time < previousTime)
             {
                 // if time went backwards, reset lives (this could mean a save state was loaded)
-                Log.Logger.Information("Backwards Time");
+                //Log.Logger.Information("Backwards Time");
                 previousLives = lives;
             }
             previousTime = time;

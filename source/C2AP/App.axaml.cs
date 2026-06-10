@@ -113,7 +113,7 @@ public partial class App : Application
     public void Start()
     {
         Context = new MainWindowViewModel("0.6.2");
-        Context.ClientVersion = "v0.4.0-pre3";
+        Context.ClientVersion = "v0.4.0";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
         {
@@ -167,6 +167,7 @@ public partial class App : Application
                 _useQuietHints = false;
                 break;
             case "exec":
+                break;
                 if (args.Length > 1) break;
                 //Memory.Write(Addresses.SecretEntranceFlags, 0);
                 //break;
@@ -243,6 +244,7 @@ public partial class App : Application
                 }
                 break;
             case "debug_openwarproom":
+                //break;
                 // mark bosses as complete
                 uint address;
                 int[] bossBits = [
@@ -305,6 +307,7 @@ public partial class App : Application
             }
             if (args[0] == "exec")
             {
+                return;
                 //uint fireflyAddress = CrashObject.FindObjectAddress(57, 1);
                 //if (fireflyAddress != 0 && fireflyAddress != CrashObject.cacheOffset)
                 //{

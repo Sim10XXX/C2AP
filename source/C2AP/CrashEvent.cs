@@ -138,7 +138,7 @@ namespace C2AP
             if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) return false;
             //Log.Logger.Information($"Running event : {eventType}");
             uint state = Memory.ReadUInt(crashAddress + 0x1C);
-            Log.Logger.Information($"crash state: {state}");
+            Log.Logger.Debug($"crash state: {state}");
             switch (ev.Type)
             {
                 case EventType.KillCrash:
@@ -236,12 +236,12 @@ namespace C2AP
                     
                     if (ev.EventId != 0)
                     {
-                        Log.Logger.Information($"Event landcrash {ev.EventId}");
+                        //Log.Logger.Information($"Event landcrash {ev.EventId}");
                         CallSendEvent(0, crashAddress + CrashObject.cacheOffset, ev.EventId, (uint) ev.EventArgv.Length, ev.EventArgv);
                     }
                     else
                     {
-                        Log.Logger.Information($"Event landcrash 75");
+                        //Log.Logger.Information($"Event landcrash 75");
                         CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 75, 1, [100]);
                     }
                     //if (state >= 30)
@@ -251,7 +251,7 @@ namespace C2AP
                     //EnqueueEvent(Event.Event58);
                     //EnqueueEvent(Event.LockInput);
                     //EnqueueEvent(Event.Event0);
-                    Log.Logger.Information($"Event takeoffjetpack");
+                    //Log.Logger.Information($"Event takeoffjetpack");
                     EnqueueUniqueEvent(EventType.BasicEvent, 34, [], 32);
                     EnqueueUniqueEvent(EventType.LandCrash, 21, [100], 0);
                     //EnqueueEvent(EventType.Event9);
