@@ -73,6 +73,7 @@ namespace C2AP
             ]);
 
         private static uint lastLevelId = 0;
+        private static bool delay = false;
         public static void Initialize()
         {
             if (Helpers.GetOptionValue("gimmick_lock") != 1) return;
@@ -98,6 +99,7 @@ namespace C2AP
         {
             if (!App.Client.IsConnected) return;
             if (BaseHooks.ApItemsHook == null) return;
+            if (Helpers.IsEmulationPaused() || Helpers.IsGamePaused()) return;
             uint crashAddress = CrashObject.FindObjectAddress(0, 0);
             if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset)
             {
@@ -105,6 +107,9 @@ namespace C2AP
             }
             uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
             uint state = Memory.ReadUInt(crashAddress + 0x1C);
+
+
+            //Memory.Write(crashAddress + 0xE0, Memory.ReadUInt(crashAddress + 0xDC));
             switch (levelId)
             {
                 // Levels with Polar
@@ -254,6 +259,25 @@ namespace C2AP
                     }
                     lastLevelId = levelId;
                     break;
+            }
+            delay = !delay;
+            if (delay && state == 1)
+            {
+                switch (levelId)
+                {
+                    case 0x1D00:
+                    case 0x2200:
+                    case 0x1700:
+                    case 0x2500:
+                        if (App.crashState.Polar == true) break;
+                        CrashEvent.EnqueueUniqueEvent(CrashEvent.EventType.BasicEvent, 56, [0], 0);
+                        break;
+                    //case 0x1200:
+                    //case 0x1A00:
+                    //    if (App.crashState.Jetpack == true) break;
+                    //    CrashEvent.EnqueueUniqueEvent(CrashEvent.EventType.BasicEvent, 21, [100], 0);
+                    //    break;
+                }
             }
         }
     }
