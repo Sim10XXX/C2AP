@@ -72,3 +72,37 @@
 23
 #
 0-141
+#level: Piston It Away
+10
+#Between Nitros
+0-F8
+#level: Spaced Out
+26
+#Blue Gem Path Part 1
+0-1B
+#Blue Gem Path Part 2
+1-40
+#Blue Gem Path Part 3
+2-43
+#Blue Gem Path Part 4
+3-92
+#Green Gem Path Part 1
+4-EE
+#Green Gem Path Part 2
+5-F1
+#Yellow Gem Path Part 1
+6-FE
+#Yellow Gem Path Part 2
+7-FF
+#Yellow Gem Path Part 3
+8-102
+#Yellow Gem Path Part 4
+9-103
+#Red Gem Path Part 1
+10-7E
+#Red Gem Path Part 2
+11-7F
+#Red Gem Path Part 3
+12-80
+#High Above Moving Platform
+13-55
