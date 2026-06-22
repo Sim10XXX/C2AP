@@ -153,7 +153,7 @@ namespace C2AP
                      * 38: stuck riding platform
                      * 56, 64: damage animations
                      * 61: drowning
-                     * 65: victory dance
+                     * 65: warp out
                      * 66 - 70: various warp in/out animations
                      * 68: standing on lift
                      * 71: crash dance
@@ -173,10 +173,10 @@ namespace C2AP
                      */
                     
                     {
-                        if (state == 69) 
+                        if (state == 69 || state == 65) 
                             return false;
                         uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
-                        if (state == 30 || state == 38 || (state >= 65 && state <= 68) || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
+                        if (state == 30 || state == 38 || (state >= 66 && state <= 68) || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
                         {
 
                             // these states need to be interrupted with event 39

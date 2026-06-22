@@ -84,9 +84,12 @@ namespace C2AP
                 $"la $v0, 0x{Addresses.GemLocationsWithReceivedColoredGemsAddress + 0x4 + offset:X}",
                 //exit
                 $"lw $t1, 0x{CrashObject.subtypeOffset:X}($s0)", //subtype
-                "addiu $t0, $zero, 0x10",
-                "bne $t1, $t0, 0x10", //real exit
+                "addiu $t0, $zero, 0x10",// 0x10 for fruit, 0x5 for lives
+                "beq $t1, $t0, 0x2", // Store ID
+                "addiu $t0, $zero, 0x5",
+                "bne $t1, $t0, 0x10", // Real exit
 
+                // Store ID
                 $"lw $t1, 0x{CrashObject.stateOffset:X}($s0)", //State
                 "addiu $t0, $zero, 0xd",
                 "bne $t1, $t0, 0xd", //branch if state not 0xd to real exit

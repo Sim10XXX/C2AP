@@ -12,10 +12,12 @@
 
 	<ItemGroup>
 		<None Remove="fruitbundles.txt" />
+		<None Remove="lifebundles.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<EmbeddedResource Include="fruitbundles.txt" />
+		<EmbeddedResource Include="lifebundles.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
