@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -43,118 +44,19 @@ namespace C2AP
         private static uint lastLevelId = 0;
         public static void Initialize()
         {
-            if (ItemIdToBundle == null || Bundles == null)
-            {
-                int fruit_sanity = Helpers.GetOptionValue("fruit_sanity");
-                //int life_sanity = Helpers.GetOptionValue("life_sanity");
+            
+            
+            int fruit_sanity = Helpers.GetOptionValue("fruit_sanity");
+            int life_sanity = Helpers.GetOptionValue("life_sanity");
+            if (fruit_sanity <= 0 && life_sanity <= 0) return;
 
-                if (fruit_sanity == 0 || fruit_sanity == -1) return;
-                try
-                {
-                    var assembly = Assembly.GetExecutingAssembly();
-                    var resourceName = "C2AP.fruitbundles.txt";
+            ProcessBundleFile(fruit_sanity, 0);
+            ProcessBundleFile(0, life_sanity);
 
-                    using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        //if (reader == null) return;
-                        ItemIdToBundle = new Dictionary<uint, int>();
-                        LocationIdToBundle = new Dictionary<int, int>();
-                        Bundles = new List<ItemBundle>();
-                        LevelIdToBundle = new Dictionary<uint, (int start, int end)>();
 
-                        int bundleLocationIdOffset = 10000;
-                        if (fruit_sanity == 2)
-                        {
-                            bundleLocationIdOffset = 20000;
-                        }
-                        string line;
-                        uint id = 0;
-                        uint levelid = 0;
-                        int totalBundles = 0;
-                        int currentBundle = -1;
-                        string levelname = "";
-                        string bundlename = "";
-                        int start = 0;
-                        ItemBundle bundle = new();
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            if (line[0] == '#')
-                            {
-                                if (line.Contains("level:"))
-                                {
-                                    levelname = line.Replace("#level: ", "");
-                                }
-                                else
-                                {
-                                    if (bundlename != "")
-                                    {                   //level_name + " " + bundle_name + " bundle (" + str(wumpa_count) + " wumpas)"
-                                        if (fruit_sanity == 1)
-                                        {
-                                            bundle.locationName = $"{levelname} {bundlename}  bundle ({bundle.requiredItemCount} wumpas)";
-                                        }
-                                        else // == 2
-                                        {
-                                            bundle.locationName = $"{levelname} {bundlename} Wumpa #";
-                                        }
-                                        
-                                    }
-                                    bundlename = line.Replace("#", "");
-                                }
-                                continue;
-                            }
-                            string[] split = line.Split('-');
-                            if (split.Length == 1)
-                            {
-                                if (levelid != 0)
-                                {
-                                    LevelIdToBundle[levelid] = (start, totalBundles);
-                                }
-                                start = totalBundles;
-                                levelid = Convert.ToUInt32(split[0], 16);
-                                currentBundle = -1;
-                            }
-                            else
-                            {
-                                if (fruit_sanity == 2 || Convert.ToInt32(split[0], 16) != currentBundle)
-                                {
-                                    currentBundle = Convert.ToInt32(split[0], 16);
-                                    Bundles.Add(new ItemBundle());
-                                    bundle = Bundles.Last();
-                                    bundle.locationId = bundleLocationIdOffset + totalBundles;
-                                    LocationIdToBundle[bundle.locationId] = totalBundles;
-                                    totalBundles++;
 
-                                }
-                                id = Convert.ToUInt32(split[1], 16);
-                                id = id << 8;
-                                id += levelid;
-                                ItemIdToBundle[id] = totalBundles - 1;
-                                bundle.requiredItems.Add(id);
-                                bundle.requiredItemCount++;
-                            }
-                        }
-                        //using (FileStream fs = File.Create("ctestfile-wumpabundles.txt"))
-                        //{
-                        //    FruitIdToBundle.Keys.ToList().ForEach(key =>
-                        //    {
-                        //        uint levelid = key & 0xFF;
-                        //        uint fruitid = key >> 8;
-                        //        //string line = $"{key:X} - level: {levelid:X}, fruit: {fruitid:X}, bundle: {FruitIdToBundle[key]}\n";
-                        //        string line = $"{levelid:X}-{fruitid:X}:{Bundles[FruitIdToBundle[key]].locationId}\n";
-                        //        fs.Write(Encoding.UTF8.GetBytes(line));
-                        //    });
 
-                        //}
-                        LevelIdToBundle[levelid] = (start, totalBundles);
-                        Log.Logger.Debug($"Loaded {totalBundles} fruit bundles");
-                    }
-                }
-                catch (IOException e)
-                {
-                    Log.Logger.Error($"An error occurred: {e.Message}");
-                }
-            }
+
             checkItemTimer.Interval = 1400; // ms - adjust to desired tick rate
             checkItemTimer.AutoReset = true;
             checkItemTimer.Elapsed += (s, ev) =>
@@ -175,6 +77,160 @@ namespace C2AP
                 ScanCollectedItemList();
             };
             checkItemTimer.Enabled = true;
+        }
+
+        private static void ProcessBundleFile(int fruit_sanity, int life_sanity)
+        {
+            if (ItemIdToBundle != null && Bundles != null) return;
+            if (fruit_sanity <= 0 && life_sanity <= 0) return;
+            if (fruit_sanity > 0 && life_sanity > 0)
+            {
+                Log.Error("Cannot process both fruit and life bundles at the same time");
+                return;
+            }
+            bool fruit = fruit_sanity > 0;
+            try
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                String resourceName;
+                if (fruit)
+                {
+                    resourceName = "C2AP.fruitbundles.txt";
+                }
+                else
+                {
+                    resourceName = "C2AP.lifebundles.txt";
+                }
+                
+
+                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    //if (reader == null) return;
+                    ItemIdToBundle = new Dictionary<uint, int>();
+                    LocationIdToBundle = new Dictionary<int, int>();
+                    Bundles = new List<ItemBundle>();
+                    LevelIdToBundle = new Dictionary<uint, (int start, int end)>();
+
+                    int bundleLocationIdOffset;
+                    if (fruit)
+                    {
+                        if (fruit_sanity == 2)
+                        {
+                            bundleLocationIdOffset = 20000;
+                        }
+                        else
+                        {
+                            bundleLocationIdOffset = 10000;
+                        }
+                    }
+                    else
+                    {
+                        bundleLocationIdOffset = 30000;
+                    }
+                    
+                    string line;
+                    uint id = 0;
+                    uint levelid = 0;
+                    int totalBundles = 0;
+                    int currentBundle = -1;
+                    string levelname = "";
+                    string bundlename = "";
+                    int start = 0;
+                    ItemBundle bundle = new();
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line[0] == '#')
+                        {
+                            if (line.Contains("level:"))
+                            {
+                                levelname = line.Replace("#level: ", "");
+                            }
+                            else
+                            {
+                                if (bundlename != "")
+                                {                   //level_name + " " + bundle_name + " bundle (" + str(wumpa_count) + " wumpas)"
+                                    if (fruit)
+                                    {
+                                        if (fruit_sanity == 1)
+                                        {
+                                            bundle.locationName = $"{levelname} {bundlename}  bundle ({bundle.requiredItemCount} wumpas)";
+                                        }
+                                        else // == 2
+                                        {
+                                            bundle.locationName = $"{levelname} {bundlename} Wumpa #";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        bundle.locationName = $"{levelname} {bundlename} Life";
+                                    }
+                                    
+
+                                }
+                                bundlename = line.Replace("#", "");
+                            }
+                            continue;
+                        }
+                        string[] split = line.Split('-');
+                        if (split.Length == 1)
+                        {
+                            if (levelid != 0)
+                            {
+                                LevelIdToBundle[levelid] = (start, totalBundles);
+                            }
+                            start = totalBundles;
+                            levelid = Convert.ToUInt32(split[0], 16);
+                            currentBundle = -1;
+                        }
+                        else
+                        {
+                            if (fruit_sanity == 2 || Convert.ToInt32(split[0], 16) != currentBundle)
+                            {
+                                currentBundle = Convert.ToInt32(split[0], 16);
+                                Bundles.Add(new ItemBundle());
+                                bundle = Bundles.Last();
+                                bundle.locationId = bundleLocationIdOffset + totalBundles;
+                                LocationIdToBundle[bundle.locationId] = totalBundles;
+                                totalBundles++;
+
+                            }
+                            id = Convert.ToUInt32(split[1], 16);
+                            id = id << 8;
+                            id += levelid;
+                            ItemIdToBundle[id] = totalBundles - 1;
+                            bundle.requiredItems.Add(id);
+                            bundle.requiredItemCount++;
+                        }
+                    }
+                    //using (FileStream fs = File.Create("ctestfile-wumpabundles.txt"))
+                    //{
+                    //    FruitIdToBundle.Keys.ToList().ForEach(key =>
+                    //    {
+                    //        uint levelid = key & 0xFF;
+                    //        uint fruitid = key >> 8;
+                    //        //string line = $"{key:X} - level: {levelid:X}, fruit: {fruitid:X}, bundle: {FruitIdToBundle[key]}\n";
+                    //        string line = $"{levelid:X}-{fruitid:X}:{Bundles[FruitIdToBundle[key]].locationId}\n";
+                    //        fs.Write(Encoding.UTF8.GetBytes(line));
+                    //    });
+
+                    //}
+                    LevelIdToBundle[levelid] = (start, totalBundles);
+                    if (fruit)
+                    {
+                        Log.Logger.Debug($"Loaded {totalBundles} fruit bundles with sanity level {fruit_sanity}");
+
+                    }
+                    else
+                    {
+                        Log.Logger.Debug($"Loaded {totalBundles} life bundles with sanity level {life_sanity}");
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                Log.Logger.Error($"An error occurred: {e.Message}");
+            }
         }
         public static bool IsInitialized()
         {
@@ -228,7 +284,7 @@ namespace C2AP
             if (Helpers.IsInDemo()) return;
             if (!ItemIdToBundle.TryGetValue(id, out int value))
             {
-                Log.Logger.Warning($"Unknown item id: {id:X}");
+                Log.Logger.Debug($"Unknown item id: {id:X}");
                 return;
             }
             //Log.Logger.Information("scanning3");

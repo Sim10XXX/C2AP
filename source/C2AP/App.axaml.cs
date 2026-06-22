@@ -63,6 +63,9 @@ public partial class App : Application
         public uint Crystals;
         public uint ClearGems;
 
+        public uint MaxLifeCount;
+        public uint[] LifeCountChecks = [];
+
         public byte[] CrystalLocations = new byte[8];
         public byte[] GemLocations = new byte[8];
         public byte[] LevelExitLocations = new byte[8];
@@ -385,7 +388,7 @@ public partial class App : Application
         //InputLock.Initialize();
         //InputLock.LockInput(InputFlag.Square);
         //Helpers.ClearHookMemory();
-        BaseHooks.Initialize();
+        
 
         
 
@@ -414,21 +417,34 @@ public partial class App : Application
         //{
         //    Log.Logger.Error("Failed to login.  Please check your host, name, and password.");
         //}
-
-        WarpRoomRandomizer.Initialize();
-        CrashDeathLink.Initialize(e.Slot);
         
-        Client.MonitorLocations(GameLocations);
-        InputLock.Initialize();
+        if (Helpers.IsInGame())
+        {
+            Client.MonitorLocations(GameLocations);
+            Helpers.InitializeAll(e.Slot);
+        }
+        else
+        {
+            Log.Logger.Error("Not in game. Please wait until the game is running before connecting");
+            Log.Logger.Error("Locations will not be monitored and no features will be available");
+        }
+       
+        //BaseHooks.Initialize();
+        //WarpRoomRandomizer.Initialize();
+        //CrashDeathLink.Initialize(e.Slot);
 
-        InputLock.LockInput(InputFlag.All);
-        InputLock.UnlockInput(InputFlag.All);
-        
-        CrashEvent.Initialize();
-        Traps.Initialize();
-        CrashObjectMod.Initialize();
-        GimmickLock.Initialize();
-        Helpers.StartCheckEmulationPaused();
+
+        //InputLock.Initialize();
+
+        //InputLock.LockInput(InputFlag.All);
+        //InputLock.UnlockInput(InputFlag.All);
+
+        //CrashEvent.Initialize();
+        //Traps.Initialize();
+        //CrashObjectMod.Initialize();
+        //GimmickLock.Initialize();
+        //Helpers.StartCheckEmulationPaused();
+        //Helpers.StartCheckLifeCount();
 
         //Timer testTimer = new Timer(100);
         //testTimer.Elapsed += (s, ev) =>
@@ -581,12 +597,19 @@ public partial class App : Application
         if (Client.ItemState == null) return;
 
         List<Location> locations = Client.LocationState.CompletedLocations.OfType<Location>().ToList();
+        uint maxLifeCount = 0;
         foreach (Location location in locations)
         {
             //Log.Information($"Syncing location {location.Name} with address {location.Address:X} and bit {location.AddressBit}");
             if (location.Id >= 10000)
             {
                 ItemCheck.CompleteBundle(location.Id);
+                continue;
+            }
+            if (location.Id >= Helpers.lifeCountBaseId)
+            {
+                uint lifeCount = (uint)location.Id - Helpers.lifeCountBaseId;
+                if (lifeCount > maxLifeCount) maxLifeCount = lifeCount;
                 continue;
             }
             if (location.Address == 0/* || location.AddressBit == 0*/) continue;
@@ -625,6 +648,7 @@ public partial class App : Application
                 }
             }
         }
+        crashState.MaxLifeCount = maxLifeCount;
 
         List<Item> items = Client.ItemState.ReceivedItems.ToList();
         uint crystalCount = 0;

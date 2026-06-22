@@ -1,10 +1,12 @@
 ﻿using Archipelago.Core.Models;
 using Archipelago.Core.Util;
+using DynamicData;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using System.Timers;
 using static C2AP.Models.Enums;
@@ -17,18 +19,57 @@ namespace C2AP
         public static bool lastInGameStatus = false;
 
         private static Timer checkEmulation = new Timer(100);
+        private static Timer checkLifeCount = new Timer(1000);
 
         private static uint previousTime = 0;
         private static bool isEmulationPaused = true;
-        public static string OpenEmbeddedResource(string resourceName)
+
+        public const uint lifeCountBaseId = 1000;
+
+        private static string slotName = "";
+
+        public static void StartCheckLifeCount()
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            using (StreamReader reader = new StreamReader(stream))
+            //GetOptionValue();
+            //App.Client.Options.TryGetValue("life_count_checks", out var optionValue);
+            //if (optionValue == null)
+            //{
+            //    Log.Logger.Error($"life_count_checks option null");
+            //    return;
+            //}
+            //Log.Information($"life_count_checks option : {optionValue}");
+            //return Convert.ToInt32(optionValue.ToString());
+            List<uint> checks = GetOptionValueList("life_count_checks").ConvertAll(x => (uint)x);
+            //Log.Information($"life_count_checks option : {string.Join(", ", checks)}");
+            App.crashState.LifeCountChecks = checks.ToArray();
+
+            checkLifeCount.Elapsed += (s, ev) =>
             {
-                string jsonFile = reader.ReadToEnd();
-                return jsonFile;
-            }
+                uint crashAddress = CrashObject.FindObjectAddress(0, 0);
+                if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
+                {
+                    uint lifeCount = Memory.ReadByte(crashAddress + Addresses.LivesOffset);
+                    //Log.Information($"Life count: {lifeCount}");
+                    if (lifeCount > App.crashState.MaxLifeCount)
+                    {
+                        for (uint i = 0; i < App.crashState.LifeCountChecks.Length; i++)
+                        {
+                            uint lifeCountCheck = App.crashState.LifeCountChecks[i];
+                            if (lifeCountCheck > App.crashState.MaxLifeCount)
+                            {
+                                if (lifeCountCheck > lifeCount) break;
+                                App.Client.SendLocation(new Location
+                                {
+                                    Name = $"Collect {lifeCountCheck} Lives",
+                                    Id = (int) (lifeCountBaseId + lifeCountCheck),
+                                });
+                            }
+                        }
+                        App.crashState.MaxLifeCount = lifeCount;
+                    }
+                }
+            };
+            checkLifeCount.Start();
         }
 
         public static void StartCheckEmulationPaused()
@@ -67,17 +108,45 @@ namespace C2AP
             //Log.Information($"{optionName} option : {optionValue}");
             return Convert.ToInt32(optionValue.ToString());
         }
+
+        public static List<int> GetOptionValueList(string optionName)
+        {
+            App.Client.Options.TryGetValue(optionName, out var optionValue);
+            if (optionValue == null)
+            {
+                Log.Logger.Error($"{optionName} option null");
+                return [];
+            }
+            var value = optionValue.ToString();
+            if (value == null)
+            {
+                return [];
+            }
+            var valueList = value.Trim('[', ']').Split(',');
+            List<int> resultList = [];
+            foreach (var item in valueList)
+            {
+                resultList.Add(Convert.ToInt32(item.Trim().Trim('"')));
+                //Log.Information($"Adding : {item.Trim().Trim('"')}");
+            }
+            return resultList;
+        }
+
         public static bool IsInGame()
         {
             //Log.Debug($"Text: {Addresses.StaticText}");
             //Log.Debug($"Text: {Memory.ReadString(Addresses.StaticTextAddress, 0x50)}");
-            if (Addresses.StaticText.Contains(Memory.ReadString(Addresses.StaticTextAddress, 0x50)))
+            bool check1 = Addresses.StaticText.Contains(Memory.ReadString(Addresses.StaticTextAddress, 0x50));
+            //bool check2 = !IsInDemo();
+            //bool check3 = Memory.ReadUInt(Addresses.LevelIdAddress) != 0x3C00; // is not on the title screen
+            if (check1)
             {
-                //Log.Debug($"Text: true");
+                //Log.Debug($"Text: true, level: {Memory.ReadUInt(Addresses.LevelIdAddress):X}");
                 if (!lastInGameStatus)
                 {
                     //Log.Information("Entered in-game state");
-                    BaseHooks.Initialize();
+                    //BaseHooks.Initialize();
+                    //InitializeAll(slotName);
                 }
                 lastInGameStatus = true;
                 return true;
@@ -85,8 +154,9 @@ namespace C2AP
             //Log.Debug($"Text: false");
             if (lastInGameStatus)
             {
-                //Log.Information("Exited in-game state");
-                BaseHooks.UnInitialize();
+                Log.Error("Exited in-game state (console was reset)");
+                Log.Error("Please restart the client since most features will not work correctly");
+                //BaseHooks.UnInitialize();
             }
             lastInGameStatus = false;
             return false;
@@ -95,6 +165,26 @@ namespace C2AP
         public static bool IsInDemo()
         {
             return Memory.ReadUInt(Addresses.DemoPointer) != 0;
+        }
+
+        public static void InitializeAll(string slot)
+        {
+            BaseHooks.Initialize();
+            WarpRoomRandomizer.Initialize();
+            CrashDeathLink.Initialize(slot);
+            slotName = slot;
+
+            InputLock.Initialize();
+
+            InputLock.LockInput(InputFlag.All);
+            InputLock.UnlockInput(InputFlag.All);
+
+            CrashEvent.Initialize();
+            Traps.Initialize();
+            CrashObjectMod.Initialize();
+            GimmickLock.Initialize();
+            Helpers.StartCheckEmulationPaused();
+            Helpers.StartCheckLifeCount();
         }
         public static List<ILocation> BuildLocationList()
         {
@@ -186,7 +276,7 @@ namespace C2AP
             //        });
             //    }
             //}
-            
+
 
             return locations;
         }

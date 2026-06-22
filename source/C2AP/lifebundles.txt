@@ -99,10 +99,11 @@
 #Yellow Gem Path Part 4
 9-103
 #Red Gem Path Part 1
-10-7E
+A-7E
 #Red Gem Path Part 2
-11-7F
+B-7F
 #Red Gem Path Part 3
-12-80
+C-80
 #High Above Moving Platform
-13-55
+D-55
+#
