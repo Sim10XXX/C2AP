@@ -213,10 +213,12 @@ namespace C2AP
                         }
                         else
                         {
+                            //EnqueueEvent(EventType.LockInput);
                             EnqueueEvent(EventType.BasicEvent, 70, [100], 0);
+                            //EnqueueEvent(EventType.UnlockInput);
                         }
-                        
-                            //EnqueueEvent(Event.UnlockInput);
+
+                        //EnqueueEvent(Event.UnlockInput);
                         //}
                     }
                     return true;
@@ -298,6 +300,7 @@ namespace C2AP
         }
         public static void CallSendEvent(uint sender, uint receiver, uint eventId, uint eventArgc, uint[] eventArgv)
         {
+            //Log.Information($"Event: {eventId}");
             if (eventArgv.Length != eventArgc)
             {
                 Log.Error($"CallSendEvent: Provided eventArgv has a different length ({eventArgv.Length}) than the provided eventArgc ({eventArgc})");

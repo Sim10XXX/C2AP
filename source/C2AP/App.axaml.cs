@@ -58,6 +58,7 @@ public partial class App : Application
 
     public static uint testValue = 0;
 
+    private static Timer testTimer = new Timer();
     public class CrashState
     {
         public uint Crystals;
@@ -174,7 +175,11 @@ public partial class App : Application
                 if (args.Length > 1) break;
                 //Memory.Write(Addresses.SecretEntranceFlags, 0);
                 //break;
-                CrashDeathLink.OnDeathLinkReceived(new("test"));
+
+                testTimer.Elapsed += (s, ev) => CrashDeathLink.OnDeathLinkReceived(new("test"));
+                testTimer.Interval = 5000;
+                testTimer.AutoReset = false;
+                testTimer.Start();
 
                 crashAddress = CrashObject.FindObjectAddress(0, 0);
                 if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) break;
@@ -247,7 +252,7 @@ public partial class App : Application
                 }
                 break;
             case "debug_openwarproom":
-                //break;
+                break;
                 // mark bosses as complete
                 uint address;
                 int[] bossBits = [
