@@ -96,7 +96,8 @@ class Crash2World(World):
 
     # Our world class must have a static location_name_to_id and item_name_to_id defined.
     # We define these in regions.py and items.py respectively, so we just set them here.
-    locations.prepare_fruit_sanity()
+    locations.prepare_item_sanity()
+    locations.prepare_life_count_locations()
     location_name_to_id = locations.LOCATION_NAME_TO_ID
     item_name_to_id = items.ITEM_NAME_TO_ID
     item_name_groups, location_name_groups = setup_groups()
@@ -153,7 +154,7 @@ class Crash2World(World):
         # If you need access to the player's chosen options on the client side, there is a helper for that.
         return {
             "options": self.options.as_dict(
-                "fruit_sanity", "randomize_warp_destinations", "non_randomized_warp_destinations",
+                "level_exit_locations", "speedrun_logic", "exclude_difficult_wumpas", "fruit_sanity", "life_sanity", "life_count_checks", "randomize_warp_destinations", "non_randomized_warp_destinations",
                 "trap_duration", "death_link", "gimmick_lock", "jetpack_lock_logic", "jetboard_lock_logic", "polar_lock_logic", "firefly_lock_logic"
             ),
             "warp_room_destinations": self.warp_room,
