@@ -31,7 +31,7 @@ class LevelExitLocations(Toggle):
 class AddExtraCrystals(Range):
     """
     Add extra crystals to the pool
-    Note: adding crystals can cause there to be more items than locations, and some clear gems will be unplaced
+    Note: adding crystals can cause there to be more items than locations, which will error on generation
     """
     display_name = "Add Extra Crystals"
 
@@ -65,10 +65,33 @@ class WumpaFruitChance(Range):
     range_end = 100
     default = 80
 
+class LifeSanity(Toggle):
+    """
+    Adds collecting unique life items as checks
+    This applies only to freestanding lives (not lives spawned from boxes or from collecting 100 wumpas)
+    This option adds 42 checks into the pool
+    """
+    display_name = "Life-Sanity"
+
+
+class LifeCountChecks(OptionSet):
+    """
+    Add checks for reaching certain life counts
+    Logic uses crystal count in order to consider higher life counts as occurring later in the run
+    These need to be written as strings
+    """
+    display_name = "Life Count Checks"
+    #valid_keys = range(5, 100)
+    valid_keys = []
+    for i in range(5, 100):
+        valid_keys.append(str(i))
+    default = ["10", "20", "30"]
+
+
 class FruitSanity(Choice):
     """
     Adds wumpa fruit checks
-    This applies only to free-standing wumpa fruit (not fruit spawned from boxes/enemies)
+    This applies only to freestanding wumpa fruit (not fruit spawned from boxes/enemies)
     Full sanity adds a total of 2395 individual wumpa checks to the game
     Fruit bundles condenses this into 404 grouped wumpa checks
     """
@@ -259,6 +282,7 @@ class GimmickLock(Toggle):
 
 class JetpackLockLogic(Choice):
     """
+    -Note: Playing Jetpack levels without the Jetpack can sometimes crash the game-
     Normal: puts most of the wumpa fruit in logic
     Lunatic: getting through the invisible barrier is in logic
     """
@@ -289,6 +313,7 @@ class JetboardLockLogic(Choice):
 
 class PolarLockLogic(Choice):
     """
+    -Note: Playing Polar levels without Polar can sometimes crash the game-
     Normal: Bear It wumpa fruit and Un-Bearable wumpa fruit up to the Polar section are in logic
     Lunatic: Everything except the Totally Bear box gem is in logic
     """
@@ -303,7 +328,7 @@ class PolarLockLogic(Choice):
 
 class FireflyLockLogic(Choice):
     """
-    Normal: 3 wumpa fruit are available before doing anything in the dark
+    Normal: 3 wumpa fruit are available (nothing in the dark is in logic)
     Lunatic: Everything (except very missable and un-fun wumpa fruit) is in logic
     """
     display_name = "Firefly Lock Logic"
@@ -324,6 +349,8 @@ class Crash2Options(PerGameCommonOptions):
     speedrun_logic: SpeedrunLogic
     death_link: DeathLink
     wumpa_chance: WumpaFruitChance
+    life_sanity: LifeSanity
+    life_count_checks: LifeCountChecks
     fruit_sanity: FruitSanity
     exclude_difficult_wumpas: ExcludeDifficultWumpas
     fill_wumpa_checks_locally_chance: FillWumpaChecksLocally
@@ -348,8 +375,8 @@ class Crash2Options(PerGameCommonOptions):
 # # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
     OptionGroup(
-        "Fruitsanity",
-        [FruitSanity, ExcludeDifficultWumpas, FillWumpaChecksLocally],
+        "Collection Checks",
+        [LifeSanity, LifeCountChecks, FruitSanity, ExcludeDifficultWumpas, FillWumpaChecksLocally],
     ),
     OptionGroup(
         "Warp Randomizer",

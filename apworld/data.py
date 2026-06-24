@@ -2852,3 +2852,112 @@ A-DD
 A-DC
 A-DB
 #"""
+lifebundlestxt="""#level: Snow Go
+0E
+#Secret Entrance High Above The Ice Part 1
+0-B0
+#Secret Entrance High Above The Ice Part 2
+1-B1
+#Secret Entrance Secret Stash
+2-B5
+#Secret Entrance Arrow Crates Part 1
+3-DD
+#Secret Entrance Arrow Crates Part 2
+4-E6
+#Secret Entrance Next To Nitros
+5-12B
+#level: Snow Biz
+11
+#Before Drop Down
+0-18A
+#level: Air Crash
+20
+#Secret Entrance Above Boxes Part 1^
+0-11
+#Secret Entrance Above Boxes Part 2^
+1-13
+#Secret Entrance Above Boxes Part 3^
+2-14
+#Bonus Big Jump
+3-156
+#level: Crash Crush
+1B
+#Bonus Secret Stash
+0-142
+#Bonus Stone Blocks
+1-117
+#level: Road To Ruin
+16
+#Death Route Safe Spot
+0-73
+#level: Un-Bearable
+17
+#Secret Area Upper Path^
+0-1C1
+#Bonus Big Jump^
+1-194
+#level: Hangin' Out
+0D
+#Before Secret Exit Part 1
+0-42
+#Before Secret Exit Part 2
+1-43
+#Before Secret Exit Part 3
+2-45
+#Before Secret Exit Part 4
+3-47
+#Before Secret Exit Part 5
+4-4A
+#level: Diggin' It
+15
+#Bonus Secret Stash Part 1
+0-15B
+#Bonus Secret Stash Part 2
+1-15C
+#Bonus Secret Stash Part 3
+2-15D
+#level: Cold Hard Crash
+13
+#Drop Down
+0-C6
+#In Between Crushers
+1-16C
+#level: Bee-Having
+23
+#
+0-141
+#level: Piston It Away
+10
+#Between Nitros
+0-F8
+#level: Spaced Out
+26
+#Blue Gem Path Part 1
+0-1B
+#Blue Gem Path Part 2
+1-40
+#Blue Gem Path Part 3
+2-43
+#Blue Gem Path Part 4
+3-92
+#Green Gem Path Part 1
+4-EE
+#Green Gem Path Part 2
+5-F1
+#Yellow Gem Path Part 1
+6-FE
+#Yellow Gem Path Part 2
+7-FF
+#Yellow Gem Path Part 3
+8-102
+#Yellow Gem Path Part 4
+9-103
+#Red Gem Path Part 1
+A-7E
+#Red Gem Path Part 2
+B-7F
+#Red Gem Path Part 3
+C-80
+#High Above Moving Platform
+D-55
+#"""

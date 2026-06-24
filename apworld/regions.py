@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 # Every location must be inside a region, and you must have at least one region.
 # This is why we create regions first, and then later we create the locations (in locations.py).
 
+crystal_counts = []
+
 def create_and_connect_regions(world: Crash2World) -> None:
     create_all_regions(world)
     connect_regions(world)
@@ -33,7 +35,7 @@ def create_all_regions(world: Crash2World) -> None:
     # final_boss_room = Region("Final Boss Room", world.player, world.multiworld)
 
     regions = []
-    for i in range(6): # Warp room 6 is be the secret warp room
+    for i in range(6): # Warp room 6 is the secret warp room
         regions.append(Region("Warp Room "+str(i+1), world.player, world.multiworld))
 
 
@@ -49,8 +51,27 @@ def create_all_regions(world: Crash2World) -> None:
     #     top_middle_room = Region("Top Middle Room", world.player, world.multiworld)
     #     regions.append(top_middle_room)
 
+
+    if len(world.options.life_count_checks.value) > 0:
+        # if we have any life count checks enabled, create abstract regions for the sake of placing
+        # higher life counts logically later into the run
+
+        min_life_count = 5
+        max_life_count = 99
+        life_count_range = max_life_count - min_life_count
+        total_crystals = world.options.extra_crystals + 25
+        for count in world.options.life_count_checks.value:
+            count = int(count)
+            required_crystals = int(((count - min_life_count) / life_count_range) * total_crystals)
+            if required_crystals not in crystal_counts:
+                crystal_counts.append(required_crystals)
+                regions.append(Region(str(required_crystals) + " Crystals", world.player, world.multiworld))
+                #print("Creating region " + str(required_crystals) + " Crystals")
+        crystal_counts.sort()
+
     # We now need to add these regions to multiworld.regions so that AP knows about their existence.
     world.multiworld.regions += regions
+
 
 def connect_regions(world: Crash2World) -> None:
     # We have regions now, but still need to connect them to each other.
@@ -104,6 +125,17 @@ def connect_regions(world: Crash2World) -> None:
     for level in ["Air Crash", "Bear Down", "Un-Bearable", "Diggin' It", "Hangin' Out"]: # Secret Exits. These do not get randomized ever.
         world.get_region(level).connect(warp_room, level + " to Warp Room 6")
 
+
+    # Connect crystal count regions in a chain
+    if len(crystal_counts) > 0:
+        region = world.get_region("Warp Room 1")
+        for count in crystal_counts:
+            next_region = world.get_region(str(count) + " Crystals")
+            region.connect(next_region, region.name + " to " + next_region.name)
+            #print("Connecting " + region.name + " to " + next_region.name)
+            region = next_region
+
+
     # You can then connect the Entrance to the target region.
     # overworld_to_bottom_right_room.connect(bottom_right_room)
 
@@ -121,3 +153,6 @@ def connect_regions(world: Crash2World) -> None:
     # if world.options.hammer:
     #     top_middle_room = world.get_region("Top Middle Room")
     #     overworld.connect(top_middle_room, "Overworld to Top Middle Room")
+
+
+

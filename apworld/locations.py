@@ -209,6 +209,13 @@ LOCATION_NAME_TO_ID = {
 
     "Polar Lives Secret": 109,
 
+    # life count checks take up ids 1000 - 1099
+
+    # Wumpa bundle checks take up ids 10,000 - 10,403
+    # Individual wumpa check ids: 20,000 - 22,394
+
+    # Life sanity checks: 30,000 - 30,041
+
     # "Test Location 0": 10000,
     # "Test Location 1": 20000,
     # "Test Location 2": 10002,
@@ -232,7 +239,7 @@ class Crash2Location(Location):
     game = "Crash2"
 
 
-def prepare_fruit_sanity():
+def prepare_item_sanity():
 
     level_name = ""
     new_level_name = ""
@@ -242,17 +249,14 @@ def prepare_fruit_sanity():
     location_name = ""
     bundle_id = 10000
     wumpa_id = 20000
+    life_id = 30000
     wumpa_count = 0
-
-    #with open("worlds/crash2/fruitbundles.txt", "r") as file:
-        #file.readlines()
 
     for line in data.fruitbundlestxt.splitlines():
         if line[0] == "#":
 
             if "level: " in line:
                 new_level_name = line.replace("#level: ", "")
-                # Fruit_Sanity_Data[level_name] = {}
             else:
                 if bundle_name != "":
                     # add the location
@@ -268,21 +272,27 @@ def prepare_fruit_sanity():
                 location_name = level_name + " " + bundle_name
         elif len(line.split("-")) == 2:
             wumpa_count += 1
-            # if world.options.fruit_sanity == 2:  # if full sanity, add location for each wumpa
             wumpa_location_name = location_name + " Wumpa #" + str(wumpa_count)
-                # world.location_name_to_id[wumpa_location_name] = id
             LOCATION_NAME_TO_ID[wumpa_location_name] = wumpa_id
-
-            # f.write(hex(levelNameToId[level_name]).replace("0x", "").upper() + "-" + line.split("-")[1] + ":" + str(wumpa_id) +"\n")
-            # Fruit_Sanity_Data[level_name][bundle_name][0].append(wumpa_id)
             wumpa_id += 1
-                # region = world.get_region(level_name)
-                # region.locations.append(
-                #     Crash2Location(world.player, wumpa_location_name,
-                #                    world.location_name_to_id[wumpa_location_name], region))
-    # print("bundle id :" + str(bundle_id))
-    # print("wumpa id :" + str(wumpa_id))
-    # f.close()
+    level_name = ""
+    new_level_name = ""
+    bundle_name = ""
+    for line in data.lifebundlestxt.splitlines():
+        if line[0] == "#":
+            if "level: " in line:
+                new_level_name = line.replace("#level: ", "")
+            else:
+                if bundle_name != "":
+                    # add the location
+                    if level_name == "":
+                        level_name = new_level_name
+                    bundle_location_name = level_name + " " + bundle_name + " Life"
+                    LOCATION_NAME_TO_ID[bundle_location_name] = life_id
+                    life_id += 1
+                bundle_name = line.replace("#", "")
+                level_name = new_level_name
+                # location_name = level_name + " " + bundle_name
 
 # Let's make one more helper method before we begin actually creating locations.
 # Later on in the code, we'll want specific subsections of LOCATION_NAME_TO_ID.
@@ -290,6 +300,18 @@ def prepare_fruit_sanity():
 # let's make a helper method that takes a list of location names and returns them as a dict with their IDs.
 # Note: There is a minor typing quirk here. Some functions want location addresses to be an "int | None",
 # so while our function here only ever returns dict[str, int], we annotate it as dict[str, int | None].
+
+def prepare_life_count_locations() -> None:
+    #min_life_count = min(world.options.life_count_checks.valid_keys)
+    #max_life_count = max(world.options.life_count_checks.valid_keys)
+    min_count = 5
+    max_count = 99
+    location_id = 1000
+    for life_count in range(min_count, max_count+1):
+        LOCATION_NAME_TO_ID["Collect " + str(life_count) + " Lives"] = location_id + life_count
+        #location_id += 1
+
+
 def get_location_names_with_ids(location_names: list[str]) -> dict[str, int | None]:
     return {location_name: LOCATION_NAME_TO_ID[location_name] for location_name in location_names}
 
@@ -322,6 +344,9 @@ def create_regular_locations(world: Crash2World) -> None:
                 if "Wumpa #" in location:
                     if world.options.fruit_sanity != 2:
                         continue
+                if "Life" in location:
+                    if not world.options.life_sanity:
+                        continue
                 new_location = Crash2Location(world.player, location, world.location_name_to_id[location], region)
                 if "*" in location:
                     if world.options.exclude_difficult_wumpas:
@@ -335,48 +360,21 @@ def create_regular_locations(world: Crash2World) -> None:
     region.locations.append(
         Crash2Location(world.player, location, world.location_name_to_id[location], region))
 
+    if len(world.options.life_count_checks.value) > 0:
+        # If we have any life count checks enabled, create the locations in their expected region
+        # This is mostly copy/paste from the region creation code
 
-    # if world.options.fruit_sanity != 0:
-    #     level_name = ""
-    #     bundle_name = ""
-    #     location_name = ""
-    #     # id = 10000
-    #     # if world.options.fruit_sanity == 2:
-    #     #     id = 20000
-    #     wumpa_count = 0
-    #     #with open("fruitbundles.txt", "r") as file:
-    #
-    #     for line in fruitbundlestxt.splitlines():
-    #         if line[0] == "#":
-    #             if "level: " in line:
-    #                 level_name = line.replace("#level: ", "")
-    #             else:
-    #                 if bundle_name != "":
-    #                     # add the location
-    #                     if world.options.fruit_sanity == 1: # if bundles then add a bundle location
-    #                         location_name = level_name + " " + bundle_name + " Bundle (" + str(wumpa_count) + " Wumpas)"
-    #                         #world.location_name_to_id[location_name] = id
-    #                         #LOCATION_NAME_TO_ID[location_name] = id
-    #                         # id += 1
-    #                         print("---" + location_name + str(world.location_name_to_id[location_name]))
-    #                         region = world.get_region(level_name)
-    #                         region.locations.append(
-    #                             Crash2Location(world.player, location_name, world.location_name_to_id[location_name], region))
-    #                     wumpa_count = 0
-    #                 bundle_name = line.replace("#", "")
-    #                 if world.options.fruit_sanity == 2:
-    #                     location_name = level_name + " " + bundle_name
-    #         if len(line.split("-")) == 2:
-    #             wumpa_count += 1
-    #             if world.options.fruit_sanity == 2: # if full sanity, add location for each wumpa
-    #                 wumpa_location_name = location_name + " Wumpa #" + str(wumpa_count)
-    #                 #world.location_name_to_id[wumpa_location_name] = id
-    #                 #LOCATION_NAME_TO_ID[wumpa_location_name] = id
-    #                 # id += 1
-    #                 region = world.get_region(level_name)
-    #                 region.locations.append(
-    #                     Crash2Location(world.player, wumpa_location_name, world.location_name_to_id[wumpa_location_name], region))
-
+        min_life_count = 5
+        max_life_count = 99
+        life_count_range = max_life_count - min_life_count
+        total_crystals = world.options.extra_crystals + 25
+        for count in world.options.life_count_checks.value:
+            count = int(count)
+            required_crystals = int(((count - min_life_count) / life_count_range) * total_crystals)
+            region = world.get_region(str(required_crystals) + " Crystals")
+            location_name = "Collect " + str(count) + " Lives"
+            region.locations.append(Crash2Location(world.player, location_name, world.location_name_to_id[location_name], region))
+            #print("Placing "+ location_name + " into " + region.name)
 
     # region = world.get_region("Dr. Neo Cortex")
     # location = ""
