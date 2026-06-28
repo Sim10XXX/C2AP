@@ -191,6 +191,7 @@ namespace C2AP
                                 Bundles.Add(new ItemBundle());
                                 bundle = Bundles.Last();
                                 bundle.locationId = bundleLocationIdOffset + totalBundles;
+                                //Log.Information($"Name: {bundlename}, LocationId: {bundle.locationId}");
                                 LocationIdToBundle[bundle.locationId] = totalBundles;
                                 totalBundles++;
 
@@ -198,6 +199,7 @@ namespace C2AP
                             id = Convert.ToUInt32(split[1], 16);
                             id = id << 8;
                             id += levelid;
+                            //Log.Information($"Item id: {id:X}");
                             ItemIdToBundle[id] = totalBundles - 1;
                             bundle.requiredItems.Add(id);
                             bundle.requiredItemCount++;
@@ -247,6 +249,7 @@ namespace C2AP
             if (Bundles == null) return;
 
             uint len = Memory.ReadUInt(Addresses.FruitCollectedListStart);
+            Log.Debug("scanning collected item list, length: " + len);
             if (len == 0) return;
 
             uint levelId = Memory.ReadByte(Addresses.LevelIdAddress+1);
@@ -331,7 +334,7 @@ namespace C2AP
             Memory.Write(Addresses.CurrentEntityFlagList + id * 4, 2);
             Memory.Write(Addresses.ContinuePointFlagList + id * 4, 2);
             Memory.Write(Addresses.ContinuePoint2FlagList + id * 4, 2);
-            Log.Debug($"setting dead flags for fruit {id:X}");
+            Log.Debug($"setting dead flags for item {id:X}");
             Log.Debug($"Address{Addresses.CurrentEntityFlagList + id * 4:X}");
         }
 

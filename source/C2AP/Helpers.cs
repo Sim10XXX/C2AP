@@ -39,8 +39,13 @@ namespace C2AP
             //}
             //Log.Information($"life_count_checks option : {optionValue}");
             //return Convert.ToInt32(optionValue.ToString());
-            List<uint> checks = GetOptionValueList("life_count_checks").ConvertAll(x => (uint)x);
+            List<uint> checks = GetSlotDataList("life_count_checks").ConvertAll(x => (uint)x);
             //Log.Information($"life_count_checks option : {string.Join(", ", checks)}");
+            if (checks.Count == 0)
+            {
+                //Log.Information($"No life count checks configured, skipping life count check");
+                return;
+            }
             App.crashState.LifeCountChecks = checks.ToArray();
 
             checkLifeCount.Elapsed += (s, ev) =>
@@ -63,6 +68,7 @@ namespace C2AP
                                     Name = $"Collect {lifeCountCheck} Lives",
                                     Id = (int) (lifeCountBaseId + lifeCountCheck),
                                 });
+                                Log.Information($"Sent life count check for {lifeCountCheck} lives");
                             }
                         }
                         App.crashState.MaxLifeCount = lifeCount;
@@ -109,21 +115,30 @@ namespace C2AP
             return Convert.ToInt32(optionValue.ToString());
         }
 
-        public static List<int> GetOptionValueList(string optionName)
+        public static List<int> GetSlotDataList(string slotName)
         {
-            App.Client.Options.TryGetValue(optionName, out var optionValue);
-            if (optionValue == null)
+            App.SlotData.TryGetValue(slotName, out var slotValue);
+            if (slotValue == null)
             {
-                Log.Logger.Error($"{optionName} option null");
+                Log.Logger.Error($"{slotName} option null");
                 return [];
             }
-            var value = optionValue.ToString();
+            var value = slotValue.ToString();
             if (value == null)
             {
                 return [];
             }
+            
             var valueList = value.Trim('[', ']').Split(',');
             List<int> resultList = [];
+            if (valueList.Length == 1)
+            {
+                //Log.Information($"valuelist: {valueList[0]}");
+                if (valueList[0] == "")
+                {
+                    return [];
+                }
+            }            
             foreach (var item in valueList)
             {
                 resultList.Add(Convert.ToInt32(item.Trim().Trim('"')));
