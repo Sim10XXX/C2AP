@@ -50,6 +50,11 @@ namespace C2AP
             int life_sanity = Helpers.GetOptionValue("life_sanity");
             if (fruit_sanity <= 0 && life_sanity <= 0) return;
 
+            ItemIdToBundle = new Dictionary<uint, int>();
+            LocationIdToBundle = new Dictionary<int, int>();
+            Bundles = new List<ItemBundle>();
+            LevelIdToBundle = new Dictionary<uint, (int start, int end)>();
+
             ProcessBundleFile(fruit_sanity, 0);
             ProcessBundleFile(0, life_sanity);
 
@@ -81,7 +86,7 @@ namespace C2AP
 
         private static void ProcessBundleFile(int fruit_sanity, int life_sanity)
         {
-            if (ItemIdToBundle != null && Bundles != null) return;
+            //if (ItemIdToBundle != null && Bundles != null) return;
             if (fruit_sanity <= 0 && life_sanity <= 0) return;
             if (fruit_sanity > 0 && life_sanity > 0)
             {
@@ -107,10 +112,7 @@ namespace C2AP
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     //if (reader == null) return;
-                    ItemIdToBundle = new Dictionary<uint, int>();
-                    LocationIdToBundle = new Dictionary<int, int>();
-                    Bundles = new List<ItemBundle>();
-                    LevelIdToBundle = new Dictionary<uint, (int start, int end)>();
+                    
 
                     int bundleLocationIdOffset;
                     if (fruit)
@@ -132,12 +134,14 @@ namespace C2AP
                     string line;
                     uint id = 0;
                     uint levelid = 0;
-                    int totalBundles = 0;
+                    int totalBundles = Bundles.Count();
+                    int totalLocalBundles = 0;
                     int currentBundle = -1;
                     string levelname = "";
                     string bundlename = "";
                     int start = 0;
                     ItemBundle bundle = new();
+                    //Log.Information($"Loading {(fruit ? "fruit" : "life")} bundles with sanity level {(fruit ? fruit_sanity : life_sanity)}, base location ID offset: {bundleLocationIdOffset}");
                     while ((line = reader.ReadLine()) != null)
                     {
                         if (line[0] == '#')
@@ -177,7 +181,8 @@ namespace C2AP
                         {
                             if (levelid != 0)
                             {
-                                LevelIdToBundle[levelid] = (start, totalBundles);
+                                if (fruit)
+                                    LevelIdToBundle[levelid] = (start, totalBundles); // 100% doesn't account for the second pass through
                             }
                             start = totalBundles;
                             levelid = Convert.ToUInt32(split[0], 16);
@@ -190,10 +195,12 @@ namespace C2AP
                                 currentBundle = Convert.ToInt32(split[0], 16);
                                 Bundles.Add(new ItemBundle());
                                 bundle = Bundles.Last();
-                                bundle.locationId = bundleLocationIdOffset + totalBundles;
-                                //Log.Information($"Name: {bundlename}, LocationId: {bundle.locationId}");
+                                bundle.locationId = bundleLocationIdOffset + totalLocalBundles;
+                                //if (!fruit)
+                                    //Log.Information($"Name: {bundlename}, LocationId: {bundle.locationId}");
                                 LocationIdToBundle[bundle.locationId] = totalBundles;
                                 totalBundles++;
+                                totalLocalBundles++;
 
                             }
                             id = Convert.ToUInt32(split[1], 16);
@@ -249,7 +256,7 @@ namespace C2AP
             if (Bundles == null) return;
 
             uint len = Memory.ReadUInt(Addresses.FruitCollectedListStart);
-            Log.Debug("scanning collected item list, length: " + len);
+            //Log.Debug("scanning collected item list, length: " + len);
             if (len == 0) return;
 
             uint levelId = Memory.ReadByte(Addresses.LevelIdAddress+1);
@@ -302,7 +309,7 @@ namespace C2AP
                         Id = bundle.locationId,
                         //Category = "Fruit Bundle",
                     });
-                    Log.Logger.Debug($"sending {bundle.locationId}");
+                    Log.Logger.Debug($"sending {bundle.locationId}, for collecting id: {id:X}");
                 }
             }
             //Log.Logger.Information("scanning6");

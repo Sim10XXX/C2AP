@@ -68,7 +68,7 @@ namespace C2AP
                                     Name = $"Collect {lifeCountCheck} Lives",
                                     Id = (int) (lifeCountBaseId + lifeCountCheck),
                                 });
-                                Log.Information($"Sent life count check for {lifeCountCheck} lives");
+                                //Log.Information($"Sent life count check for {lifeCountCheck} lives");
                             }
                         }
                         App.crashState.MaxLifeCount = lifeCount;

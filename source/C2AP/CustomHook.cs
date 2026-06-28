@@ -573,7 +573,7 @@ namespace C2AP
 
             if (first.SequenceEqual(jmpto))
             {
-                Log.Debug("hook already inserted from a previous connection");
+                Log.Information("hook already inserted from a previous connection");
                 return;
             }
 
