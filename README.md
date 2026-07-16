@@ -42,7 +42,7 @@ You may upload this to [the Archipelago website](https://archipelago.gg/uploads)
 3. Open Duckstation and load into Crash 2.
 4. In Duckstation, navigate to Settings > Game Properties > Console and select "Interpreter" under "Execution Mode".
 5. Make sure that Runahead (inside of Emulation Settings) is disabled
-6. Start a new game (or if continuing an existing seed, load into that save file).
+6. Start a new game (the client will restore your progress if you are continuing an existing seed).
 7. Open C2AP.Desktop.exe, the Crash 2 client.  You will likely want to do so as an administrator.
 8. In the top left of the Crash 2 client, click the "burger" menu to open the settings page.
 9. Enter your host, slot, and optionally your password.
