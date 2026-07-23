@@ -41,7 +41,8 @@ namespace C2AP
             //0x15A38 works, also 0x15A0C, 0x15A44
             if (_inputHook._freeAddress == 0)
             {
-                _inputHook.InsertHook(0x15A0C, 0xf000); //0x15A54
+                //_inputHook.InsertHook(0x15A0C, 0xf000); //0x15A54
+                HookManager.AddHook(_inputHook, 0x15A0C);
             }
             
             

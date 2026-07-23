@@ -17,7 +17,7 @@ namespace C2AP
 
         private List<byte> _bytes;
 
-        private ulong _targetAddress;
+        public ulong _targetAddress;
 
         private int _targetInstructionSize;
 

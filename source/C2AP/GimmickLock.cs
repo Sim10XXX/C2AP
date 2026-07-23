@@ -123,7 +123,8 @@ namespace C2AP
                     if (levelId != lastLevelId)
                     {
                         //Log.Information("inserting overwritePolarEventHook");
-                        overwritePolarEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                        //overwritePolarEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                        HookManager.AddHook(overwritePolarEventHook, 0x1CD48);
                     }
                     lastLevelId = levelId;
                     break;
@@ -143,12 +144,14 @@ namespace C2AP
                         if (levelId == 0x0700)
                         {
                             //Log.Information("inserting overwriteCortexEventHook");
-                            overwriteCortexEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                            //overwriteCortexEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                            HookManager.AddHook(overwriteCortexEventHook, 0x1CD48);
                         }
                         else
                         {
                             //Log.Information("inserting overwriteJetpackEventHook");
-                            overwriteJetpackEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                            //overwriteJetpackEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                            HookManager.AddHook(overwriteJetpackEventHook, 0x1CD48);
                         }
                         //
                     }
@@ -163,7 +166,8 @@ namespace C2AP
                     {
                         if (overwriteJetboardEventHook._freeAddress != 0)
                         {
-                            overwriteJetboardEventHook.RemoveHook();
+                            //overwriteJetboardEventHook.RemoveHook();
+                            HookManager.RemoveHook(overwriteJetboardEventHook);
                         }
                         break;
                     }
@@ -171,7 +175,8 @@ namespace C2AP
                     {
                         // It is still possible to get on the jetboard even when it is at scale 0, so we need to overwrite that event
                         //Log.Information("inserting overwriteJetboardEventHook");
-                        overwriteJetboardEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                        //overwriteJetboardEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                        HookManager.AddHook(overwriteJetboardEventHook, 0x1CD48);
                     }
                     uint jetboardAddress = CrashObject.FindObjectAddress(47, 2);
                     if (jetboardAddress != 0 && jetboardAddress != CrashObject.cacheOffset)
@@ -226,19 +231,22 @@ namespace C2AP
                     //case 0x0200:
                     if (overwritePolarEventHook._freeAddress != 0)
                     {
-                        overwritePolarEventHook.RemoveHook();
+                        //overwritePolarEventHook.RemoveHook();
+                        HookManager.RemoveHook(overwritePolarEventHook);
                     }
                     if (overwriteJetpackEventHook._freeAddress != 0)
                     {
-                        overwriteJetpackEventHook.RemoveHook();
+                        //overwriteJetpackEventHook.RemoveHook();
+                        HookManager.RemoveHook(overwriteJetpackEventHook);
                     }
                     if (overwriteCortexEventHook._freeAddress != 0)
                     {
-                        overwriteCortexEventHook.RemoveHook();
+                        HookManager.RemoveHook(overwriteCortexEventHook);
                     }
                     if (overwriteJetboardEventHook._freeAddress != 0)
                     {
-                        overwriteJetboardEventHook.RemoveHook();
+                        //overwriteJetboardEventHook.RemoveHook();
+                        HookManager.RemoveHook(overwriteJetboardEventHook);
                     }
                     if (levelId == 0x0200)
                     {
@@ -251,11 +259,11 @@ namespace C2AP
                                 Memory.Write(bearAddress + 0x64, 0x0fffffff);
                             }
                         }
-                        if (0 != Memory.ReadUInt(BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC))
-                        {
-                            overwritePolarEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
-                            overwritePolarEventHook.RemoveHook();
-                        }
+                        //if (0 != Memory.ReadUInt(BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC))
+                        //{
+                        //    overwritePolarEventHook.InsertHook(0x1CD48, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + Traps.trapsHookSize + 0xC);
+                        //    overwritePolarEventHook.RemoveHook();
+                        //}
                     }
                     lastLevelId = levelId;
                     break;

@@ -70,7 +70,8 @@ namespace C2AP
                 Log.Error("CrashEvent must be initialized after BaseHooks");
                 return;
             }
-            sendEvent.InsertHook(0x15A04, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + 0x4);
+            //sendEvent.InsertHook(0x15A04, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + 0x4);
+            HookManager.AddHook(sendEvent, 0x15A04);
 
             // Call a dummy event in order to have the correct value for CrashEvent.sendEvent._hookSize
             CallSendEvent(0, 0, 0, 0, []);

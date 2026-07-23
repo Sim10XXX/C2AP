@@ -184,6 +184,7 @@ namespace C2AP
 
         public static void InitializeAll(string slot)
         {
+            HookManager.ClearHooks();
             BaseHooks.Initialize();
             WarpRoomRandomizer.Initialize();
             CrashDeathLink.Initialize(slot);

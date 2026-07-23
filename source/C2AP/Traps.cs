@@ -346,12 +346,13 @@ namespace C2AP
                 return;
             }
             //Log.Information($"Free add: {BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8 :X}");
-            jetpackControlsHook.InsertHook(0x15A38, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8);
+            //jetpackControlsHook.InsertHook(0x15A38, BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8);
+            HookManager.AddHook(jetpackControlsHook, 0x15A38);
         }
 
         private static void ResetJetpackControls()
         {
-            jetpackControlsHook.RemoveHook();
+            HookManager.RemoveHook(jetpackControlsHook);
         }
     }
 }

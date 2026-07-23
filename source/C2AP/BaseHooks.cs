@@ -122,7 +122,8 @@ namespace C2AP
             ]);
             //0x19, 0x11, 0x0A, 0x0F, 0x10
 
-            ApItemsHook.InsertHook(0x3A8C0, 0xf030);
+            //ApItemsHook.InsertHook(0x3A8C0, 0xf030);
+            HookManager.AddHook(ApItemsHook, 0x3A8C0);
 
             
 
@@ -293,7 +294,7 @@ namespace C2AP
         public static void UnInitialize()
         {
             if (ApItemsHook != null)
-                ApItemsHook.RemoveHook();
+                HookManager.RemoveHook(ApItemsHook);
             WarpRoomRandomizer.UnInitialize();
         }
     }
