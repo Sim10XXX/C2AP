@@ -33,7 +33,7 @@ namespace C2AP
         public static void OnDeathLinkReceived(DeathLink deathLink)
         {
             
-            Log.Logger.Information("DeathLink received, killing Crash");
+            Log.Logger.Information($"DeathLink received ({deathLink.Cause}), killing Crash");
             CrashEvent.EnqueueEvent(CrashEvent.EventType.KillCrash);
 
             // 10 second grace period where the first death doesn't send deathlink
