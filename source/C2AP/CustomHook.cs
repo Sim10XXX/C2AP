@@ -15,11 +15,11 @@ namespace C2AP
     {
         public List<string> _asm;
 
-        private List<byte> _bytes;
+        public List<byte> _bytes;
 
         public ulong _targetAddress;
 
-        private int _targetInstructionSize;
+        public int _targetInstructionSize;
 
         public ulong _freeAddress;
 
@@ -38,6 +38,9 @@ namespace C2AP
 
         public void ReplaceAsm(List<string> asm)
         {
+            Log.Error("please use HookManager.ReplaceAsm instead");
+            return;
+
             if (_targetAddress == 0 && _freeAddress == 0)
             {
                 Log.Warning("can't run ReplaceAsm on uninserted hook");
@@ -46,7 +49,7 @@ namespace C2AP
             ulong targetAddress = _targetAddress;
             int targetInstructionSize = _targetInstructionSize;
             ulong freeAddress = _freeAddress;
-            
+
             RemoveHook();
             _asm = asm;
             _bytes = ConvertAsm(asm);

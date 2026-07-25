@@ -55,13 +55,20 @@ namespace C2AP
         private static void RefreshInputHook()
         {
             uint val = (uint)_inputflag << 16;
-            _inputHook.ReplaceAsm([
-                        $"la $t0, 0x{Addresses.InputsAddress + Addresses.CacheOffset:X}",
-                        "lw $t1, 0($t0)",
-                        $"la $t2, 0x{val:X}", //can be optimized to just lui
-                        "or $t1, $t1, $t2",
-                        "sw $t1, 0($t0)",
-                        ]);
+            HookManager.ReplaceAsm(_inputHook, [
+                $"la $t0, 0x{Addresses.InputsAddress + Addresses.CacheOffset:X}",
+                "lw $t1, 0($t0)",
+                $"la $t2, 0x{val:X}", //can be optimized to just lui
+                "or $t1, $t1, $t2",
+                "sw $t1, 0($t0)",
+            ]);
+            //_inputHook.ReplaceAsm([
+            //            $"la $t0, 0x{Addresses.InputsAddress + Addresses.CacheOffset:X}",
+            //            "lw $t1, 0($t0)",
+            //            $"la $t2, 0x{val:X}", //can be optimized to just lui
+            //            "or $t1, $t1, $t2",
+            //            "sw $t1, 0($t0)",
+            //            ]);
             //Log.Information($"InputHook end = {_inputHook._hookSize + _inputHook._freeAddress + 0x4:X}");
             //Log.Information($"la $t2, 0x{val:X}");
         }

@@ -171,7 +171,7 @@ public partial class App : Application
                 _useQuietHints = false;
                 break;
             case "exec":
-                break;
+                //break;
                 if (args.Length > 1) break;
                 //Memory.Write(Addresses.SecretEntranceFlags, 0);
                 //break;
@@ -430,6 +430,7 @@ public partial class App : Application
         {
             Client.MonitorLocations(GameLocations);
             Helpers.InitializeAll(e.Slot);
+            
         }
         else
         {

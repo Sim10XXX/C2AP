@@ -20,9 +20,16 @@ namespace C2AP
 
         private static Timer checkEmulation = new Timer(100);
         private static Timer checkLifeCount = new Timer(1000);
+        private static Timer checkConnectionIntegrity = new Timer(1000);
+        private static CustomHook connectionHook = new CustomHook([
+            "nop",
+        ]);
 
         private static uint previousTime = 0;
         private static bool isEmulationPaused = true;
+
+        private static ushort seed = 0;
+        private static bool connectionValid = false;
 
         public const uint lifeCountBaseId = 1000;
 
@@ -103,6 +110,55 @@ namespace C2AP
             return Memory.ReadUInt(Addresses.PausedFlag) != 0;
         }
 
+        public static void StartCheckConnectionIntegrity()
+        {
+            //Log.Information($"Seed: {GetSlotData("seed")}");
+            seed = unchecked((ushort)GetSlotData("seed"));
+            //seed += Addresses.CacheOffset;
+            HookManager.AddHook(connectionHook, 0x15A20);
+            HookManager.ReplaceAsm(connectionHook,[
+                $"la $t0, 0x{Addresses.ConnectionCheck + Addresses.CacheOffset:X}",
+                //$"la $t1, 0x{seed:X}",
+                $"addiu $t1, $zero, 0x{seed:X}",
+                "sw $t1, 0($t0)",
+            ]);
+            uint currentSeed = Memory.ReadUInt(Addresses.ConnectionCheck);
+            if (currentSeed != 0 && currentSeed != seed)
+            {
+                Log.Error("Connected into a game from a different session");
+            }
+
+            checkConnectionIntegrity.Elapsed += (s, ev) =>
+            {
+                if (isEmulationPaused) return;
+                uint currentSeed = Memory.ReadUInt(Addresses.ConnectionCheck);
+                if (currentSeed == 0)
+                {
+                    if (connectionValid)
+                    {
+                        Log.Error("Connection interrupted due to console reset or loading of save state");
+                        connectionValid = false;
+                        return;
+                    }
+                    Log.Error("Connection check failed, make sure DuckStation's execution mode is set to 'Interpreter'");
+                    return;
+                }
+                if (currentSeed != seed)
+                {
+                    if (connectionValid)
+                    {
+                        Log.Error("Loaded into a save state from a different session");
+                        connectionValid = false;
+                        return;
+                    }
+                    Log.Error($"Seed mismatch detected: {currentSeed} != {seed}");
+                    return;
+                }
+                connectionValid = true;
+            };
+            checkConnectionIntegrity.Start();
+        }
+
         public static int GetOptionValue(string optionName)
         {
             App.Client.Options.TryGetValue(optionName, out var optionValue);
@@ -115,12 +171,27 @@ namespace C2AP
             return Convert.ToInt32(optionValue.ToString());
         }
 
+        public static int GetSlotData(string slotName)
+        {
+            App.SlotData.TryGetValue(slotName, out var slotValue); //2,000,000,000
+            if (slotValue == null)
+            {
+                Log.Logger.Error($"{slotName} slot null");
+                return -1;
+            }
+
+            Log.Information($"{slotName} option : {slotValue}");
+            
+            // prevent overflow when converting to int, since the seed is going to be a very large number
+            return Convert.ToInt32(slotValue.ToString().Substring(0,Math.Min(9, slotValue.ToString().Length)));
+        }
+
         public static List<int> GetSlotDataList(string slotName)
         {
             App.SlotData.TryGetValue(slotName, out var slotValue);
             if (slotValue == null)
             {
-                Log.Logger.Error($"{slotName} option null");
+                Log.Logger.Error($"{slotName} slot null");
                 return [];
             }
             var value = slotValue.ToString();
@@ -185,6 +256,7 @@ namespace C2AP
         public static void InitializeAll(string slot)
         {
             HookManager.ClearHooks();
+            HookManager.ClearHooksFromPreviousConnection();
             BaseHooks.Initialize();
             WarpRoomRandomizer.Initialize();
             CrashDeathLink.Initialize(slot);
@@ -201,6 +273,8 @@ namespace C2AP
             GimmickLock.Initialize();
             Helpers.StartCheckEmulationPaused();
             Helpers.StartCheckLifeCount();
+            Helpers.StartCheckConnectionIntegrity();
+
         }
         public static List<ILocation> BuildLocationList()
         {

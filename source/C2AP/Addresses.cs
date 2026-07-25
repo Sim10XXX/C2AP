@@ -88,6 +88,8 @@ namespace C2AP
         public const uint PausedFlag = 0x0005f418;
         public const uint SecretEntranceFlags = 0x0006d060;
 
+        public const uint ConnectionCheck = 0x0000E9C8;
+
         public static Dictionary<string, int> BitOfLocation = new Dictionary<string, int>
         {
             //crystals

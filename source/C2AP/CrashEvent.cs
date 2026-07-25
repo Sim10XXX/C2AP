@@ -327,9 +327,8 @@ namespace C2AP
             {
                 Memory.Write(Addresses.EventArgv + 0x4 * i, eventArgv[i]);
             }
+            HookManager.ReplaceAsm(sendEvent, [
 
-            sendEvent.ReplaceAsm([
-               
                 $"la $t1, 0x{Addresses.SendEventFlag + Addresses.CacheOffset:X}",
                 "lw $t0, 0($t1)",
                 "nop",
