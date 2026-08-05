@@ -414,7 +414,7 @@ public partial class App : Application
         Client.CurrentSession.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
         Client.MessageReceived += Client_MessageReceived;
         Client.ItemReceived += ItemReceived;
-        Client.EnableLocationsCondition = () => Helpers.IsInGame();
+        Client.EnableLocationsCondition = () => Helpers.IsInGame() && Helpers.IsConnectionValid();
         await Client.Login(e.Slot, !string.IsNullOrWhiteSpace(e.Password) ? e.Password : null);
         //if (Client.Options?.Count > 0)
         //{
@@ -428,9 +428,10 @@ public partial class App : Application
         
         if (Helpers.IsInGame())
         {
-            Client.MonitorLocations(GameLocations);
+            SyncGameState();
+            UpdateCrashState();
             Helpers.InitializeAll(e.Slot);
-            
+            Client.MonitorLocations(GameLocations);
         }
         else
         {
@@ -498,6 +499,7 @@ public partial class App : Application
 
     public static void UpdateCrashState()
     {
+        Helpers.shouldSyncProgress = false;
         // Updates the game with the current crashState
         if (Client.LocationState == null) return;
         if (Client.ItemState == null) return;
@@ -936,8 +938,7 @@ public partial class App : Application
         {
             ItemCheck.Initialize();
         }
-        SyncGameState();
-        UpdateCrashState();
+        
     }
 
     private static void OnDisconnected(object sender, EventArgs args)

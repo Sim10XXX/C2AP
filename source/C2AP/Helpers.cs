@@ -2,6 +2,7 @@
 using Archipelago.Core.Util;
 using DynamicData;
 using Serilog;
+using Silk.NET.GLFW;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,6 +31,9 @@ namespace C2AP
 
         private static ushort seed = 0;
         private static bool connectionValid = false;
+        private static bool shouldCheckConnection = false;
+
+        public static bool shouldSyncProgress = false; // for use in connection integrity
 
         public const uint lifeCountBaseId = 1000;
 
@@ -37,6 +41,7 @@ namespace C2AP
 
         public static void StartCheckLifeCount()
         {
+            if (checkLifeCount.Enabled) return;
             //GetOptionValue();
             //App.Client.Options.TryGetValue("life_count_checks", out var optionValue);
             //if (optionValue == null)
@@ -87,11 +92,15 @@ namespace C2AP
 
         public static void StartCheckEmulationPaused()
         {
+            if (checkEmulation.Enabled) return;
+
+            previousTime = Memory.ReadUInt(Addresses.Timer);
             checkEmulation.Elapsed += (s, ev) =>
             {
                 uint time = Memory.ReadUInt(Addresses.Timer);
                 isEmulationPaused = time == previousTime;
                 previousTime = time;
+                Log.Information($"Time: {time}, Previous Time: {previousTime}");
                 //uint crashAddress = CrashObject.FindObjectAddress(0, 0);
                 //if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
                 //{
@@ -128,35 +137,64 @@ namespace C2AP
                 Log.Error("Connected into a game from a different session");
             }
 
-            checkConnectionIntegrity.Elapsed += (s, ev) =>
+            //checkConnectionIntegrity.Elapsed += (s, ev) =>
+            //{
+            //    IsConnectionValid();
+            //};
+            //checkConnectionIntegrity.Start();
+            shouldCheckConnection = true;
+        }
+
+        public static bool IsConnectionValid()
+        {
+            if (!shouldCheckConnection)
             {
-                if (isEmulationPaused) return;
-                uint currentSeed = Memory.ReadUInt(Addresses.ConnectionCheck);
-                if (currentSeed == 0)
+                //Log.Warning($"Connection check skipped, connectionvalid: {connectionValid}");
+                return connectionValid;
+            }
+            if (isEmulationPaused)
+            {
+                //Log.Warning("Emulation is paused, connection check skipped");
+                return false;
+            }
+            uint currentSeed = Memory.ReadUInt(Addresses.ConnectionCheck);
+            if (currentSeed == 0)
+            {
+                if (connectionValid)
                 {
-                    if (connectionValid)
+                    shouldCheckConnection = false;
+                    shouldSyncProgress = true;
+                    connectionValid = false;
+                    if (IsInGame())
                     {
-                        Log.Error("Connection interrupted due to console reset or loading of save state");
-                        connectionValid = false;
-                        return;
+                        Log.Error("Connection interrupted due to loading of save state");
                     }
-                    Log.Error("Connection check failed, make sure DuckStation's execution mode is set to 'Interpreter'");
-                    return;
+                    else
+                    {
+                        Log.Error("Connection interrupted due to console reset");
+                    }
+                    
+                    return connectionValid;
                 }
-                if (currentSeed != seed)
+                Log.Error("Connection check failed, make sure DuckStation's execution mode is set to 'Interpreter'");
+                return connectionValid;
+            }
+            if (currentSeed != seed)
+            {
+                shouldCheckConnection = false;
+                shouldSyncProgress = true;
+                if (connectionValid)
                 {
-                    if (connectionValid)
-                    {
-                        Log.Error("Loaded into a save state from a different session");
-                        connectionValid = false;
-                        return;
-                    }
-                    Log.Error($"Seed mismatch detected: {currentSeed} != {seed}");
-                    return;
+                    Log.Error("Loaded into a save state from a different session");
+                    connectionValid = false;
+                    return connectionValid;
                 }
-                connectionValid = true;
-            };
-            checkConnectionIntegrity.Start();
+                Log.Error($"Seed mismatch detected: {currentSeed} != {seed}");
+                return connectionValid;
+            }
+            connectionValid = true;
+            //Log.Information("Connection check passed");
+            return connectionValid;
         }
 
         public static int GetOptionValue(string optionName)
@@ -222,6 +260,7 @@ namespace C2AP
         {
             //Log.Debug($"Text: {Addresses.StaticText}");
             //Log.Debug($"Text: {Memory.ReadString(Addresses.StaticTextAddress, 0x50)}");
+
             bool check1 = Addresses.StaticText.Contains(Memory.ReadString(Addresses.StaticTextAddress, 0x50));
             //bool check2 = !IsInDemo();
             //bool check3 = Memory.ReadUInt(Addresses.LevelIdAddress) != 0x3C00; // is not on the title screen
@@ -230,11 +269,34 @@ namespace C2AP
                 //Log.Debug($"Text: true, level: {Memory.ReadUInt(Addresses.LevelIdAddress):X}");
                 if (!lastInGameStatus)
                 {
-                    //Log.Information("Entered in-game state");
+                    lastInGameStatus = true;
+                    Log.Information("Entered in-game state");
                     //BaseHooks.Initialize();
-                    //InitializeAll(slotName);
+                    InitializeAll(slotName);
                 }
-                lastInGameStatus = true;
+                uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
+                if (levelId != 0x3C00)
+                {
+                    if (!IsInDemo())
+                    {
+                        if (shouldSyncProgress)
+                        {
+                            App.UpdateCrashState();
+                            Log.Information("Updating crash state");
+                            if (!shouldCheckConnection)
+                            {
+                                shouldCheckConnection = true;
+                                Log.Information("Resuming connection check");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    shouldSyncProgress = true;
+                }
+                
+
                 return true;
             }
             //Log.Debug($"Text: false");
@@ -242,9 +304,11 @@ namespace C2AP
             {
                 Log.Error("Exited in-game state (console was reset)");
                 Log.Error("Please restart the client since most features will not work correctly");
+                shouldSyncProgress = true;
                 //BaseHooks.UnInitialize();
             }
             lastInGameStatus = false;
+            Log.Warning("Not in game");
             return false;
         }
         
