@@ -100,11 +100,11 @@ namespace C2AP
                 String resourceName;
                 if (fruit)
                 {
-                    resourceName = "C2AP.fruitbundles.txt";
+                    resourceName = "C2AP.Assets.fruitbundles.txt";
                 }
                 else
                 {
-                    resourceName = "C2AP.lifebundles.txt";
+                    resourceName = "C2AP.Assets.lifebundles.txt";
                 }
                 
 

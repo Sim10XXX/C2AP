@@ -10,13 +10,11 @@ using System.Reflection;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using System.Timers;
-using static C2AP.Models.Enums;
 using Location = Archipelago.Core.Models.Location;
 namespace C2AP
 {
     public class Helpers
     {
-        private static GameStatus lastNonZeroStatus = GameStatus.Spawning;
         public static bool lastInGameStatus = false;
 
         private static Timer checkEmulation = new Timer(100);
