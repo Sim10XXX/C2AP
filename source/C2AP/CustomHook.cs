@@ -1,10 +1,14 @@
 ﻿using Archipelago.Core.Util;
 using Avalonia;
+using Avalonia.Controls.Shapes;
+using DynamicData;
 using Serilog;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -138,15 +142,30 @@ namespace C2AP
             uint rs;
             uint rt;
             uint immed;
-            switch (instruction[0])
+
+            // handle length 3 instructions
+            if (instruction.Length == 3)
             {
-                case "bgez":
-                    opcode = 0x1;
-                    rt = 0x1;
-                    rs = EncodeRegister(instruction[1]);
-                    immed = Convert.ToUInt32(instruction[2].Replace("0x", ""), 16) & 0xFFFF;
-                    return ConvertToBytes(opcode, rs, rt, immed);
+                switch (instruction[0])
+                {
+                    case "bgez":
+                        opcode = 0x1;
+                        rt = 0x1;
+                        rs = EncodeRegister(instruction[1]);
+                        break;
+                    case "lui":
+                        opcode = 0xF;
+                        rs = 0;
+                        rt = EncodeRegister(instruction[1]);
+                        break;
+                    default:
+                        Log.Error($"CustomHook: Unknown/unimplemented I-type instruction {instruction[0]}");
+                        return [0, 0, 0, 0];
+                }
+                immed = Convert.ToUInt32(instruction[2].Replace("0x", ""), 16) & 0xFFFF;
+                return ConvertToBytes(opcode, rs, rt, immed);
             }
+            
 
             if (instruction.Length != 4)
             {
@@ -166,6 +185,9 @@ namespace C2AP
                     break;
                 case "andi":
                     opcode = 0xC;
+                    break;
+                case "ori":
+                    opcode = 0xD;
                     break;
                 //case "lw":
                 //    opcode = 0x23;
@@ -194,17 +216,166 @@ namespace C2AP
             return ConvertToBytes(opcode, rs, rt, immed);
         }
 
-        public static List<byte> ConvertAsm(List<string> asm)
+        private static byte[] ConvertRType(string[] instruction)
         {
-            List<byte> bytes = new List<byte>();
+            uint rs = 0;
+            uint rt = 0;
+            uint rd = 0;
+            uint shamt = 0;
+            uint funct = 0;
+            if (instruction.Length != 4)
+            {
+                Log.Error($"CustomHook: Invalid {instruction[0]} instruction format, length was {instruction.Length}");
+                return [0, 0, 0, 0];
+            }
+            rd = EncodeRegister(instruction[1]);
+            
+            switch (instruction[0])
+            {
+                case "or":
+                    funct = 0x25; //or
+                    break;
+                case "subu":
+                    funct = 0x23; //subu
+                    break;
+                case "addu":
+                    funct = 0x21; //addu
+                    break;
+                case "and":
+                    funct = 0x24; //and
+                    break;
+                case "nor":
+                    funct = 0x27; //nor
+                    break;
+                case "sll":
+                case "srl":
+                    if (instruction[0] == "srl")
+                        funct = 0x02; //srl, funct = 0x00; //sll
+                    rt = EncodeRegister(instruction[2]);
+                    shamt = Convert.ToUInt32(instruction[3].Replace("0x", ""), 16) & 0x1F;
+                    return ConvertToBytes(rs, rt, rd, shamt, funct);
+                default:
+                    Log.Error($"CustomHook: Unknown/unimplemented R-type instruction {instruction[0]}");
+                    return [0, 0, 0, 0];
+            }
+            rs = EncodeRegister(instruction[2]);
+            rt = EncodeRegister(instruction[3]);
+
+            return ConvertToBytes(rs, rt, rd, shamt, funct);
+        }
+
+        private static List<string> ConvertPseudos(List<string> asm)
+        {
+            List<string> newasm = new List<string>();
             for (int i = 0; i < asm.Count; i++)
             {
+                string line = asm[i];
+                line = line.Replace(", ", " ");
+                string[] instruction = line.Split([' ', ',']);
+                switch (instruction[0])
+                {
+                    case "la":
+                        if (instruction.Length != 3)
+                        {
+                            Log.Error($"ConvertPseudos: Invalid {instruction[0]} instruction format, length was {instruction.Length}");
+                            //Log.Error($"ConvertPseudos: instruction was {line}, split as [{string.Join("], [", instruction)}]");
+                            break;
+                        }
+                        instruction[2] = instruction[2].Replace("0x", "");
+                        uint address = Convert.ToUInt32(instruction[2], 16);
+                        ushort upper = (ushort)(address >> 16);
+                        ushort lower = (ushort)(address & 0xFFFF);
+                        string[] sub_instruction = { "lui", instruction[1], $"0x{upper:X}" };
+                        newasm.Add(string.Join(" ", sub_instruction));
+                        sub_instruction = new string[] { "ori", instruction[1], instruction[1], $"0x{lower:X}" };
+                        newasm.Add(string.Join(" ", sub_instruction));
+                        break;
+                    default:
+                        newasm.Add(line);
+                        break;
+                }
+            }
+            return newasm;
+        }
+
+        private static List<string> ConvertLabels(List<string> asm)
+        {
+            List<string> nolabelasm = new List<string>();
+            //string label = "";
+            int labelIndex = -1;
+            Dictionary<string, int> labelIndexMap = new();
+            int labelCount = 0;
+            // First pass: build label index map
+            for (int i = 0; i < asm.Count; i++)
+            {
+                string line = asm[i];
+                if (line.Trim().EndsWith(":"))
+                {
+                    labelIndexMap[line.Trim().TrimEnd(':')] = i - labelCount;
+                    labelCount++;
+                    continue;
+                }
+                nolabelasm.Add(line);
+            }
+            List<string> newasm = new List<string>();
+
+            for (int i = 0; i < nolabelasm.Count; i++)
+            {
+                string line = nolabelasm[i];
+                line = line.Replace(", ", " ");
+                string[] instruction = line.Split([' ', ',']);
+                switch (instruction[0])
+                {
+                    case "beq":
+                    case "bne":
+                    case "bgez":
+                        if ((instruction[0] == "bgez" && instruction.Length != 3) ||
+                            (instruction[0] == "beq" || instruction[0] == "bne") && instruction.Length != 4)
+                        {
+                            Log.Error($"ConvertLabels: Invalid {instruction[0]} instruction format, length was {instruction.Length}");
+                            break;
+                        }
+                        if (Char.IsDigit(instruction[instruction.Length - 1][0]))
+                        {
+                            newasm.Add(line);
+                            break;
+                        }
+                        // Handle label replacement
+                        labelIndex = labelIndexMap[instruction[instruction.Length - 1]];
+                        if (instruction.Length == 3)
+                            newasm.Add(string.Join(" ", [instruction[0], instruction[1], $"0x{labelIndex - i - 1:X}"]));
+                        else
+                            newasm.Add(string.Join(" ", [instruction[0], instruction[1], instruction[2], $"0x{labelIndex - i - 1:X}"]));
+                        break;
+                    default:
+                        if (line.Trim().EndsWith(":"))
+                        {
+                            Log.Error("there shouldn't be any labels left at this point");
+                            break;
+                        }
+                        newasm.Add(line);
+                        break;
+                }
+            }
+            return newasm;
+        }
+        public static List<byte> ConvertAsm(List<string> asm)
+        {
+            List<string> newasm = ConvertLabels(ConvertPseudos(asm));
+            //for (int i = 0; i < newasm.Count; i++)
+            //{
+            //    Log.Information($"ConvertAsm: {newasm[i]}");
+            //}
+            List<byte> bytes = new List<byte>();
+            for (int i = 0; i < newasm.Count; i++)
+            {
                 byte[] instructionBytes = new byte[4];
-                asm[i] = asm[i].Replace(", ", " ");
-                string[] instruction = asm[i].Split([' ', ',']);
+                string line = newasm[i];
+                line = line.Replace(", ", " ");
+                string[] instruction = line.Split([' ', ',']);
                 string[] tempsplit;
                 uint address;
-                ushort upper;
+                //ushort upper, lower;
                 uint opcode = 0;
                 uint rs = 0;
                 uint rt = 0;
@@ -259,79 +430,25 @@ namespace C2AP
                             bytes.AddRange(instructionBytes);
                             break;
                         }
-                    case "la":
-                        {
-                            if (instruction.Length != 3)
-                            {
-                                Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                                break;
-                            }
-                            //if (!instruction[1].StartsWith("$t"))
-                            //{
-                            //    Log.Error($"CustomHook: Invalid {instruction[0]} instruction register at line {i + 1} (only $t0 - $t7 are supported)");
-                            //    break;
-                            //}
-                            opcode = 0xF; //lui
+                    //case "la":
+                    //    {
+                    //        if (instruction.Length != 3)
+                    //        {
+                    //            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
+                    //            break;
+                    //        }
+                    //        instruction[2] = instruction[2].Replace("0x", "");
+                    //        address = Convert.ToUInt32(instruction[2], 16);
+                    //        upper = (ushort)(address >> 16);
+                    //        lower = (ushort)(address & 0xFFFF);
 
-                            //byte regNum = Convert.ToByte(instruction[1].Replace("$t", ""));
-                            rt = EncodeRegister(instruction[1]);
-                            rs = 0;
+                    //        string[] sub_instruction = { "lui", instruction[1], $"0x{upper:X}" };
+                    //        bytes.AddRange(ConvertIType(sub_instruction));
 
-                            instruction[2] = instruction[2].Replace("0x", "");
-                            address = Convert.ToUInt32(instruction[2], 16);
-                            upper = (ushort)(address >> 16);
-                            if (upper != 0) 
-                                upper++;
-
-                            immed = upper;
-
-                            bytes.AddRange(ConvertToBytes(opcode, rs, rt, immed));
-
-                            opcode = 0x9; //addiu
-                            //opcode = 0x0D; //ori
-                            immed = address & 0xFFFF;
-                            rs = rt;
-
-                            bytes.AddRange(ConvertToBytes(opcode, rs, rt, immed));
-
-                            break;
-                            //instructionBytes[0] = 0x3C;
-                            
-                            
-                            //instructionBytes[1] = (byte)(8 + regNum); // $t0 - $t7
-                            
-                            
-                            //instructionBytes[2] = (byte)((upper >> 8) & 0xFF);
-                            //instructionBytes[3] = (byte)((upper) & 0xFF);
-                            //Log.Information($"instruction: {BitConverter.ToString(instructionBytes)}");
-                            //bytes.AddRange(instructionBytes);
-                            //instructionBytes = new byte[4];
-                            //instructionBytes[0] = 0x25;
-                            //instructionBytes[1] = (byte)((regNum << 5) | (regNum) | 8);
-                            //instructionBytes[2] = (byte)((address >> 8) & 0xFF);
-                            //instructionBytes[3] = (byte)(address & 0xFF);
-                            //Log.Information($"instruction: {BitConverter.ToString(instructionBytes)}");
-                            //break;
-                        }
-                    case "lui":
-                        if (instruction.Length != 3)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0xF; //lui
-                        rt = EncodeRegister(instruction[1]);
-                        rs = 0;
-
-                        instruction[2] = instruction[2].Replace("0x", "");
-                        address = Convert.ToUInt32(instruction[2], 16);
-                        upper = (ushort)(address);
-                        //upper++;
-
-                        immed = upper;
-
-                        bytes.AddRange(ConvertToBytes(opcode, rs, rt, immed));
-                        break;
+                    //        sub_instruction = new string[] { "ori", instruction[1], instruction[1], $"0x{lower:X}" };
+                    //        bytes.AddRange(ConvertIType(sub_instruction));
+                    //        break;
+                    //    }
                     case "lw":
                         if (instruction.Length != 3)
                         {
@@ -381,100 +498,14 @@ namespace C2AP
 
                         bytes.AddRange(ConvertToBytes(opcode, rs, rt, immed));
                         break;
-
-                    case "ori":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0x0D; //ori
-
-
-                        rs = EncodeRegister(instruction[2]);
-                        rt = EncodeRegister(instruction[1]);
-
-                        immed = Convert.ToUInt32(instruction[3].Replace("0x", ""), 16) & 0xFFFF;
-
-                        bytes.AddRange(ConvertToBytes(opcode, rs, rt, immed));
-                        break;
+                    // R-type instructions
                     case "or":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0; //r type
-                        funct = 0x25; //or
-                        rd = EncodeRegister(instruction[1]);
-                        rs = EncodeRegister(instruction[2]);
-                        rt = EncodeRegister(instruction[3]);
-                        bytes.AddRange(ConvertToBytes(rs, rt, rd, shamt, funct));
-                        break;
                     case "subu":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0; //r type
-                        funct = 0x23; //subu
-                        rd = EncodeRegister(instruction[1]);
-                        rs = EncodeRegister(instruction[2]);
-                        rt = EncodeRegister(instruction[3]);
-                        bytes.AddRange(ConvertToBytes(rs, rt, rd, shamt, funct));
-                        break;
                     case "addu":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0; //r type
-                        funct = 0x21; //addu
-                        rd = EncodeRegister(instruction[1]);
-                        rs = EncodeRegister(instruction[2]);
-                        rt = EncodeRegister(instruction[3]);
-                        bytes.AddRange(ConvertToBytes(rs, rt, rd, shamt, funct));
-                        break;
                     case "and":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0; //r type
-                        funct = 0x24; //and
-                        rd = EncodeRegister(instruction[1]);
-                        rs = EncodeRegister(instruction[2]);
-                        rt = EncodeRegister(instruction[3]);
-                        bytes.AddRange(ConvertToBytes(rs, rt, rd, shamt, funct));
-                        break;
                     case "sll":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0; //r type
-                        funct = 0x00; //sll
-                        rd = EncodeRegister(instruction[1]);
-                        rt = EncodeRegister(instruction[2]);
-                        shamt = Convert.ToUInt32(instruction[3].Replace("0x", ""), 16) & 0x1F;
-                        bytes.AddRange(ConvertToBytes(rs, rt, rd, shamt, funct));
-                        break;
                     case "srl":
-                        if (instruction.Length != 4)
-                        {
-                            Log.Error($"CustomHook: Invalid {instruction[0]} instruction format at line {i + 1}, length was {instruction.Length}");
-                            break;
-                        }
-                        opcode = 0; //r type
-                        funct = 0x02; //srl
-                        rd = EncodeRegister(instruction[1]);
-                        rt = EncodeRegister(instruction[2]);
-                        shamt = Convert.ToUInt32(instruction[3].Replace("0x", ""), 16) & 0x1F;
-                        bytes.AddRange(ConvertToBytes(rs, rt, rd, shamt, funct));
+                        bytes.AddRange(ConvertRType(instruction));
                         break;
                     case "nor":
                         if (instruction.Length != 4)
@@ -494,12 +525,14 @@ namespace C2AP
                     case "bgez":
                     case "addiu":
                     case "andi":
+                    case "ori":
+                    case "lui":
                     //case "lw":
                         bytes.AddRange(ConvertIType(instruction));
                         break;
                     default:
                         {
-                            Log.Error($"CustomHook: Unknown instruction {instruction[0]}");
+                            Log.Error($"CustomHook: Unknown or Unimplemented instruction: {instruction[0]}");
                             break;
                         }
                 }

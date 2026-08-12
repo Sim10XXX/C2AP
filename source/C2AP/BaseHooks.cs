@@ -44,55 +44,68 @@ namespace C2AP
                 $"la $t0, 0x{Addresses.PausedFlag + offset:X}", //address of "paused"
                 "lw $t1, 0($t0)",
                 "nop", //load delay
-                "beq $t1 $zero, 0x12", //"bne $t0 $zero, 0x8", //"beq $t1 $zero, 0x8", //branch to colored gem check
+                "beq $t1 $zero, colored_gem_check", //"bne $t0 $zero, 0x8", //"beq $t1 $zero, 0x8", //branch to colored gem check
                 $"la $t0, 0x{Addresses.CrystalLocationsAddress + offset:X}",
-                "beq $v0 $t0, 0x2", //branch to eval for crystals
+                "beq $v0 $t0, eval_for_crystals", //branch to eval for crystals
                 "addiu $t0, $t0, 0x4",
-                "bne $v0 $t0, 0x4", //branch to check gems
+                "bne $v0 $t0, check_gems", //branch to check gems
                 //eval for crystals
+                "eval_for_crystals:",
+
                 $"la $t1, 0x{crystalAddressDelta:X}",
                 "subu $v0, $v0, $t1",
-                "beq $zero $zero, 0x1e", //branch to exit
+                "beq $zero $zero, exit", //branch to exit
                 //check gems
+                "check_gems:",
+
                 $"la $t0, 0x{Addresses.GemLocationsAddress + offset:X}",
-                "beq $v0 $t0, 0x2", //branch to eval for gems
+                "beq $v0 $t0, eval_for_gems", //branch to eval for gems
                 "addiu $t0, $t0, 0x4",
-                "bne $v0 $t0, 0x19", //branch to exit
+                "bne $v0 $t0, exit", //branch to exit
                 //eval for gems
+                "eval_for_gems:",
+
                 $"la $t1, 0x{gemAddressDelta:X}",
                 "subu $v0, $v0, $t1",
-                "beq $zero $zero, 0x15", //branch to exit
+                "beq $zero $zero, exit", //branch to exit
                 //colored gem check
+                "colored_gem_check:",
+
                 $"la $t0, 0x{Addresses.GemLocationsAddress + 0x4 + offset:X}",
-                "bne $v0 $t0, 0x12", //branch to exit
+                "bne $v0 $t0, exit", //branch to exit
                 $"la $t1, 0x{Addresses.LevelIdAddress + offset:X}",
                 "lw $t1, 0($t1)",
                 "addiu $t0, $zero, 0x1900", //Hang Eight
-                "beq $t1, $t0, 0xb", //branch to get new gem address
+                "beq $t1, $t0, get_new_gem_address", //branch to get new gem address
                 "addiu $t0, $zero, 0x1100", //Snow Biz
-                "beq $t1, $t0, 0x9", //branch to get new gem address
+                "beq $t1, $t0, get_new_gem_address", //branch to get new gem address
                 "addiu $t0, $zero, 0x0A00", //Sewer or Later
-                "beq $t1, $t0, 0x7", //branch to get new gem address
+                "beq $t1, $t0, get_new_gem_address", //branch to get new gem address
                 "addiu $t0, $zero, 0x0F00", //Ruination
-                "beq $t1, $t0, 0x5", //branch to get new gem address
+                "beq $t1, $t0, get_new_gem_address", //branch to get new gem address
                 "addiu $t0, $zero, 0x2600", //Spaced Out
-                "beq $t1, $t0, 0x3", //branch to get new gem address
+                "beq $t1, $t0, get_new_gem_address", //branch to get new gem address
                 "nop",
-                "beq $zero $zero, 0x3", //branch to exit
+                "beq $zero $zero, exit", //branch to exit
                 "nop",
                 //get new gem address
+                "get_new_gem_address:",
+
                 $"la $v0, 0x{Addresses.GemLocationsWithReceivedColoredGemsAddress + 0x4 + offset:X}",
                 //exit
+                "exit:",
+
                 $"lw $t1, 0x{CrashObject.subtypeOffset:X}($s0)", //subtype
                 "addiu $t0, $zero, 0x10",// 0x10 for fruit, 0x5 for lives
-                "beq $t1, $t0, 0x2", // Store ID
+                "beq $t1, $t0, Store_ID", // Store ID
                 "addiu $t0, $zero, 0x5",
-                "bne $t1, $t0, 0x10", // Real exit
+                "bne $t1, $t0, Real_Exit", // Real exit
+                //Store ID
+                "Store_ID:",
 
-                // Store ID
                 $"lw $t1, 0x{CrashObject.stateOffset:X}($s0)", //State
                 "addiu $t0, $zero, 0xd",
-                "bne $t1, $t0, 0xd", //branch if state not 0xd to real exit
+                "bne $t1, $t0, Real_Exit", //branch if state not 0xd to real exit
                 //increment collected test by 4
                 
 
@@ -102,7 +115,7 @@ namespace C2AP
                 "addiu $t1, $t1, 0x4",
 
                 $"addiu $t2, $zero, 0x{Addresses.FruitCollectedListStart-Addresses.FruitCollectedListEnd:X}", //max length of list
-                "beq $t1, $t2, 0x6", //goto real exit if list full
+                "beq $t1, $t2, Real_Exit", //goto real exit if list full
 
                 $"lw $t2, 0x{CrashObject.entityIdOffset:X}($s0)", //ID
                 "sw $t1, 0($t0)",
@@ -112,8 +125,9 @@ namespace C2AP
 
                 "addiu $t0, $zero, 0x0",
                 $"sw $t0, 0x{CrashObject.stateOffset:X}($s0)",
-
                 //real exit
+                "Real_Exit:",
+
                 "lw $t0, 0x4($sp)",
                 "lw $t1, 0x8($sp)",
                 "lw $t2, 0xc($sp)",

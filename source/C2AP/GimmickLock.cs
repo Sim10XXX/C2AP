@@ -14,62 +14,70 @@ namespace C2AP
             $"la $t1, 0x{Addresses.LastEventId + Addresses.CacheOffset:X}",
             "sw $a2, 0($t1)",
             //"addiu $t0, $zero, 0x4800", // event x
-            //"beq $a2 $t0, 0x9", // branch to overw  
+            //"beq $a2 $t0, overwrite", // branch to overw  
             "addiu $t0, $zero, 0x3f00", // event 63
-            "beq $a2 $t0, 0x7", // branch to overw  
+            "beq $a2 $t0, overwrite", // branch to overw  
             "addiu $t0, $zero, 0x2300", // event 35
-            "beq $a2 $t0, 0x5", // branch to overwrite
+            "beq $a2 $t0, overwrite", // branch to overwrite
             "addiu $t0, $zero, 0x3D00", // event 61
-            "beq $a2 $t0, 0x3", // branch to overwrite
+            "beq $a2 $t0, overwrite", // branch to overwrite
             "nop",
-            "beq $zero, $zero, 0x2", // branch to exit
+            "beq $zero, $zero, exit", // branch to exit
             "nop",
             // overwrite
+            "overwrite:",
             "addiu $a2, $zero, 0x2600", // use event 38
             // exit
+            "exit:",
             ]);
 
         private static CustomHook overwriteJetpackEventHook = new([
             $"la $t1, 0x{Addresses.LastEventId + Addresses.CacheOffset:X}",
             "sw $a2, 0($t1)",
             //"addiu $t0, $zero, 0x", // event 
-            //"beq $a2 $t0, 0x9", // branch to overw  
+            //"beq $a2 $t0, overwrite", // branch to overw  
             //"addiu $t0, $zero, 0x0900", // event 9
-            //"beq $a2 $t0, 0x7", // branch to overw  
+            //"beq $a2 $t0, overwrite", // branch to overw  
             "addiu $t0, $zero, 0x2C00", // event 44
-            "beq $a2 $t0, 0x5", // branch to overwrite
+            "beq $a2 $t0, overwrite", // branch to overwrite
             "addiu $t0, $zero, 0x3f00", // event 63
-            "beq $a2 $t0, 0x3", // branch to overwrite
+            "beq $a2 $t0, overwrite", // branch to overwrite
             "nop",
-            "beq $zero, $zero, 0x2", // branch to exit
+            "beq $zero, $zero, exit", // branch to exit
             "nop",
             // overwrite
+            "overwrite:",
             "addiu $a2, $zero, 0x1e00", // use event 30
             // exit
+            "exit:",
             ]);
         private static CustomHook overwriteCortexEventHook = new([
            $"la $t1, 0x{Addresses.LastEventId + Addresses.CacheOffset:X}",
             "sw $a2, 0($t1)",
             "addiu $t0, $zero, 0x0900", // event 63
-            "beq $a2 $t0, 0x3", // branch to overwrite
+            "beq $a2 $t0, overwrite", // branch to overwrite
             "nop",
-            "beq $zero, $zero, 0x2", // branch to exit
+            "beq $zero, $zero, exit", // branch to exit
             "nop",
             // overwrite
+            "overwrite:",
             "addiu $a2, $zero, 0xc00", // use event 12
             // exit
+            "exit:",
             ]);
         private static CustomHook overwriteJetboardEventHook = new([
            $"la $t1, 0x{Addresses.LastEventId + Addresses.CacheOffset:X}",
             "sw $a2, 0($t1)",
             "addiu $t0, $zero, 0x4200", // event 66
-            "beq $a2 $t0, 0x3", // branch to overwrite
+            "beq $a2 $t0, overwrite", // branch to overwrite
             "nop",
-            "beq $zero, $zero, 0x2", // branch to exit
+            "beq $zero, $zero, exit", // branch to exit
             "nop",
             // overwrite
+            "overwrite:",
             "addiu $a2, $zero, 0x2100", // use event 33
             // exit
+            "exit:",
             ]);
 
         private static uint lastLevelId = 0;

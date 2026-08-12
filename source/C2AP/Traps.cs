@@ -66,31 +66,35 @@ namespace C2AP
             "nop",
 
 
-            "bgez $t5, 0x4", // branch if stick is in up direction
+            "bgez $t5, up_direction_check", // branch if stick is in up direction
             "la $t6, 0xC0000000",
             "subu $t6, $t5, $t6",
-            "bgez $t6, 0xa", // branch to press down if stick is pushed down at least halfway
+            "bgez $t6, press_down", // branch to press down if stick is pushed down at least halfway
 
             //up direction check
+            "up_direction_check:",
             "la $t6, 0x40000000",
             "subu $t6, $t6, $t5",
-            "bgez $t6, 0x3", // branch to press up if stick is pushed up at least halfway
+            "bgez $t6, press_up", // branch to press up if stick is pushed up at least halfway
 
             
 
             "nop",
-            "beq $zero $zero, 0x5", //branch to reset
+            "beq $zero $zero, reset", //branch to reset
             "nop",
 
             // press up
+            "press_up:",
             $"ori $t1, $t1, 0x{InputFlag.Up:X}",
-            "beq $zero $zero, 0x2", //branch to reset
+            "beq $zero $zero, reset", //branch to reset
             "nop",
 
             // press down
+            "press_down:",
             $"ori $t1, $t1, 0x{InputFlag.Down:X}",
 
             // reset the up/down angle
+            "reset:",
             "la $t6, 0x00FFFFFF",
             "and $t5, $t5, $t6",
             "lui $t6, 0x7F00",

@@ -252,7 +252,7 @@ public partial class App : Application
                 }
                 break;
             case "debug_openwarproom":
-                break;
+                //break;
                 // mark bosses as complete
                 uint address;
                 int[] bossBits = [
@@ -430,7 +430,7 @@ public partial class App : Application
         {
             SyncGameState();
             UpdateCrashState();
-            Helpers.InitializeAll(e.Slot);
+            //Helpers.InitializeAll(e.Slot);
             Client.MonitorLocations(GameLocations);
         }
         else

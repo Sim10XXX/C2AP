@@ -176,7 +176,7 @@ namespace C2AP
                     address -= 2; // Go back 2 instructions, since the jmp goes after the original target instructions
                     address <<= 2; // Shift left to get the actual address (undoing MIPS encoding)
 
-                    Log.Information($"Target of hook is at {address:X}");
+                    //Log.Information($"Target of hook is at {address:X}");
 
                     // Write the original instructions back to the target address
                     Memory.WriteByteArray(address, first);

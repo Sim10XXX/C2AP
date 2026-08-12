@@ -332,7 +332,7 @@ namespace C2AP
                 $"la $t1, 0x{Addresses.SendEventFlag + Addresses.CacheOffset:X}",
                 "lw $t0, 0($t1)",
                 "nop",
-                "beq $t0, $zero, 0x1F", // branch to exit ///// 0x1B
+                "beq $t0, $zero, exit", // branch to exit
                 "nop",
 
                 // allocate space on the stack
@@ -388,6 +388,7 @@ namespace C2AP
                 "sw $zero, 0($t1)",
 
                 //exit
+                "exit:",
                 ]);
 
             // update flag (used to only send the event once)

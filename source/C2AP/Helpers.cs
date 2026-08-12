@@ -100,7 +100,7 @@ namespace C2AP
                 uint time = Memory.ReadUInt(Addresses.Timer);
                 isEmulationPaused = time == previousTime;
                 previousTime = time;
-                Log.Information($"Time: {time}, Previous Time: {previousTime}");
+                //Log.Information($"Time: {time}, Previous Time: {previousTime}");
                 //uint crashAddress = CrashObject.FindObjectAddress(0, 0);
                 //if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
                 //{
@@ -164,7 +164,7 @@ namespace C2AP
                 {
                     shouldCheckConnection = false;
                     shouldSyncProgress = true;
-                    connectionValid = false;
+                    
                     if (IsInGame())
                     {
                         Log.Error("Connection interrupted due to loading of save state");
@@ -173,7 +173,7 @@ namespace C2AP
                     {
                         Log.Error("Connection interrupted due to console reset");
                     }
-                    
+                    connectionValid = false;
                     return connectionValid;
                 }
                 Log.Error("Connection check failed, make sure DuckStation's execution mode is set to 'Interpreter'");
@@ -218,7 +218,7 @@ namespace C2AP
                 return -1;
             }
 
-            Log.Information($"{slotName} option : {slotValue}");
+            //Log.Information($"{slotName} option : {slotValue}");
             
             // prevent overflow when converting to int, since the seed is going to be a very large number
             return Convert.ToInt32(slotValue.ToString().Substring(0,Math.Min(9, slotValue.ToString().Length)));
