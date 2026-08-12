@@ -16,8 +16,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="fruitbundles.txt" />
-		<EmbeddedResource Include="lifebundles.txt" />
+		<EmbeddedResource Include="Assets\fruitbundles.txt" />
+		<EmbeddedResource Include="Assets\lifebundles.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
