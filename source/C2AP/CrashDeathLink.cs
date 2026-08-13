@@ -17,11 +17,13 @@ namespace C2AP
         private static string playerName = "";
         private static Timer checkDeathTimer = new Timer(250);
         private static uint previousLevelId = 0;
+        private static uint amnesty = 0;
+        private static uint deathCount = 0;
 
         public static void Initialize(string name)
         {
             if (Helpers.GetOptionValue("death_link") != 1) return;
-
+            amnesty = (uint) Helpers.GetOptionValue("death_link_amnesty");
             deathLinkService = App.Client.EnableDeathLink();
             deathLinkService.EnableDeathLink();
             deathLinkService.OnDeathLinkReceived += OnDeathLinkReceived;
@@ -56,8 +58,7 @@ namespace C2AP
                 //Log.Logger.Information($"Level changed: {previousLevelId:X} -> {levelId:X}");
                 if (levelId == 0x3B00) // ID of game over screen
                 {
-                    Log.Logger.Information("Sending DeathLink");
-                    deathLinkService.SendDeathLink(new DeathLink(playerName));
+                    HandleDeath();
                 }
             }
             previousLevelId = levelId;
@@ -84,8 +85,7 @@ namespace C2AP
 
                 if (pardonDeath <= 0)
                 {
-                    Log.Logger.Information("Sending DeathLink");
-                    deathLinkService.SendDeathLink(new DeathLink(playerName));
+                    HandleDeath();
                 }
                 else pardonDeath = 0;
             }
@@ -101,6 +101,20 @@ namespace C2AP
                 }
             }
             previousLives = lives;
+        }
+
+        private static void HandleDeath()
+        {
+            if (deathLinkService == null) return;
+            deathCount++;
+            if (amnesty != 0)
+                Log.Logger.Information($"{amnesty - deathCount} death(s) left before sending a DeathLink");
+            if (deathCount >= amnesty)
+            {
+                deathCount = 0;
+                Log.Logger.Information("Sending DeathLink");
+                deathLinkService.SendDeathLink(new DeathLink(playerName));
+            }
         }
 
     }
