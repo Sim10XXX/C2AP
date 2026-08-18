@@ -148,36 +148,94 @@ public partial class App : Application
 
     private void HandleCommand(string command)
     {
+        command = command.TrimStart('/');
         string[] args = command.Split(' ');
         uint crashAddress;
-        switch (command)
+        switch (args[0].ToLower())
         {
-            case "clearCrashGameState":
-                Log.Logger.Information("Clearing the game state.  Please reconnect to the server while in game to refresh received items.");
-                Client.ForceReloadAllItems();
-                break;
-            case "syncCrashGameState":
+            //case "clearcrashgamestate":
+            //    Log.Logger.Information("Clearing the game state.  Please reconnect to the server while in game to refresh received items.");
+            //    Client.ForceReloadAllItems();
+            //    break;
+            case "synccrashgamestate":
                 Log.Logger.Information("Syncing the game state.");
                 SyncGameState();
                 UpdateCrashState();
                 Log.Logger.Information("Sync complete.");
                 break;
-            case "useQuietHints":
+            case "usequiethints":
                 Log.Logger.Information("Hints for found locations will not be displayed.  Type 'useVerboseHints' to show them.");
                 _useQuietHints = true;
                 break;
-            case "useVerboseHints":
+            case "useverbosehints":
                 Log.Logger.Information("Hints for found locations will be displayed.  Type 'useQuietHints' to show them.");
                 _useQuietHints = false;
                 break;
-            case "exec":
+            case "help":
+                Log.Logger.Information("Available commands:");
+                Log.Logger.Information("/syncCrashGameState - Syncs the game state with the current received items and completed locations.");
+                Log.Logger.Information("/useQuietHints - Hints for found locations will not be displayed.");
+                Log.Logger.Information("/useVerboseHints - Hints for found locations will be displayed.");
+                Log.Logger.Information("/warps - Prints the current warp room destinations.");
+                Log.Logger.Information("/warp <warp room number> - Prints the current warp room destination for the specified warp room.");
+                Log.Logger.Information("/debug - Prints available debug commands.");
+                break;
+            case "debug":
+                Log.Logger.Information("Debug commands:");
+                Log.Logger.Information("/debug_receiveDeathLink [delay (ms)] - Simulates receiving a DeathLink with an optional delay.");
+                Log.Logger.Information("/debug_snapshot <name> - Creates a snapshot of the game's current memory and saves it with the specified name.");
+                Log.Logger.Information("/debug_itemState - Prints the current item state.");
+                Log.Logger.Information("/debug_locationState - Prints the current location state.");
+                Log.Logger.Information("These should be disabled if you are on a full release build: ");
+                Log.Logger.Information("/debug_openWarpRoom - Grants full access to the warp room");
+                Log.Logger.Information("/debug_sendGoal - Sends a goal completion to the server.");
+                break;
+            case "warps":
+            case "warp":
+            case "warproom":
+                if (args.Length == 1)
+                {
+                    WarpRoomRandomizer.PrintMontyHallDestinations();
+                    return;
+                }
+                if (args.Length != 2)
+                {
+                    Log.Logger.Warning("Usage: /warp <warp room number>");
+                    return;
+                }
+                int warpRoom;
+                if (!int.TryParse(args[1], out warpRoom))
+                {
+                    Log.Logger.Warning("Invalid warp room number. Please enter a number.");
+                    return;
+                }
+                if (warpRoom < 1 || warpRoom > 6)
+                {
+                    Log.Logger.Warning("Invalid warp room number. Please enter a number between 1 and 6.");
+                    return;
+                }
+                WarpRoomRandomizer.PrintMontyHallDestinations(warpRoom);
+
+                break;
+            case "debug_receivedeathlink":
                 //break;
-                if (args.Length > 1) break;
+                int delay = 1;
+                if (args.Length == 2)
+                {
+                    delay = int.Parse(args[1]);
+                    if (delay <= 0)
+                    {
+                        delay = 1;
+                    }
+                }
+                else if (args.Length >= 3)
+                {
+                    Log.Logger.Warning("Usage: /debug_receiveDeathLink [delay (ms)]");
+                }
                 //Memory.Write(Addresses.SecretEntranceFlags, 0);
                 //break;
-
                 testTimer.Elapsed += (s, ev) => CrashDeathLink.OnDeathLinkReceived(new("test"));
-                testTimer.Interval = 5000;
+                testTimer.Interval = delay;
                 testTimer.AutoReset = false;
                 testTimer.Start();
 
@@ -187,44 +245,7 @@ public partial class App : Application
                 Log.Logger.Information($"crash state: {state}");
                 //{
                 Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
-                //    //    //Log.Logger.Information($"trans x: {Memory.ReadFloat(crashAddress + 0x60)}");
-                //    //    Log.Logger.Information($"trans y: {Memory.ReadInt(crashAddress + 0x64)}");
-                //    //    //Log.Logger.Information($"trans z: {Memory.ReadFloat(crashAddress + 0x68)}");
-                //    //    //Memory.Write(crashAddress + 0x60, Memory.ReadFloat(crashAddress + 0x60) * 1.1f);
-                //    //    Memory.Write(crashAddress + 0x64, 0x00ffffff);
-                //    //    //Memory.Write(crashAddress + 0x68, Memory.ReadFloat(crashAddress + 0x68) * 1.1f);
-                //    //    //Log.Logger.Information($"new trans x: {Memory.ReadFloat(crashAddress + 0x60)}");
-                //    //    Log.Logger.Information($"new trans y: {Memory.ReadInt(crashAddress + 0x64)}");
-                //    //    //Log.Logger.Information($"new trans z: {Memory.ReadFloat(crashAddress + 0x68)}");
-                //    //    //Memory.Write(crashAddress + 0x78, 0x0fffffff);
-                //    //    //Memory.Write(crashAddress + 0x7C, 0x0fffffff);
-                //    //    //Memory.Write(crashAddress + 0x80, 0x0fffffff);
-                //    // CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0x2300, 1, [0x6400]);
-                //}
-
                 
-
-
-                //    Log.Logger.Information($"trans x: {Memory.ReadFloat(crashAddress + 0x60)}");
-                //    Log.Logger.Information($"trans y: {Memory.ReadFloat(crashAddress + 0x64)}");
-                //    Log.Logger.Information($"trans z: {Memory.ReadFloat(crashAddress + 0x68)}");
-
-
-                //}
-                //uint bearAddress = CrashObject.FindObjectAddress(48, 0);
-                //if (bearAddress != 0 && bearAddress != CrashObject.cacheOffset)
-                //{
-                //    //Memory.Write(bearAddress, 0);
-                //    Memory.Write(bearAddress + 0x64, 0x0fffffff);
-                //    //Memory.Write(bearAddress + 0x78, 0);
-                //    //Memory.Write(bearAddress + 0x7C, 0);
-                //    //Memory.Write(bearAddress + 0x80, 0);
-                //    //Log.Logger.Information($"Bear object set to 0.");
-                //    //Log.Logger.Information($"Bear object set to 0.");
-                //}
-
-                // Bear: everything but last jump in Totally Bear
-                // Jetpack: rock it crystal is impossible
                 break;
             //case "c":
             //    if (args.Length > 1) break;
@@ -235,17 +256,27 @@ public partial class App : Application
             //    CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, _execCount << 8, (uint)_execParam.Length, _execParam);
             //    _execCount++;
             //    break;
-            case "itemstate":
+            case "debug_itemstate":
                 if (Client.ItemState == null) break;
                 List<Item> items = Client.ItemState.ReceivedItems.OfType<Item>().ToList();
+                if (items.Count == 0)
+                {
+                    Log.Logger.Information("No items have been received yet.");
+                    break;
+                }
                 foreach (Item item in items)
                 {
                     Log.Logger.Information($"{item.Name}");
                 }
                 break;
-            case "locationstate":
+            case "debug_locationstate":
                 if (Client.LocationState == null) break;
                 List<Location> locations = Client.LocationState.CompletedLocations.OfType<Location>().ToList();
+                if (locations.Count == 0)
+                {
+                    Log.Logger.Information("No locations have been completed yet.");
+                    break;
+                }
                 foreach (Location location in locations)
                 {
                     Log.Logger.Information($"{location.Name}");
@@ -276,31 +307,12 @@ public partial class App : Application
                 UpdateCrashState();
 
                 break;
-            //case "debug_sendgoal":
-            //    Client.SendGoalCompletion();
-            //    break;
-
-                //address = CrystalAddress + (uint)levelid / 8;
-                //int bit = levelid % 8;
-                //Memory.WriteBit(address, bit, true);
-
-        }
-
-        if (args.Length >= 2)
-        {
-            //if (args[0] == "giveloc") //testing crystal locations
-            //{
-
-            //    uint address = Addresses.CrystalLocationsAddress;
-            //    int bits = Convert.ToInt32(args[1]);
-
-            //    address += (uint)(bits / 8);
-            //    bits = bits % 8;
-            //    Memory.WriteBit(address, bits, true);
-            //    Log.Logger.Information($"Checking location at crystal address 0x{address:X}, bit#{bits}");
-            //}
-            if (args[0] == "snapshot")
-            {
+            case "debug_snapshot":
+                if (args.Length != 2)
+                {
+                    Log.Logger.Warning("Usage: /debug_snapshot <name>");
+                    return;
+                }
                 string filename = $"memorysnapshot_{args[1]}.mem";
                 Log.Logger.Information($"Creating memory snapshot at {filename}");
                 if (File.Exists(filename))
@@ -312,41 +324,22 @@ public partial class App : Application
                     byte[] memoryDump = Memory.ReadByteArray(0, 0b1000000000000000000000);
                     fs.Write(memoryDump, 0, memoryDump.Length);
                 }
-            }
-            if (args[0] == "exec")
-            {
-                return;
-                //uint fireflyAddress = CrashObject.FindObjectAddress(57, 1);
-                //if (fireflyAddress != 0 && fireflyAddress != CrashObject.cacheOffset)
-                //{
-                //    uint offset = Convert.ToUInt32(args[1], 16);
-                //    Memory.Write(fireflyAddress + offset, 0);
-                //}
-                //return;
-                //Memory.Write(0xf2ec, 0x1234);
-                //return;
-                //Memory.WriteBit(Addresses.SecretEntranceFlags, Convert.ToInt32(args[1]), true);
-                //return;
-                List<uint> eventArgv = new();
-                //Log.Logger.Information($"try exec");
-                for (int i = 2; i < args.Length; i++)
-                {
-                    //Log.Logger.Information($"adding: {Convert.ToUInt32(args[i]) << 8}");
-                    eventArgv.Add(Convert.ToUInt32(args[i]) << 8);
-                }
-                //Log.Logger.Information($"find crash");
-                crashAddress = CrashObject.FindObjectAddress(0, 0);
-                if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
-                {
-                    Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
-                    
-                    Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
-                    CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, Convert.ToUInt32(args[1]) << 8, (uint)eventArgv.Count, eventArgv.AsArray());
-                    
-                }
-            }
-            //if (args[0] == "c")
+                break;
+                //case "debug_sendgoal":
+                //    Client.SendGoalCompletion();
+                //    break;
+
+                //address = CrystalAddress + (uint)levelid / 8;
+                //int bit = levelid % 8;
+                //Memory.WriteBit(address, bit, true);
+
+        }
+
+        
+            //if (args[0] == "debug_sendevent")
             //{
+            //    return;
+                
             //    List<uint> eventArgv = new();
             //    //Log.Logger.Information($"try exec");
             //    for (int i = 2; i < args.Length; i++)
@@ -354,10 +347,17 @@ public partial class App : Application
             //        //Log.Logger.Information($"adding: {Convert.ToUInt32(args[i]) << 8}");
             //        eventArgv.Add(Convert.ToUInt32(args[i]) << 8);
             //    }
-            //    _execCount = Convert.ToUInt32(args[1]);
-            //    _execParam = eventArgv.AsArray();
+            //    //Log.Logger.Information($"find crash");
+            //    crashAddress = CrashObject.FindObjectAddress(0, 0);
+            //    if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
+            //    {
+            //        Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
+                    
+            //        Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
+            //        CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, Convert.ToUInt32(args[1]) << 8, (uint)eventArgv.Count, eventArgv.AsArray());
+                    
+            //    }
             //}
-        }
     }
     private async void Context_ConnectClicked(object? sender, ConnectClickedEventArgs e)
     {
@@ -611,7 +611,12 @@ public partial class App : Application
         uint maxLifeCount = 0;
         foreach (Location location in locations)
         {
-            //Log.Information($"Syncing location {location.Name} with address {location.Address:X} and bit {location.AddressBit}");
+            //Log.Information($"Location: {location.Name} (ID: {location.Id})");
+            string? levelName = Addresses.levelNameToId.Keys.FirstOrDefault(location.Name.Contains);
+            if (levelName != null)
+            {
+                Helpers.seenLevelIds.Add((uint)Addresses.levelNameToId[levelName]);
+            }
             if (location.Id >= 10000)
             {
                 ItemCheck.CompleteBundle(location.Id);

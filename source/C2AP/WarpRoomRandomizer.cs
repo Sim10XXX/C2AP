@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace C2AP
@@ -137,6 +138,40 @@ namespace C2AP
         {
             if (WarpLevelOverridesLeveldHook != null)
                 WarpLevelOverridesLeveldHook.RemoveHook();
+        }
+
+        public static void PrintMontyHallDestinations()
+        {
+            // Warp 6 is not currently randomized, so no need to print it
+            for (int i = 1; i <= 5; i++)
+            {
+                PrintMontyHallDestinations(i);
+            }
+        }
+        public static void PrintMontyHallDestinations(int warpRoom)
+        {
+            string outstring = string.Empty;
+            string tempstring = string.Empty;
+            if (MontyHallDestinations.All<int>(x => x == 0))
+            {
+                Log.Information("The warp room is not randomized.");
+                return;
+            }
+            
+            Log.Information($"Warp {warpRoom}:");
+            for (int i = (warpRoom - 1) * 5; i < warpRoom * 5 && i < MontyHallDestinations.Length; ++i)
+            {
+
+                tempstring = Addresses.IdToLevelName.GetValueOrDefault(OriginalMontyHallDestinations[i], "Unknown") + " -> ";
+                if (Helpers.seenLevelIds.Contains((uint)MontyHallDestinations[i]))
+                    tempstring += Addresses.IdToLevelName.GetValueOrDefault(MontyHallDestinations[i], "Unknown");
+                else
+                    tempstring += "???";
+                if (i % 5 != 0)
+                    tempstring += "\n";
+                outstring = tempstring + outstring;                
+            }
+            Log.Information(outstring);
         }
     }
 }

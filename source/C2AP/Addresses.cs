@@ -278,7 +278,7 @@ namespace C2AP
             { "Totally Bear Clear Gem (Box Gem)", 71 },
             { "Totally Fly Clear Gem (Box Gem)", 72 },
 
-          
+
             { "Turtle Woods Exit", 73 },
             { "Snow Go Exit", 74 },
             { "Hang Eight Exit", 75 },
@@ -355,8 +355,41 @@ namespace C2AP
             { "Totally Bear", 0x25 },
             { "Totally Fly", 0x27 },
         };
+        public static Dictionary<int, string> IdToLevelName = new Dictionary<int, string>
+        {
+            { 0x1E, "Turtle Woods" },
+            { 0x0E, "Snow Go" },
+            { 0x19, "Hang Eight" },
+            { 0x1F, "The Pits" },
+            { 0x18, "Crash Dash" },
+            { 0x06, "Ripper Roo" },
+            { 0x11, "Snow Biz" },
+            { 0x20, "Air Crash" },
+            { 0x1D, "Bear It" },
+            { 0x1B, "Crash Crush" },
+            { 0x23, "The Eel Deal" },
+            { 0x08, "Komodo Brothers" },
+            { 0x21, "Plant Food" },
+            { 0x0A, "Sewer or Later" },
+            { 0x22, "Bear Down" },
+            { 0x16, "Road to Ruin" },
+            { 0x17, "Un-Bearable" },
+            { 0x03, "Tiny Tiger" },
+            { 0x0D, "Hangin' Out" },
+            { 0x15, "Diggin' It" },
+            { 0x13, "Cold Hard Crash" },
+            { 0x0F, "Ruination" },
+            { 0x24, "Bee-Having" },
+            { 0x09, "Dr. N. Gin" },
+            { 0x10, "Piston it Away" },
+            { 0x12, "Rock It" },
+            { 0x0C, "Night Fight" },
+            { 0x1A, "Pack Attack" },
+            { 0x26, "Spaced Out" },
+            { 0x07, "Dr. Neo Cortex" },
+            { 0x25, "Totally Bear" },
+            { 0x27, "Totally Fly" }
+        };
 
     }
-
-
 }

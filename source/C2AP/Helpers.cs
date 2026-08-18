@@ -20,6 +20,9 @@ namespace C2AP
         private static Timer checkEmulation = new Timer(100);
         private static Timer checkLifeCount = new Timer(1000);
         private static Timer checkConnectionIntegrity = new Timer(1000);
+
+        private static Timer checkLevelId = new Timer(4000);
+        public static SortedSet<uint> seenLevelIds = new SortedSet<uint>();
         private static CustomHook connectionHook = new CustomHook([
             "nop",
         ]);
@@ -129,7 +132,7 @@ namespace C2AP
                 $"addiu $t1, $zero, 0x{seed:X}",
                 "sw $t1, 0($t0)",
             ]);
-            uint currentSeed = Memory.ReadUInt(Addresses.ConnectionCheck);
+            ushort currentSeed = unchecked((ushort)Memory.ReadUInt(Addresses.ConnectionCheck));
             if (currentSeed != 0 && currentSeed != seed)
             {
                 Log.Error("Connected into a game from a different session");
@@ -155,7 +158,7 @@ namespace C2AP
                 //Log.Warning("Emulation is paused, connection check skipped");
                 return false;
             }
-            uint currentSeed = Memory.ReadUInt(Addresses.ConnectionCheck);
+            ushort currentSeed = unchecked((ushort)Memory.ReadUInt(Addresses.ConnectionCheck));
             if (currentSeed == 0)
             {
                 if (connectionValid)
@@ -193,6 +196,18 @@ namespace C2AP
             connectionValid = true;
             //Log.Information("Connection check passed");
             return connectionValid;
+        }
+
+        public static void StartCheckLevelId()
+        {
+            if (checkLevelId.Enabled) return;
+            checkLevelId.Elapsed += (s, ev) =>
+            {
+                uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
+                //Log.Information($"Level ID: {levelId >> 8:X}");
+                seenLevelIds.Add(levelId >> 8);
+            };
+            checkLevelId.Start();
         }
 
         public static int GetOptionValue(string optionName)
@@ -325,7 +340,6 @@ namespace C2AP
             slotName = slot;
 
             InputLock.Initialize();
-
             InputLock.LockInput(InputFlag.All);
             InputLock.UnlockInput(InputFlag.All);
 
@@ -333,9 +347,11 @@ namespace C2AP
             Traps.Initialize();
             CrashObjectMod.Initialize();
             GimmickLock.Initialize();
-            Helpers.StartCheckEmulationPaused();
-            Helpers.StartCheckLifeCount();
-            Helpers.StartCheckConnectionIntegrity();
+
+            StartCheckEmulationPaused();
+            StartCheckLifeCount();
+            StartCheckConnectionIntegrity();
+            StartCheckLevelId();
 
         }
         public static List<ILocation> BuildLocationList()
