@@ -1,17 +1,8 @@
 ﻿using Archipelago.Core.Util;
-using Avalonia;
-using Avalonia.Controls.Shapes;
-using DynamicData;
 using Serilog;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Reflection.Metadata;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace C2AP
 {
@@ -31,7 +22,8 @@ namespace C2AP
 
         private bool _isJumptablePatch;
 
-        public CustomHook(List<string> asm) { 
+        public CustomHook(List<string> asm)
+        {
             _asm = asm;
             _bytes = ConvertAsm(asm);
             //_bytes.Reverse();
@@ -94,7 +86,7 @@ namespace C2AP
 
 
             }
-            
+
             result += Convert.ToByte(register[2].ToString());
 
             return result;
@@ -165,7 +157,7 @@ namespace C2AP
                 immed = Convert.ToUInt32(instruction[2].Replace("0x", ""), 16) & 0xFFFF;
                 return ConvertToBytes(opcode, rs, rt, immed);
             }
-            
+
 
             if (instruction.Length != 4)
             {
@@ -196,7 +188,7 @@ namespace C2AP
                     Log.Error($"CustomHook: Unknown/unimplemented I-type instruction {instruction[0]}");
                     return [0, 0, 0, 0];
             }
-            
+
             switch (instruction[0])
             {
                 case "addiu":
@@ -229,7 +221,7 @@ namespace C2AP
                 return [0, 0, 0, 0];
             }
             rd = EncodeRegister(instruction[1]);
-            
+
             switch (instruction[0])
             {
                 case "or":
@@ -399,8 +391,8 @@ namespace C2AP
                             address = Convert.ToUInt32(instruction[1], 16);
                             address >>= 2;
                             instructionBytes[0] = (byte)(instructionBytes[0] | ((address >> 24) & 0x03));
-                            instructionBytes[1] = (byte)((address>>16) & 0xFF);
-                            instructionBytes[2] = (byte)((address>>8) & 0xFF);
+                            instructionBytes[1] = (byte)((address >> 16) & 0xFF);
+                            instructionBytes[2] = (byte)((address >> 8) & 0xFF);
                             instructionBytes[3] = (byte)(address & 0xFF);
                             instructionBytes.Reverse();
                             bytes.AddRange(instructionBytes);
@@ -490,7 +482,7 @@ namespace C2AP
                             Log.Error($"CustomHook: tempsplit didn't work as intended (length = {tempsplit.Length})");
                             break;
                         }
-                        
+
                         rs = EncodeRegister(tempsplit[1]);
                         rt = EncodeRegister(instruction[1]);
 
@@ -527,7 +519,7 @@ namespace C2AP
                     case "andi":
                     case "ori":
                     case "lui":
-                    //case "lw":
+                        //case "lw":
                         bytes.AddRange(ConvertIType(instruction));
                         break;
                     default:
@@ -544,14 +536,14 @@ namespace C2AP
 
         public void LogHookBytes()
         {
-            if (_bytes.Count%4 != 0)
+            if (_bytes.Count % 4 != 0)
             {
                 Log.Error("Not mult of 4 somehow like why");
             }
-            for (int i = 0; i < _bytes.Count; i+=4)
+            for (int i = 0; i < _bytes.Count; i += 4)
             {
-                
-                Log.Information($"line {i}: {Convert.ToHexString([_bytes[i], _bytes[i+1], _bytes[i+2], _bytes[i+3]])}");
+
+                Log.Information($"line {i}: {Convert.ToHexString([_bytes[i], _bytes[i + 1], _bytes[i + 2], _bytes[i + 3]])}");
             }
         }
 
@@ -580,7 +572,7 @@ namespace C2AP
             return bytes;
         }
 
-        public void InsertHook(ulong targetAddress,ulong freeAddress)
+        public void InsertHook(ulong targetAddress, ulong freeAddress)
         {
             int targetInstructionSize = 8;
             if (_targetAddress != 0 && _freeAddress != 0)
@@ -624,7 +616,7 @@ namespace C2AP
             Log.Debug($"first: {Convert.ToHexString([first[0], first[1], first[2], first[3]])}");
 
             Memory.WriteByteArray(_freeAddress + (ulong)_targetInstructionSize, _bytes.ToArray());
-            Memory.WriteByteArray(_freeAddress + (ulong)_targetInstructionSize + (ulong) _bytes.Count, jmpBack.ToArray());
+            Memory.WriteByteArray(_freeAddress + (ulong)_targetInstructionSize + (ulong)_bytes.Count, jmpBack.ToArray());
 
             Log.Debug("Hook is in");
         }
@@ -672,7 +664,8 @@ namespace C2AP
                 return;
             }
             byte[] originalInstruction = Memory.ReadByteArray(_freeAddress, (int)_targetInstructionSize);
-            if (!originalInstruction.All(b => b == 0x00)) {
+            if (!originalInstruction.All(b => b == 0x00))
+            {
                 Memory.WriteByteArray(_targetAddress, originalInstruction);
             }
             Memory.WriteByteArray(_freeAddress, new byte[_hookSize]);

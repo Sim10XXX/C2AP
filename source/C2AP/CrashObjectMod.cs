@@ -1,15 +1,9 @@
-﻿using Archipelago.Core;
-using Archipelago.Core.Models;
-using Archipelago.Core.Util;
-using DynamicData;
+﻿using Archipelago.Core.Util;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Runtime.InteropServices.Marshalling;
-using System.Text;
-using System.Threading.Tasks;
+
 using Timer = System.Timers.Timer;
 
 namespace C2AP
@@ -39,21 +33,20 @@ namespace C2AP
 
             List<byte[]> mods = new();
 
-            uint crystalCount = 0;
+            uint crystalCount = App.crashState.Crystals;
+            //List<Item> items = new();
+            //if (App.Client != null && App.Client.ItemState != null)
+            //{
+            //    items = App.Client.ItemState.ReceivedItems.ToList();
+            //}
 
-            List<Item> items = new();
-            if (App.Client != null && App.Client.ItemState != null)
-            {
-                items = App.Client.ItemState.ReceivedItems.ToList();
-            }
-
-            foreach (Item item in items)
-            {
-                if (item.Name == "Crystal")
-                {
-                    crystalCount++;
-                }
-            }
+            //foreach (Item item in items)
+            //{
+            //    if (item.Name == "Crystal")
+            //    {
+            //        crystalCount++;
+            //    }
+            //}
 
             Log.Debug($"Crystals counted = {crystalCount}");
 
@@ -142,7 +135,7 @@ namespace C2AP
         }
         public void RefreshMod() //this method is be called on a timer
         {
-            if (_levelId != -1 && Memory.ReadByte(Addresses.LevelIdAddress+0x1) != _levelId)
+            if (_levelId != -1 && Memory.ReadByte(Addresses.LevelIdAddress + 0x1) != _levelId)
             {
                 return;
             }

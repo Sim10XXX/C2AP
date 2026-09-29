@@ -2,25 +2,30 @@
 using Archipelago.Core.AvaloniaGUI.Models;
 using Archipelago.Core.AvaloniaGUI.ViewModels;
 using Archipelago.Core.AvaloniaGUI.Views;
-using Archipelago.Core.GameClients;
+//using Archipelago.Core.GameClients;
+using Archipelago.Core.Helpers;
 using Archipelago.Core.Models;
 using Archipelago.Core.Traps;
 using Archipelago.Core.Util;
 using Archipelago.Core.Util.Hook;
+using Archipelago.Core.Util.PlatformMemory;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
+using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
 using Archipelago.MultiClient.Net.Packets;
+using Archipelago.MultiClient.Net.Models;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.OpenGL;
-using DynamicData.Kernel;
+using Avalonia.Remote.Protocol.Viewport;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+//using Silk.NET.Core;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -37,6 +42,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using Location = Archipelago.Core.Models.Location;
 using Timer = System.Timers.Timer;
+using Color = Avalonia.Media.Color;
 
 namespace C2AP;
 
@@ -45,6 +51,7 @@ public partial class App : Application
     public static MainWindowViewModel Context;
     public static ArchipelagoClient Client { get; set; }
     public static List<ILocation> GameLocations { get; set; }
+    public static Dictionary<long, ILocation> GameLocationsById { get; set; }
     public static Dictionary<string, object> SlotData { get; private set; } = new();
     private static readonly object _lockObject = new object();
     private static Dictionary<string, string> _hintsList { get; set; }
@@ -112,10 +119,10 @@ public partial class App : Application
         }
         base.OnFrameworkInitializationCompleted();
     }
-    
+
     public void Start()
     {
-        Context = new MainWindowViewModel("0.6.2");
+        Context = new MainWindowViewModel();
         Context.ClientVersion = "v0.4.1";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
@@ -131,17 +138,6 @@ public partial class App : Application
         //Log.Logger.Information("Hello World");
         Log.Logger.Information("This Archipelago Client is compatible only with the Crash Bandicoot 2 Europe (PAL) Release");
         Log.Logger.Information("Trying to play with a different version will not work and may release all of your locations at the start.");
-
-        //CustomHook blockCircle = new CustomHook([
-        //                "la $t0, 0x80069bb8",
-        //                "lw $t1, 0($t0)",
-        //                "la $t2, 0x20000000",
-        //                "or $t1, $t1, $t2",
-        //                "sw $t1, 0($t0)",
-        //                ]);
-
-        
-        
     }
 
 
@@ -171,7 +167,7 @@ public partial class App : Application
                 _useQuietHints = false;
                 break;
             case "help":
-                Log.Logger.Information("Available commands:");
+                Log.Logger.Information("\tAvailable commands:");
                 Log.Logger.Information("/syncCrashGameState - Syncs the game state with the current received items and completed locations.");
                 Log.Logger.Information("/useQuietHints - Hints for found locations will not be displayed.");
                 Log.Logger.Information("/useVerboseHints - Hints for found locations will be displayed.");
@@ -180,18 +176,19 @@ public partial class App : Application
                 Log.Logger.Information("/debug - Prints available debug commands.");
                 break;
             case "debug":
-                Log.Logger.Information("Debug commands:");
+                Log.Logger.Information("\tDebug commands:");
                 Log.Logger.Information("/debug_receiveDeathLink [delay (ms)] - Simulates receiving a DeathLink with an optional delay.");
                 Log.Logger.Information("/debug_snapshot <name> - Creates a snapshot of the game's current memory and saves it with the specified name.");
                 Log.Logger.Information("/debug_itemState - Prints the current item state.");
                 Log.Logger.Information("/debug_locationState - Prints the current location state.");
-                Log.Logger.Information("These should be disabled if you are on a full release build: ");
+                Log.Logger.Information("\tThese should be disabled if you are on a full release build: ");
                 Log.Logger.Information("/debug_openWarpRoom - Grants full access to the warp room");
                 Log.Logger.Information("/debug_sendGoal - Sends a goal completion to the server.");
                 break;
             case "warps":
             case "warp":
             case "warproom":
+            case "montyhall":
                 if (args.Length == 1)
                 {
                     WarpRoomRandomizer.PrintMontyHallDestinations();
@@ -244,7 +241,7 @@ public partial class App : Application
                 Log.Logger.Information($"crash state: {state}");
                 //{
                 Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
-                
+
                 break;
             //case "c":
             //    if (args.Length > 1) break;
@@ -255,32 +252,32 @@ public partial class App : Application
             //    CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, _execCount << 8, (uint)_execParam.Length, _execParam);
             //    _execCount++;
             //    break;
-            case "debug_itemstate":
-                if (Client.ItemState == null) break;
-                List<Item> items = Client.ItemState.ReceivedItems.OfType<Item>().ToList();
-                if (items.Count == 0)
-                {
-                    Log.Logger.Information("No items have been received yet.");
-                    break;
-                }
-                foreach (Item item in items)
-                {
-                    Log.Logger.Information($"{item.Name}");
-                }
-                break;
-            case "debug_locationstate":
-                if (Client.LocationState == null) break;
-                List<Location> locations = Client.LocationState.CompletedLocations.OfType<Location>().ToList();
-                if (locations.Count == 0)
-                {
-                    Log.Logger.Information("No locations have been completed yet.");
-                    break;
-                }
-                foreach (Location location in locations)
-                {
-                    Log.Logger.Information($"{location.Name}");
-                }
-                break;
+            //case "debug_itemstate":
+            //    if (Client.ItemState == null) break;
+            //    List<Item> items = Client.ItemState.ReceivedItems.OfType<Item>().ToList();
+            //    if (items.Count == 0)
+            //    {
+            //        Log.Logger.Information("No items have been received yet.");
+            //        break;
+            //    }
+            //    foreach (Item item in items)
+            //    {
+            //        Log.Logger.Information($"{item.Name}");
+            //    }
+            //    break;
+            //case "debug_locationstate":
+            //    if (Client.LocationState == null) break;
+            //    List<Location> locations = Client.LocationState.CompletedLocations.OfType<Location>().ToList();
+            //    if (locations.Count == 0)
+            //    {
+            //        Log.Logger.Information("No locations have been completed yet.");
+            //        break;
+            //    }
+            //    foreach (Location location in locations)
+            //    {
+            //        Log.Logger.Information($"{location.Name}");
+            //    }
+            //    break;
             case "debug_openwarproom":
                 //break;
                 // mark bosses as complete
@@ -334,87 +331,110 @@ public partial class App : Application
 
         }
 
-        
-            //if (args[0] == "debug_sendevent")
-            //{
-            //    return;
-                
-            //    List<uint> eventArgv = new();
-            //    //Log.Logger.Information($"try exec");
-            //    for (int i = 2; i < args.Length; i++)
-            //    {
-            //        //Log.Logger.Information($"adding: {Convert.ToUInt32(args[i]) << 8}");
-            //        eventArgv.Add(Convert.ToUInt32(args[i]) << 8);
-            //    }
-            //    //Log.Logger.Information($"find crash");
-            //    crashAddress = CrashObject.FindObjectAddress(0, 0);
-            //    if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
-            //    {
-            //        Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
-                    
-            //        Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
-            //        CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, Convert.ToUInt32(args[1]) << 8, (uint)eventArgv.Count, eventArgv.AsArray());
-                    
-            //    }
-            //}
+
+        //if (args[0] == "debug_sendevent")
+        //{
+        //    return;
+
+        //    List<uint> eventArgv = new();
+        //    //Log.Logger.Information($"try exec");
+        //    for (int i = 2; i < args.Length; i++)
+        //    {
+        //        //Log.Logger.Information($"adding: {Convert.ToUInt32(args[i]) << 8}");
+        //        eventArgv.Add(Convert.ToUInt32(args[i]) << 8);
+        //    }
+        //    //Log.Logger.Information($"find crash");
+        //    crashAddress = CrashObject.FindObjectAddress(0, 0);
+        //    if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
+        //    {
+        //        Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
+
+        //        Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
+        //        CrashEvent.CallSendEvent(0, crashAddress + CrashObject.cacheOffset, Convert.ToUInt32(args[1]) << 8, (uint)eventArgv.Count, eventArgv.AsArray());
+
+        //    }
+        //}
     }
     private async void Context_ConnectClicked(object? sender, ConnectClickedEventArgs e)
     {
-        
+
         if (Client != null)
         {
-            Client.CancelMonitors();
+            Client.LocationManager.CancelMonitors();
             Client.Connected -= OnConnected;
             Client.Disconnected -= OnDisconnected;
-            Client.ItemReceived -= ItemReceived;
+            Client.ItemManager.ItemReceived -= ItemReceived;
             Client.MessageReceived -= Client_MessageReceived;
-            Client.LocationCompleted -= Client_LocationCompleted;
+            Client.LocationManager.LocationCompleted -= Client_LocationCompleted;
             Client.CurrentSession.Locations.CheckedLocationsUpdated -= Locations_CheckedLocationsUpdated;
         }
-        DuckstationClient? client = null;
-        try
-        {
-            client = new DuckstationClient();
-        }
-        catch (ArgumentException ex)
+        GameClient gameClient = new GameClient("duckstation-qt");
+        //DuckstationClient? client = null;
+        //try
+        //{
+        //    client = new DuckstationClient();
+        //}
+        //catch (ArgumentException ex)
+        //{
+        //    Log.Logger.Warning("Duckstation not running, open Duckstation and launch the game before connecting!");
+        //    return;
+        //}
+        //var DuckstationConnected = client.Connect();
+        //if (!DuckstationConnected)
+        //{
+        //    Log.Logger.Warning("Duckstation not running, open Duckstation and launch the game before connecting!");
+        //    return;
+        //}
+        if (!gameClient.Connect())
         {
             Log.Logger.Warning("Duckstation not running, open Duckstation and launch the game before connecting!");
             return;
         }
-        var DuckstationConnected = client.Connect();
-        if (!DuckstationConnected)
-        {
-            Log.Logger.Warning("Duckstation not running, open Duckstation and launch the game before connecting!");
-            return;
-        }
-        Client = new ArchipelagoClient(client);
-        Client.ShouldSaveStateOnItemReceived = false;
 
-        Memory.GlobalOffset = Memory.GetDuckstationOffset();
+        Client = new ArchipelagoClient(gameClient);
+        //Client.ShouldSaveStateOnItemReceived = false;
+
+        //Memory.GlobalOffset = Memory.GetDuckstationOffset();
+        PlatformMemory.GlobalOffset = PlatformMemory.GetDuckstationOffset();
 
         //InputLock.Initialize();
         //InputLock.LockInput(InputFlag.Square);
         //Helpers.ClearHookMemory();
-        
 
-        
+
+
 
         Client.Connected += OnConnected;
         Client.Disconnected += OnDisconnected;
 
-        await Client.Connect(e.Host, "Crash2", "");
+        await Client.Connect(e.Host, "Crash2");
         if (!Client.IsConnected)
         {
             Log.Logger.Error("Your host seems to be invalid.  Please confirm that you have entered it correctly.");
             return;
         }
         GameLocations = Helpers.BuildLocationList();
-        Client.LocationCompleted += Client_LocationCompleted;
+        GameLocationsById = new Dictionary<long, ILocation>();
+        foreach (ILocation location in GameLocations)
+        {
+            if (!GameLocationsById.TryAdd(location.Id, location))
+            {
+                Log.Logger.Warning($"Failed to add location with ID {location.Id}");
+            }
+            else
+            {
+                //Log.Logger.Information($"Location added with ID {location.Id}");
+            }
+        }
+        //GameLocationsById = GameLocations.OfType<Location>().ToDictionary(loc => (long)loc.Id, loc => (ILocation)loc);
+        await Client.Login(e.Slot, !string.IsNullOrWhiteSpace(e.Password) ? e.Password : null);
+
+        Client.LocationManager.LocationCompleted += Client_LocationCompleted;
         Client.CurrentSession.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
         Client.MessageReceived += Client_MessageReceived;
-        Client.ItemReceived += ItemReceived;
-        Client.EnableLocationsCondition = () => Helpers.IsInGame() && Helpers.IsConnectionValid();
-        await Client.Login(e.Slot, !string.IsNullOrWhiteSpace(e.Password) ? e.Password : null);
+        Client.ItemManager.ItemReceived += ItemReceived;
+        Client.LocationManager.EnableLocationsCondition = () => Helpers.IsInGame() && Helpers.IsConnectionValid();
+        
         //if (Client.Options?.Count > 0)
         //{
         //    Client.MonitorLocations(GameLocations);
@@ -424,47 +444,24 @@ public partial class App : Application
         //{
         //    Log.Logger.Error("Failed to login.  Please check your host, name, and password.");
         //}
-        
+
         if (Helpers.IsInGame())
         {
             SyncGameState();
             UpdateCrashState();
             //Helpers.InitializeAll(e.Slot);
-            Client.MonitorLocations(GameLocations);
+            await Client.ReceiveReady();
+            Client.LocationManager.MonitorLocationsAsync(Client.CurrentSession, GameLocations);
+            //Client.MonitorLocations(GameLocations);
         }
         else
         {
             Log.Logger.Error("Not in game. Please wait until the game is running before connecting");
             Log.Logger.Error("Locations will not be monitored and no features will be available");
         }
-       
-        //BaseHooks.Initialize();
-        //WarpRoomRandomizer.Initialize();
-        //CrashDeathLink.Initialize(e.Slot);
-
-
-        //InputLock.Initialize();
-
-        //InputLock.LockInput(InputFlag.All);
-        //InputLock.UnlockInput(InputFlag.All);
-
-        //CrashEvent.Initialize();
-        //Traps.Initialize();
-        //CrashObjectMod.Initialize();
-        //GimmickLock.Initialize();
-        //Helpers.StartCheckEmulationPaused();
-        //Helpers.StartCheckLifeCount();
-
-        //Timer testTimer = new Timer(100);
-        //testTimer.Elapsed += (s, ev) =>
-        //{
-        //    testValue++;
-        //    Memory.Write(0xF2EC, (uint)testValue);
-        //};
-        //testTimer.Start();
     }
 
-    
+
     private void UpdateGemLocationsChecked()
     {
         Log.Debug("UpdateGemLocationsChecked");
@@ -500,8 +497,8 @@ public partial class App : Application
     {
         Helpers.shouldSyncProgress = false;
         // Updates the game with the current crashState
-        if (Client.LocationState == null) return;
-        if (Client.ItemState == null) return;
+        //if (Client.LocationState == null) return;
+        //if (Client.ItemState == null) return;
 
         // First get the current locations from the game
         byte[] gemFlags = Memory.ReadByteArray(Addresses.GemLocationsAddress, 8);
@@ -513,7 +510,7 @@ public partial class App : Application
             crashState.CrystalLocations[i] |= crystalFlags[i];
             crashState.LevelExitLocations[i] |= levelExitFlags[i];
         }
-        
+
 
         uint crystalCount = crashState.Crystals;
         uint clearGemCount = crashState.ClearGems;
@@ -603,30 +600,52 @@ public partial class App : Application
     public static void SyncGameState()
     {
         // Adds locationState and itemState to the current crashState
-        if (Client.LocationState == null) return;
-        if (Client.ItemState == null) return;
+        //if (Client.LocationState == null) return;
+        //if (Client.ItemState == null) return;
 
-        List<Location> locations = Client.LocationState.CompletedLocations.OfType<Location>().ToList();
+        List<long> locationIds = Client.CurrentSession.Locations.AllLocationsChecked.ToList();
+
+        //Client.LocationManager;
+        //GameLocations
+        //List<Location> locations = Client.CurrentSession.Locations.AllLocationsChecked.OfType<Location>().ToList();
         uint maxLifeCount = 0;
-        foreach (Location location in locations)
+        foreach (long locationId in locationIds)
         {
-            //Log.Information($"Location: {location.Name} (ID: {location.Id})");
-            string? levelName = Addresses.levelNameToId.Keys.FirstOrDefault(location.Name.Contains);
+            Location? location = (Location?)GameLocationsById.GetValueOrDefault(locationId);
+            //Log.Information($"Checking location ID: {locationId}");
+            string? levelName = null;
+            if (location != null)
+            { 
+                levelName = Addresses.levelNameToId.Keys.FirstOrDefault(location.Name.Contains);
+                //Log.Information($"Location: {location.Name} (ID: {location.Id})");
+            }
+
+             
             if (levelName != null)
             {
                 Helpers.seenLevelIds.Add((uint)Addresses.levelNameToId[levelName]);
             }
-            if (location.Id >= 10000)
+            if (locationId >= 10000)
             {
-                ItemCheck.CompleteBundle(location.Id);
+                ItemCheck.ItemBundle? bundle = ItemCheck.CompleteBundle((int)locationId);
+                if (bundle != null)
+                {
+                    levelName = Addresses.levelNameToId.Keys.FirstOrDefault(bundle.locationName.Contains);
+                    if (levelName != null)
+                    {
+                        Helpers.seenLevelIds.Add((uint)Addresses.levelNameToId[levelName]);
+                    }
+                }
                 continue;
             }
-            if (location.Id >= Helpers.lifeCountBaseId)
+            if (locationId >= Helpers.lifeCountBaseId)
             {
-                uint lifeCount = (uint)location.Id - Helpers.lifeCountBaseId;
+                uint lifeCount = (uint)locationId - Helpers.lifeCountBaseId;
                 if (lifeCount > maxLifeCount) maxLifeCount = lifeCount;
                 continue;
             }
+
+            if (location == null) continue;
             if (location.Address == 0/* || location.AddressBit == 0*/) continue;
             if (location.Address >= Addresses.GemLocationsAddress && location.Address < Addresses.GemLocationsAddress + 8)
             {
@@ -641,7 +660,7 @@ public partial class App : Application
                 uint levelId = ((uint)location.Address - Addresses.LevelExitsAddress) * 8 + (uint)location.AddressBit;
                 //Log.Information($"Marking level exit complete for location {location.Name} with level id {levelId}");
                 crashState.LevelExitLocations[location.Address - Addresses.LevelExitsAddress] |= (byte)(0x1 << location.AddressBit);
-                
+
                 // For any secret exit, open up its corresponding secret entrance
                 switch (levelId)
                 {
@@ -665,13 +684,14 @@ public partial class App : Application
         }
         crashState.MaxLifeCount = maxLifeCount;
 
-        List<Item> items = Client.ItemState.ReceivedItems.ToList();
+        List<ItemInfo> items = Client.CurrentSession.Items.AllItemsReceived.ToList();
+
         uint crystalCount = 0;
         uint clearGemCount = 0;
         List<int> coloredGems = new();
-        foreach (Item item in items)
+        foreach (ItemInfo item in items)
         {
-            switch (item.Name)
+            switch (item.ItemName)
             {
                 case "Crystal":
                     crystalCount++;
@@ -769,7 +789,7 @@ public partial class App : Application
                     return;
                 IncrementByte(Addresses.LivesGlobalAddress);
                 return;
-                //break;
+            //break;
             case "Wumpa Fruit":
                 //CrashFunction.EnqueueEvent(CrashFunction.Event.GiveWumpa);
                 crashAddress = CrashObject.FindObjectAddress(0, 0);
@@ -800,15 +820,15 @@ public partial class App : Application
     {
         uint data = Memory.ReadByte(address);
         data++;
-        if (data > 0xFF) 
+        if (data > 0xFF)
             data = 0xFF;
-        Memory.WriteByte(address, (byte) data);
+        Memory.WriteByte(address, (byte)data);
     }
 
     private static void CheckGoalCondition()
     {
-        if (Client.LocationState == null) return;
-        if (Client.ItemState == null) return;
+        //if (Client.LocationState == null) return;
+        //if (Client.ItemState == null) return;
         if (_hasSubmittedGoal)
         {
             return;
@@ -836,7 +856,7 @@ public partial class App : Application
             await lagTrap.WaitForCompletionAsync();
         }
     }
-    
+
     private static void LogItem(Item item)
     {
         // Not supported at this time.
@@ -894,14 +914,14 @@ public partial class App : Application
         List<TextSpan> spans = new List<TextSpan>();
         foreach (var part in message.Parts)
         {
-            RxApp.MainThreadScheduler.Schedule(() =>
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 spans.Add(new TextSpan() { Text = part.Text, TextColor = new SolidColorBrush(Color.FromRgb(part.Color.R, part.Color.G, part.Color.B)) });
             });
         }
         lock (_lockObject)
         {
-            RxApp.MainThreadScheduler.Schedule(() =>
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 Context.HintList.Add(new LogListItem(spans));
             });
@@ -913,7 +933,7 @@ public partial class App : Application
         CheckGoalCondition();
 
     }
-    
+
     private static void OnConnected(object sender, EventArgs args)
     {
         int currentSlot = Client.CurrentSession.ConnectionInfo.Slot;
@@ -942,7 +962,7 @@ public partial class App : Application
         {
             ItemCheck.Initialize();
         }
-        
+
     }
 
     private static void OnDisconnected(object sender, EventArgs args)
@@ -955,6 +975,6 @@ public partial class App : Application
         Log.Logger.Information("This Archipelago Client is compatible only with the Crash Bandicoot 2 Europe (PAL) Release");
         Log.Logger.Information("Trying to play with a different version will not work and may release all of your locations at the start.");
 
-       
+
     }
 }

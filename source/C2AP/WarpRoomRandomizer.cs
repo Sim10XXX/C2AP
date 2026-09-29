@@ -145,17 +145,18 @@ namespace C2AP
             // Warp 6 is not currently randomized, so no need to print it
             for (int i = 1; i <= 5; i++)
             {
-                PrintMontyHallDestinations(i);
+                if (!PrintMontyHallDestinations(i))
+                    break;
             }
         }
-        public static void PrintMontyHallDestinations(int warpRoom)
+        public static bool PrintMontyHallDestinations(int warpRoom)
         {
             string outstring = string.Empty;
             string tempstring = string.Empty;
             if (MontyHallDestinations.All<int>(x => x == 0))
             {
                 Log.Information("The warp room is not randomized.");
-                return;
+                return false;
             }
             
             Log.Information($"Warp {warpRoom}:");
@@ -172,6 +173,7 @@ namespace C2AP
                 outstring = tempstring + outstring;                
             }
             Log.Information(outstring);
+            return true;
         }
     }
 }

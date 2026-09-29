@@ -23,9 +23,11 @@
 	<!--ItemGroup>
 		<ProjectReference Include="..\..\..\Archipelago.Core\Archipelago.Core.csproj" />
 	</ItemGroup-->
+	
 
 	<ItemGroup>
-		<PackageReference Include="Archipelago.Core.AvaloniaGUI" Version="0.2.2" />
+		<PackageReference Include="Archipelago.Core" Version="2.0.3" />
+		<PackageReference Include="Archipelago.Core.AvaloniaGUI" Version="1.0.3" />
 		<PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
 		<PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />

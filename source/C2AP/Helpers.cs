@@ -1,16 +1,11 @@
 ﻿using Archipelago.Core.Models;
 using Archipelago.Core.Util;
-using DynamicData;
 using Serilog;
-using Silk.NET.GLFW;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Reflection.Metadata;
-using System.Threading.Tasks;
 using System.Timers;
 using Location = Archipelago.Core.Models.Location;
+
 namespace C2AP
 {
     public class Helpers
@@ -76,10 +71,10 @@ namespace C2AP
                             if (lifeCountCheck > App.crashState.MaxLifeCount)
                             {
                                 if (lifeCountCheck > lifeCount) break;
-                                App.Client.SendLocation(new Location
+                                App.Client.SendLocationAsync(new Location
                                 {
                                     Name = $"Collect {lifeCountCheck} Lives",
-                                    Id = (int) (lifeCountBaseId + lifeCountCheck),
+                                    Id = (int)(lifeCountBaseId + lifeCountCheck),
                                 });
                                 //Log.Information($"Sent life count check for {lifeCountCheck} lives");
                             }
@@ -108,9 +103,9 @@ namespace C2AP
                 //    Log.Logger.Information($"crash state: {Memory.ReadUInt(crashAddress + 0x1C)}");
                 //}
             };
-            checkEmulation.Start(); 
+            checkEmulation.Start();
         }
-        
+
         public static bool IsEmulationPaused()
         {
             return isEmulationPaused;
@@ -126,7 +121,7 @@ namespace C2AP
             seed = unchecked((ushort)GetSlotData("seed"));
             //seed += Addresses.CacheOffset;
             HookManager.AddHook(connectionHook, 0x15A20);
-            HookManager.ReplaceAsm(connectionHook,[
+            HookManager.ReplaceAsm(connectionHook, [
                 $"la $t0, 0x{Addresses.ConnectionCheck + Addresses.CacheOffset:X}",
                 //$"la $t1, 0x{seed:X}",
                 $"addiu $t1, $zero, 0x{seed:X}",
@@ -165,7 +160,7 @@ namespace C2AP
                 {
                     shouldCheckConnection = false;
                     shouldSyncProgress = true;
-                    
+
                     if (IsInGame())
                     {
                         Log.Error("Connection interrupted due to loading of save state");
@@ -232,9 +227,9 @@ namespace C2AP
             }
 
             //Log.Information($"{slotName} option : {slotValue}");
-            
+
             // prevent overflow when converting to int, since the seed is going to be a very large number
-            return Convert.ToInt32(slotValue.ToString().Substring(0,Math.Min(9, slotValue.ToString().Length)));
+            return Convert.ToInt32(slotValue.ToString().Substring(0, Math.Min(9, slotValue.ToString().Length)));
         }
 
         public static List<int> GetSlotDataList(string slotName)
@@ -250,7 +245,7 @@ namespace C2AP
             {
                 return [];
             }
-            
+
             var valueList = value.Trim('[', ']').Split(',');
             List<int> resultList = [];
             if (valueList.Length == 1)
@@ -260,7 +255,7 @@ namespace C2AP
                 {
                     return [];
                 }
-            }            
+            }
             foreach (var item in valueList)
             {
                 resultList.Add(Convert.ToInt32(item.Trim().Trim('"')));
@@ -308,7 +303,7 @@ namespace C2AP
                 {
                     shouldSyncProgress = true;
                 }
-                
+
 
                 return true;
             }
@@ -324,7 +319,7 @@ namespace C2AP
             Log.Warning("Not in game");
             return false;
         }
-        
+
         public static bool IsInDemo()
         {
             return Memory.ReadUInt(Addresses.DemoPointer) != 0;
@@ -400,7 +395,7 @@ namespace C2AP
                     bit = Addresses.levelNameToId[locName.Replace(" Defeated", "")];
                     category = "Boss Defeated";
                 }
-                
+
 
                 address += (uint)(bit / 8);
                 bit = bit % 8;
@@ -423,14 +418,16 @@ namespace C2AP
                 Name = "Normal Ending",
                 Address = Addresses.LevelIdAddress,
                 CheckType = LocationCheckType.Int,
-                CheckValue = "10496" //0x2900 == normal ending level id
+                CheckValue = "10496", //0x2900 == normal ending level id
+                Id = 998,
             });
             locations.Add(new Location
             {
                 Name = "100% Ending",
                 Address = Addresses.LevelIdAddress,
                 CheckType = LocationCheckType.Int,
-                CheckValue = "10240" //0x2800 == 100% ending level id
+                CheckValue = "10240", //0x2800 == 100% ending level id
+                Id = 999
             });
 
             //if (FruitCheck.Bundles != null)

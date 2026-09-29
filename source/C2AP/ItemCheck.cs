@@ -31,21 +31,21 @@ namespace C2AP
         //    public int locationId;
         //}
 
-        private static Dictionary<uint, int> ?ItemIdToBundle;
+        private static Dictionary<uint, int>? ItemIdToBundle;
 
-        public static List<ItemBundle> ?Bundles;
+        public static List<ItemBundle>? Bundles;
 
-        private static Dictionary<uint, (int start, int end)> ?LevelIdToBundle;
+        private static Dictionary<uint, (int start, int end)>? LevelIdToBundle;
 
-        private static Dictionary<int, int> ?LocationIdToBundle;
+        private static Dictionary<int, int>? LocationIdToBundle;
 
         private static Timer checkItemTimer = new Timer();
 
         private static uint lastLevelId = 0;
         public static void Initialize()
         {
-            
-            
+
+
             int fruit_sanity = Helpers.GetOptionValue("fruit_sanity");
             int life_sanity = Helpers.GetOptionValue("life_sanity");
             if (fruit_sanity <= 0 && life_sanity <= 0) return;
@@ -67,18 +67,18 @@ namespace C2AP
             checkItemTimer.Elapsed += (s, ev) =>
             {
                 uint levelid = Memory.ReadByte(Addresses.LevelIdAddress + 1);
-                
+
                 if (levelid != lastLevelId)
                 {
                     uint crashAddress = CrashObject.FindObjectAddress(0, 0);
                     if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
                     {
-                        
+
                         SetDeadFlags(levelid);
                         Log.Debug($"setting dead flags for new level {levelid:X}, old level {lastLevelId:X}");
                         lastLevelId = levelid;
                     }
-                } 
+                }
                 ScanCollectedItemList();
             };
             checkItemTimer.Enabled = true;
@@ -106,13 +106,13 @@ namespace C2AP
                 {
                     resourceName = "C2AP.Assets.lifebundles.txt";
                 }
-                
+
 
                 using (Stream stream = assembly.GetManifestResourceStream(resourceName))
                 using (StreamReader reader = new StreamReader(stream))
                 {
                     //if (reader == null) return;
-                    
+
 
                     int bundleLocationIdOffset;
                     if (fruit)
@@ -130,7 +130,7 @@ namespace C2AP
                     {
                         bundleLocationIdOffset = 30000;
                     }
-                    
+
                     string line;
                     uint id = 0;
                     uint levelid = 0;
@@ -169,7 +169,7 @@ namespace C2AP
                                     {
                                         bundle.locationName = $"{levelname} {bundlename} Life";
                                     }
-                                    
+
 
                                 }
                                 bundlename = line.Replace("#", "");
@@ -197,7 +197,7 @@ namespace C2AP
                                 bundle = Bundles.Last();
                                 bundle.locationId = bundleLocationIdOffset + totalLocalBundles;
                                 //if (!fruit)
-                                    //Log.Information($"Name: {bundlename}, LocationId: {bundle.locationId}");
+                                //Log.Information($"Name: {bundlename}, LocationId: {bundle.locationId}");
                                 LocationIdToBundle[bundle.locationId] = totalBundles;
                                 totalBundles++;
                                 totalLocalBundles++;
@@ -259,7 +259,7 @@ namespace C2AP
             //Log.Debug("scanning collected item list, length: " + len);
             if (len == 0) return;
 
-            uint levelId = Memory.ReadByte(Addresses.LevelIdAddress+1);
+            uint levelId = Memory.ReadByte(Addresses.LevelIdAddress + 1);
             //Log.Logger.Information("scanning");
             Memory.ReadByteArray(Addresses.FruitCollectedListStart - len, (int)len);
             //Memory.
@@ -275,7 +275,7 @@ namespace C2AP
 
             //clear out the list
             //Log.Logger.Information("clearing");
-            Memory.WriteByteArray(Addresses.FruitCollectedListStart - len, new byte[(int)len+4]);
+            Memory.WriteByteArray(Addresses.FruitCollectedListStart - len, new byte[(int)len + 4]);
 
             //check if fruit was added during the scan
             while (true)
@@ -304,7 +304,8 @@ namespace C2AP
             {
                 if (bundle.collectedItems.Count == bundle.requiredItemCount)
                 {
-                    App.Client.SendLocation(new Location {
+                    App.Client.SendLocationAsync(new Location
+                    {
                         Name = bundle.locationName,
                         Id = bundle.locationId,
                         //Category = "Fruit Bundle",
@@ -322,7 +323,7 @@ namespace C2AP
             if (Bundles == null) return;
 
             if (!LevelIdToBundle.TryGetValue(levelId, out (int start, int end) indices)) return;
-            
+
             //(int start, int end) indices = LevelIdToBundle[levelid];
             Log.Debug($"start: {indices.start}, end: {indices.end}");
             for (int i = indices.start; i < indices.end; i++)
@@ -345,20 +346,21 @@ namespace C2AP
             Log.Debug($"Address{Addresses.CurrentEntityFlagList + id * 4:X}");
         }
 
-        public static void CompleteBundle(int locationId)
+        public static ItemBundle? CompleteBundle(int locationId)
         {
-            if (LocationIdToBundle == null) return;
-            if (Bundles == null) return;
+            if (LocationIdToBundle == null) return null;
+            if (Bundles == null) return null;
             if (!LocationIdToBundle.TryGetValue(locationId, out int bundleIndex))
             {
                 Log.Logger.Warning($"Unknown bundle location id: {locationId}");
-                return;
+                return null;
             }
             ItemBundle bundle = Bundles[bundleIndex];
             foreach (uint fruitid in bundle.requiredItems)
             {
                 bundle.collectedItems.Add(fruitid);
             }
+            return bundle;
         }
         public static List<uint> DebugScanItemList()
         {
