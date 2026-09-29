@@ -21,7 +21,6 @@ using DynamicData.Kernel;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
-using Silk.NET.Core;
 using System;
 using System.Collections.Generic;
 using System.Data;

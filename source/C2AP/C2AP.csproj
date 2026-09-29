@@ -20,9 +20,9 @@
 		<EmbeddedResource Include="Assets\lifebundles.txt" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<!--ItemGroup>
 		<ProjectReference Include="..\..\..\Archipelago.Core\Archipelago.Core.csproj" />
-	</ItemGroup>
+	</ItemGroup-->
 
 	<ItemGroup>
 		<PackageReference Include="Archipelago.Core.AvaloniaGUI" Version="0.2.2" />
