@@ -135,7 +135,7 @@ namespace C2AP
         }
         public void RefreshMod() //this method is be called on a timer
         {
-            if (_levelId != -1 && Memory.ReadByte(Addresses.LevelIdAddress + 0x1) != _levelId)
+            if (_levelId != -1 && _levelId != 0 && Memory.ReadByte(Addresses.LevelIdAddress + 0x1) != _levelId)
             {
                 return;
             }

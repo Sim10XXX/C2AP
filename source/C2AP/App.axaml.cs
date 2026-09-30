@@ -213,6 +213,106 @@ public partial class App : Application
                 WarpRoomRandomizer.PrintMontyHallDestinations(warpRoom);
 
                 break;
+            case "goolr":
+                // 2326: plant food, rock it, ruination, hang eight, unbearable, crash crush, pack attack
+                // 
+                uint goolAdd = CrashObject.GetGoolBytecodeAddressFromObject(CrashObject.FindObjectAddress(0, 0));
+                //Log.Logger.Information($"gool: {goolAdd:X}");
+                ulong offset1 = 0;
+                if (args.Length == 1)
+                {
+                    break;
+                }
+                if (args.Length >= 2)
+                {
+                    ulong.TryParse(args[1], out offset1);
+                }
+                Log.Logger.Information($"{goolAdd:X} : {Memory.ReadInt(goolAdd + offset1 * 4):X}");
+                break;
+            case "gool":
+                // 803: jump from idle state
+
+                // 1521: crawl
+                // 1592: crawl when under object (disable both crawls)
+
+                //// state 4: walking animation related
+                // 838
+                // 1616
+                // 2522
+                // 2878
+
+                // state 16: crouch
+                // 1625: kinda bugs out
+                // 1746: -
+
+                //// state 19: slide
+                //// 1719: return causes the slide to crouch
+                // 835: slide from idle (also prevents crouching)
+                // 1425: slide from running
+                // 2876: ??
+
+                //// state 20: slam
+                // 2078: slam (in some edge case state)
+                // 2340: slam
+
+                //// state 22:
+                // 1788 slide spin
+
+                //// state 24
+                // 1656: crouch jump
+                // 1810: slide jump
+
+                //// state 42: something to do with landing
+                // 2080
+                // 2162
+                // 2318
+                // 2408
+                // 2746
+
+                //// state 43
+                // 1954: no visible effect
+                // 2184: -
+                // 2316: -
+                // 2798: -
+
+                //// state 44
+                // 821: standing spin
+                // 1415: running spin
+                // 2862: idk
+
+                //// state 45: spin in mid air (these didn't work when in plant food)
+                // 2062: prevents spinning when rising in a regular jump
+                // 2152: prevents spinning during a crouch/slide jump
+                // 2324: prevents spinning when falling in a regular jump
+
+                //// state 47
+                // 2949: gets rid of glitchy high jump with some weird side effects
+                // 3002: nothing?
+                uint goolAddress = CrashObject.GetGoolBytecodeAddressFromObject(CrashObject.FindObjectAddress(0, 0));
+                Log.Logger.Information($"gool: {goolAddress:X}");
+                ulong offset = 0;
+                int val = 0;
+                if (args.Length == 1)
+                {
+                    break;
+                }
+                if (args.Length >= 2)
+                {
+                    ulong.TryParse(args[1], out offset);
+                }
+                if (args.Length >= 3)
+                {
+                    if (args[2] == "ret")
+                    {
+                        val = 0x31894000;
+                    }
+                }
+                Memory.Write(goolAddress + offset * 4, val);
+                //Memory.Write(0x14a3e0 + 1719 * 4, Memory.ReadInt(0x14a3e0 + 1745 * 4));
+                //Memory.Write(0x14a3e0 + 1720 * 4, Memory.ReadInt(0x14a3e0 + 1746 * 4));
+                //Memory.Write(0x14a3e0 + 1721 * 4, 0x31894000);
+                Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {val:X}");
+                break;
             case "debug_receivedeathlink":
                 //break;
                 int delay = 1;
