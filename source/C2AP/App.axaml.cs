@@ -43,6 +43,7 @@ using System.Timers;
 using Location = Archipelago.Core.Models.Location;
 using Timer = System.Timers.Timer;
 using Color = Avalonia.Media.Color;
+using Silk.NET.Core;
 
 namespace C2AP;
 
@@ -90,6 +91,8 @@ public partial class App : Application
         public bool Jetpack;
         public bool Jetboard;
         public bool Fireflies;
+
+        public SortedSet<Ability> UnlockedAbilities = new();
 
     }
 
@@ -179,11 +182,13 @@ public partial class App : Application
                 Log.Logger.Information("\tDebug commands:");
                 Log.Logger.Information("/debug_receiveDeathLink [delay (ms)] - Simulates receiving a DeathLink with an optional delay.");
                 Log.Logger.Information("/debug_snapshot <name> - Creates a snapshot of the game's current memory and saves it with the specified name.");
-                Log.Logger.Information("/debug_itemState - Prints the current item state.");
-                Log.Logger.Information("/debug_locationState - Prints the current location state.");
+                //Log.Logger.Information("/debug_itemState - Prints the current item state.");
+                //Log.Logger.Information("/debug_locationState - Prints the current location state.");
                 Log.Logger.Information("\tThese should be disabled if you are on a full release build: ");
                 Log.Logger.Information("/debug_openWarpRoom - Grants full access to the warp room");
                 Log.Logger.Information("/debug_sendGoal - Sends a goal completion to the server.");
+                Log.Logger.Information("/debug_unlockAbilities - Unlocks all abilities");
+                Log.Logger.Information("/debug_lockAbilities - Locks all abilities");
                 break;
             case "warps":
             case "warp":
@@ -215,7 +220,7 @@ public partial class App : Application
                 break;
             case "goolr":
                 // 2326: plant food, rock it, ruination, hang eight, unbearable, crash crush, pack attack
-                // 
+                // extra lines: 1102, 1270 (ish)
                 uint goolAdd = CrashObject.GetGoolBytecodeAddressFromObject(CrashObject.FindObjectAddress(0, 0));
                 //Log.Logger.Information($"gool: {goolAdd:X}");
                 ulong offset1 = 0;
@@ -227,13 +232,12 @@ public partial class App : Application
                 {
                     ulong.TryParse(args[1], out offset1);
                 }
-                Log.Logger.Information($"{goolAdd:X} : {Memory.ReadInt(goolAdd + offset1 * 4):X}");
+                Log.Logger.Information($"{goolAdd + offset1 * 4:X} : {Memory.ReadInt(goolAdd + offset1 * 4):X}");
                 break;
             case "gool":
-                // 803: jump from idle state
 
-                // 1521: crawl
-                // 1592: crawl when under object (disable both crawls)
+
+
 
                 //// state 4: walking animation related
                 // 838
@@ -241,9 +245,19 @@ public partial class App : Application
                 // 2522
                 // 2878
 
-                // state 16: crouch
+                //// state 16:crouch
+                //// 1489: return crashes the game
                 // 1625: kinda bugs out
                 // 1746: -
+
+                //// state 17
+                // 1525: prevents un-crouching
+                // 1687: something with transitioning from crawl to crouch
+                // 1754: prevents going from idle to crouch (you just slide instead)
+
+                //// state 18
+                // 1521: crawl
+                // 1592: crawl during the crouch animation
 
                 //// state 19: slide
                 //// 1719: return causes the slide to crouch
@@ -257,6 +271,11 @@ public partial class App : Application
 
                 //// state 22:
                 // 1788 slide spin
+
+                //// state 23:
+                // 803: jump from idle state
+                // 2844: jump from landing state
+                // 3096: idk
 
                 //// state 24
                 // 1656: crouch jump
@@ -278,7 +297,7 @@ public partial class App : Application
                 //// state 44
                 // 821: standing spin
                 // 1415: running spin
-                // 2862: idk
+                // 2862: landing spin
 
                 //// state 45: spin in mid air (these didn't work when in plant food)
                 // 2062: prevents spinning when rising in a regular jump
@@ -308,9 +327,9 @@ public partial class App : Application
                     }
                 }
                 Memory.Write(goolAddress + offset * 4, val);
-                //Memory.Write(0x14a3e0 + 1719 * 4, Memory.ReadInt(0x14a3e0 + 1745 * 4));
-                //Memory.Write(0x14a3e0 + 1720 * 4, Memory.ReadInt(0x14a3e0 + 1746 * 4));
-                //Memory.Write(0x14a3e0 + 1721 * 4, 0x31894000);
+                //Memory.Write(0x14a3e0 + 1658 * 4, Memory.ReadInt(0x14a3e0 + 1686 * 4));
+                //Memory.Write(0x14a3e0 + 1659 * 4, Memory.ReadInt(0x14a3e0 + 1687 * 4));
+                //Memory.Write(0x14a3e0 + 1660 * 4, Memory.ReadInt(0x14a3e0 + 1688 * 4));
                 Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {val:X}");
                 break;
             case "debug_receivedeathlink":
@@ -421,14 +440,46 @@ public partial class App : Application
                     fs.Write(memoryDump, 0, memoryDump.Length);
                 }
                 break;
-                //case "debug_sendgoal":
-                //    Client.SendGoalCompletion();
-                //    break;
+            //case "debug_sendgoal":
+            //    Client.SendGoalCompletion();
+            //    break;
 
-                //address = CrystalAddress + (uint)levelid / 8;
-                //int bit = levelid % 8;
-                //Memory.WriteBit(address, bit, true);
-
+            //address = CrystalAddress + (uint)levelid / 8;
+            //int bit = levelid % 8;
+            //Memory.WriteBit(address, bit, true);
+            case "debug_unlockall":
+            case "debug_unlockabilities":
+                Log.Information("Unlocking all abilities");
+                crashState.UnlockedAbilities.Clear();
+                foreach (Ability ability in Enum.GetValues(typeof(Ability)))
+                {
+                    crashState.UnlockedAbilities.Add(ability);
+                }
+                UpdateCrashState();
+                break;
+            case "debug_lockall":
+            case "debug_lockabilities":
+                Log.Information("Locking all abilities");
+                crashState.UnlockedAbilities.Clear();
+                UpdateCrashState();
+                break;
+            case "debug_unlock":
+                if (args.Length != 2)
+                {
+                    Log.Logger.Warning("Usage: /debug_unlock <ability>");
+                    return;
+                }
+                if (Enum.TryParse<Ability>(args[1], true, out Ability abilityToUnlock))
+                {
+                    Log.Information($"Unlocking ability: {abilityToUnlock}");
+                    crashState.UnlockedAbilities.Add(abilityToUnlock);
+                    UpdateCrashState();
+                }
+                else
+                {
+                    Log.Logger.Warning($"Invalid ability: {args[1]}");
+                }
+                break;
         }
 
 
@@ -695,6 +746,8 @@ public partial class App : Application
         Memory.WriteByteArray(Addresses.GemLocationsAddress, crashState.GemLocations);
         Memory.WriteByteArray(Addresses.CrystalLocationsAddress, crashState.CrystalLocations);
         Memory.WriteByteArray(Addresses.LevelExitsAddress, crashState.LevelExitLocations);
+
+        AbilityLock.RefreshAbilityLock();
     }
 
     public static void SyncGameState()
@@ -783,7 +836,7 @@ public partial class App : Application
             }
         }
         crashState.MaxLifeCount = maxLifeCount;
-
+        crashState.UnlockedAbilities.Clear();
         List<ItemInfo> items = Client.CurrentSession.Items.AllItemsReceived.ToList();
 
         uint crystalCount = 0;
@@ -825,6 +878,12 @@ public partial class App : Application
                     break;
                 case "Fireflies":
                     crashState.Fireflies = true;
+                    break;
+                default: // Abilities
+                    if (Enum.TryParse<Ability>(item.ItemName.Replace(" ", ""), true, out Ability ability))
+                    {
+                        crashState.UnlockedAbilities.Add(ability);
+                    }
                     break;
             }
         }
@@ -911,6 +970,12 @@ public partial class App : Application
             case "Jetpack Controls Trap":
                 Traps.AddTrap(Traps.TrapType.JetpackControls);
                 return;
+            default: // Abilities
+                if (Enum.TryParse<Ability>(args.Item.Name.Replace(" ", ""), true, out Ability ability))
+                {
+                    crashState.UnlockedAbilities.Add(ability);
+                }
+                break;
 
         }
         UpdateCrashState();

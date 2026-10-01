@@ -19,6 +19,8 @@ namespace C2AP
         private int _levelId;
         private Action<uint, uint>? _customHandler; // custom function that runs
 
+        private bool _markedForRemoval = false;
+
         public static CrashObjectMod? liftMod;
         public static CrashObjectMod? montyHallMod;
         public static CrashObjectMod? warpSecretMod;
@@ -95,6 +97,10 @@ namespace C2AP
                 foreach (CrashObjectMod mod in modList)
                 {
                     mod.RefreshMod();
+                    if (mod._markedForRemoval)
+                    {
+                        modList.Remove(mod);
+                    }
                 }
             };
             modRefreshTimer.Enabled = true;
@@ -171,10 +177,17 @@ namespace C2AP
             if (Memory.ReadUInt(_address) == 0) return false;
 
             uint byteCodeAddress = CrashObject.GetItemAddressFromEntry(_goolEntryAddress, 1);
+            if (byteCodeAddress == 0 || byteCodeAddress == CrashObject.cacheOffset) return false;
+            if (byteCodeAddress > 0x200000)
+            {
+                Log.Warning("out of RAM bounds");
+                return false;
+            }
             uint instructionAddress;
             for (int i = 0; i < _mods.Count; i++)
             {
                 instructionAddress = byteCodeAddress + (_modInstructionLines[i] * 0x4);
+                //Log.Information("Instruction address: " + instructionAddress.ToString("X"));
                 byte[] checked_mod = Memory.ReadByteArray(instructionAddress, _mods[i].Length);
                 if (!_mods[i].AsSpan().SequenceEqual(checked_mod))
                 {
@@ -184,6 +197,23 @@ namespace C2AP
             }
 
             return true;
+        }
+
+        public void RemoveMod()
+        {
+            modList.Remove(this);
+        }
+        
+        // Replace the instructions and then remove the mod
+        public void RemoveMod(List<byte[]> newMods, List<uint> newModInstructionLines)
+        {
+            EditMod(newMods, newModInstructionLines);
+            _markedForRemoval = true;
+        }
+        public void SetLevelId(int levelId)
+        {
+            _levelId = levelId;
+            //Log.Information($"Mod level ID set to {levelId:X}");
         }
     }
 }

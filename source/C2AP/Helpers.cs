@@ -342,6 +342,7 @@ namespace C2AP
             Traps.Initialize();
             CrashObjectMod.Initialize();
             GimmickLock.Initialize();
+            AbilityLock.Initialize();
 
             StartCheckEmulationPaused();
             StartCheckLifeCount();
