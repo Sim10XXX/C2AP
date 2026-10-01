@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from BaseClasses import ItemClassification, Location, LocationProgressType
+from Options import OptionError
 
 from . import items
 
@@ -209,6 +210,7 @@ LOCATION_NAME_TO_ID = {
 
     "Polar Lives Secret": 109,
 
+    # The ending trigger locations take up ids 998 & 999
     # life count checks take up ids 1000 - 1099
 
     # Wumpa bundle checks take up ids 10,000 - 10,403
@@ -216,9 +218,6 @@ LOCATION_NAME_TO_ID = {
 
     # Life sanity checks: 30,000 - 30,041
 
-    # "Test Location 0": 10000,
-    # "Test Location 1": 20000,
-    # "Test Location 2": 10002,
 }
 
 # for easier lookup during location group setup
@@ -230,8 +229,16 @@ warp_5 = dict.fromkeys(["Piston it Away", "Rock It", "Night Fight", "Pack Attack
 warp_6 = dict.fromkeys(["Totally Bear", "Totally Fly"], "Warp 6")
 level_lookup = {**warp_1, **warp_2, **warp_3, **warp_4, **warp_5, **warp_6}
 
-# Fruit_Sanity_Data = {}
+# Logic levels are defined like an Enum, but I don't feel like actually importing the Enum module
+# This is being stored in this dictionary when we programmatically define the rest of LOCATION_NAME_TO_ID
+# because we will be removing '^' and '&' from the names to avoid issues where these symbols stick around
+# To the final names of each check
+# 0 = Nothing
+# 1 = Trivial ('^')
+# 2 = Hard but possible ('&')
+Item_Location_Logic_Data = {}
 
+# life_count_checks = []
 
 # Each Location instance must correctly report the "game" it belongs to.
 # To make this simple, it is common practice to subclass the basic Location class and override the "game" field.
@@ -244,6 +251,7 @@ def prepare_item_sanity():
     level_name = ""
     new_level_name = ""
     bundle_name = ""
+    logic_level = 0
     bundle_location_name = ""
     wumpa_location_name = ""
     location_name = ""
@@ -264,20 +272,29 @@ def prepare_item_sanity():
                         level_name = new_level_name
                     bundle_location_name = level_name + " " + bundle_name + " Bundle (" + str(wumpa_count) + " Wumpas)"
                     LOCATION_NAME_TO_ID[bundle_location_name] = bundle_id
+                    Item_Location_Logic_Data[bundle_location_name] = logic_level
                     bundle_id += 1
                     wumpa_count = 0
                 bundle_name = line.replace("#", "")
-                # Fruit_Sanity_Data[level_name][bundle_name] = ([], bundle_id)
+                logic_level = 0
+                if '^' in bundle_name:
+                    bundle_name = bundle_name.replace('^', '')
+                    logic_level = 1
+                elif '&' in bundle_name:
+                    bundle_name = bundle_name.replace('&', '')
+                    logic_level = 2
                 level_name = new_level_name
                 location_name = level_name + " " + bundle_name
         elif len(line.split("-")) == 2:
             wumpa_count += 1
             wumpa_location_name = location_name + " Wumpa #" + str(wumpa_count)
             LOCATION_NAME_TO_ID[wumpa_location_name] = wumpa_id
+            Item_Location_Logic_Data[wumpa_location_name] = logic_level
             wumpa_id += 1
     level_name = ""
     new_level_name = ""
     bundle_name = ""
+    logic_level = 0
     for line in data.lifebundlestxt.splitlines():
         if line[0] == "#":
             if "level: " in line:
@@ -289,8 +306,17 @@ def prepare_item_sanity():
                         level_name = new_level_name
                     bundle_location_name = level_name + " " + bundle_name + " Life"
                     LOCATION_NAME_TO_ID[bundle_location_name] = life_id
+                    Item_Location_Logic_Data[bundle_location_name] = logic_level
+                    # print("Adding: " + bundle_location_name + " | id: " + str(life_id))
                     life_id += 1
                 bundle_name = line.replace("#", "")
+                logic_level = 0
+                if '^' in bundle_name:
+                    bundle_name = bundle_name.replace('^', '')
+                    logic_level = 1
+                elif '&' in bundle_name:
+                    bundle_name = bundle_name.replace('&', '')
+                    logic_level = 2
                 level_name = new_level_name
                 # location_name = level_name + " " + bundle_name
 
@@ -302,8 +328,7 @@ def prepare_item_sanity():
 # so while our function here only ever returns dict[str, int], we annotate it as dict[str, int | None].
 
 def prepare_life_count_locations() -> None:
-    #min_life_count = min(world.options.life_count_checks.valid_keys)
-    #max_life_count = max(world.options.life_count_checks.valid_keys)
+    # Give a name/ID to every possible life count location
     min_count = 5
     max_count = 99
     location_id = 1000
@@ -359,22 +384,21 @@ def create_regular_locations(world: Crash2World) -> None:
     region = world.get_region("Warp Room 2")
     region.locations.append(
         Crash2Location(world.player, location, world.location_name_to_id[location], region))
-
-    if len(world.options.life_count_checks.value) > 0:
+    life_count_checks = world.life_count_checks[world.player]
+    if len(life_count_checks) > 0:
         # If we have any life count checks enabled, create the locations in their expected region
         # This is mostly copy/paste from the region creation code
-
         min_life_count = 5
         max_life_count = 99
         life_count_range = max_life_count - min_life_count
         total_crystals = world.options.extra_crystals + 25
-        for count in world.options.life_count_checks.value:
-            count = int(count)
+        for count in life_count_checks:
+            # count = int(count)
             required_crystals = int(((count - min_life_count) / life_count_range) * total_crystals)
             region = world.get_region(str(required_crystals) + " Crystals")
             location_name = "Collect " + str(count) + " Lives"
             region.locations.append(Crash2Location(world.player, location_name, world.location_name_to_id[location_name], region))
-            #print("Placing "+ location_name + " into " + region.name)
+            # print("Placing "+ location_name + " into " + region.name)
 
     # region = world.get_region("Dr. Neo Cortex")
     # location = ""

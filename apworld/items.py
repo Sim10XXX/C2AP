@@ -29,6 +29,16 @@ ITEM_NAME_TO_ID = {
     "Jetpack" : 15,
     "Jetboard" : 16,
     "Fireflies" : 17,
+
+    "Crawl" : 18,
+    "Slide" : 19,
+    "Ground Spin" : 20,
+    "Slide Spin" : 21,
+    "Jump Spin" : 22,
+    "High Jump Spin" : 23,
+    "Slam" : 24,
+    "Crouch Jump" : 25,
+    "Slide Jump" : 26,
 }
 
 # Items should have a defined default classification.
@@ -51,6 +61,16 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Jetpack" : ItemClassification.progression | ItemClassification.useful,
     "Jetboard" : ItemClassification.progression | ItemClassification.useful,
     "Fireflies" : ItemClassification.progression | ItemClassification.useful,
+
+    "Crawl" : ItemClassification.progression | ItemClassification.useful,
+    "Slide" : ItemClassification.progression | ItemClassification.useful,
+    "Ground Spin" : ItemClassification.progression | ItemClassification.useful,
+    "Slide Spin" : ItemClassification.progression | ItemClassification.useful,
+    "Jump Spin" : ItemClassification.progression | ItemClassification.useful,
+    "High Jump Spin" : ItemClassification.progression | ItemClassification.useful,
+    "Slam" : ItemClassification.progression | ItemClassification.useful,
+    "Crouch Jump" : ItemClassification.progression | ItemClassification.useful,
+    "Slide Jump" : ItemClassification.progression | ItemClassification.useful,
 }
 
 
@@ -144,6 +164,17 @@ def create_all_items(world: Crash2World) -> None:
             itempool += [world.create_item("Polar")]
         if world.options.firefly_lock_logic != 0:
             itempool += [world.create_item("Fireflies")]
+    if world.options.ability_lock:
+        itempool += [world.create_item("Crawl")]
+        itempool += [world.create_item("Slide")]
+        itempool += [world.create_item("Ground Spin")]
+        itempool += [world.create_item("Slide Spin")]
+        itempool += [world.create_item("Jump Spin")]
+        itempool += [world.create_item("High Jump Spin")]
+        itempool += [world.create_item("Slam")]
+        itempool += [world.create_item("Crouch Jump")]
+        itempool += [world.create_item("Slide Jump")]
+
 
     # Some items may only exist if the player enables certain options.
     # In our case, If the hammer option is enabled, the sixth item is the Hammer.
@@ -183,7 +214,7 @@ def create_all_items(world: Crash2World) -> None:
     # Now, we just subtract the number of items from the number of locations to get the number of empty item slots.
     needed_number_of_filler_items = number_of_unfilled_locations - number_of_items
     if needed_number_of_filler_items < 0:
-        raise OptionError(f"Crash 2: There are {-needed_number_of_filler_items} more base items than locations. Reduce the number of extra crystals or add more locations (ex. turn on level exit checks or fruitsanity)", )
+        raise OptionError(f"Crash 2: There are {-needed_number_of_filler_items} more base items than locations. Reduce the number of items or add more locations (ex. turn on level exit checks or fruitsanity)", )
     # Finally, we create that many filler items and add them to the itempool.
     # To create our filler, we could just use world.create_item("Confetti Cannon").
     # But there is an alternative that works even better for most worlds, including APQuest.

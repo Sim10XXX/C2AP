@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from collections import defaultdict
 from typing import Any
 
-import worlds.tunic.ut_stuff
+# import worlds.tunic.ut_stuff
 # Imports of base Archipelago modules must be absolute.
 from worlds.AutoWorld import World, WebWorld
 
@@ -84,7 +84,7 @@ class Crash2World(World):
     # The docstring should contain a description of the game, to be displayed on the WebHost.
 
     # You must override the "game" field to say the name of the game.
-    game = "Crash2"
+    game = "Crash 2"
     web = Crash2WebWorld()
     # The WebWorld is a definition class that governs how this world will be displayed on the website.
     #web = web_world.APQuestWebWorld()
@@ -107,6 +107,9 @@ class Crash2World(World):
     secret_warp_room_levels = []
     secret_warp_room_entrance_ids = []
 
+    life_count_checks = {}
+    crystal_counts = {}
+
     # There is always one region that the generator starts from & assumes you can always go back to.
     # This defaults to "Menu", but you can change it by overriding origin_region_name.
     origin_region_name = "Warp Room 1"
@@ -118,8 +121,8 @@ class Crash2World(World):
 
         if self.options.randomize_warp_destinations.value:
             if hasattr(self.multiworld, "re_gen_passthrough"):
-                if "Crash2" in self.multiworld.re_gen_passthrough:
-                    passthrough = self.multiworld.re_gen_passthrough["Crash2"]
+                if "Crash 2" in self.multiworld.re_gen_passthrough:
+                    passthrough = self.multiworld.re_gen_passthrough["Crash 2"]
                     self.warp_room = passthrough["warp_room_destinations"]
             else:
                 secret_warps = ["Road to Ruin (Secret Entrance)", "Air Crash (Secret Entrance)", "Snow Go (Secret Entrance)", "Totally Bear", "Totally Fly"]
@@ -154,9 +157,10 @@ class Crash2World(World):
         # If you need access to the player's chosen options on the client side, there is a helper for that.
         return {
             "options": self.options.as_dict(
-                "level_exit_locations", "speedrun_logic", "exclude_difficult_wumpas", "fruit_sanity", "life_sanity", "life_count_checks", "randomize_warp_destinations", "non_randomized_warp_destinations",
-                "trap_duration", "death_link", "gimmick_lock", "jetpack_lock_logic", "jetboard_lock_logic", "polar_lock_logic", "firefly_lock_logic"
+                "level_exit_locations", "speedrun_logic", "exclude_difficult_wumpas", "fruit_sanity", "life_sanity", "randomize_warp_destinations", "non_randomized_warp_destinations",
+                "trap_duration", "death_link", "death_link_amnesty", "gimmick_lock", "jetpack_lock_logic", "jetboard_lock_logic", "polar_lock_logic", "firefly_lock_logic", "ability_lock", "ability_lock_logic"
             ),
+            "life_count_checks" : self.life_count_checks[self.player],
             "warp_room_destinations": self.warp_room,
             "secret_warp_room_entrances": self.secret_warp_room_entrance_ids,
             "seed": self.multiworld.seed_name,  # to verify the server's multiworld

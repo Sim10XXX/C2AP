@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from Options import Toggle, DefaultOnToggle, Option, Range, Choice, ItemDict, OptionList, DeathLink, PerGameCommonOptions
+from Options import Toggle, DefaultOnToggle, Option, Range, Choice, ItemDict, OptionList, DeathLink, \
+    PerGameCommonOptions, FreeText
 from Options import OptionGroup, OptionSet
 
 
@@ -53,6 +54,16 @@ class SpeedrunLogic(OptionSet):
     display_name = "Speedrun Logic"
     valid_keys = ["red_gem_early", "road_to_ruin_gem", "ruination_skip_green"]
     default = []
+    
+class DeathLinkAmnesty(Range):
+    """
+    Set an x amount of deaths required to send a deathlink to the server
+    """
+    display_name = "Death Link Amnesty"
+
+    range_start = 1
+    range_end = 10
+    default = 3
 
 class WumpaFruitChance(Range):
 
@@ -73,14 +84,28 @@ class LifeSanity(Toggle):
     """
     display_name = "Life-Sanity"
 
-
-class LifeCountChecks(OptionSet):
+class LifeCountChecksRange(FreeText):
     """
     Add checks for reaching certain life counts
     Logic uses crystal count in order to consider higher life counts as occurring later in the run
-    These need to be written as strings
+    This works like the Python Range function, so the first number is the start point,
+    second number is the stop point (not inclusive), and the third is the step size
+    Example: "10, 31, 10" will add checks for collecting 10, 20, and 30 lives
+
+    Values that fall outside the range of 5-99 will be ignored
+
+    Setting step size to 0 will disable this option, so just use something like "0, 0, 0"
     """
-    display_name = "Life Count Checks"
+
+    display_name = "Life Count Checks (Range)"
+    default = "10, 31, 10"
+
+class LifeCountChecksCustom(OptionSet):
+    """
+    Add any custom values to the previous option
+    These need to be written as strings. Valid values are in the range 5 - 99
+    """
+    display_name = "Life Count Checks (Custom)"
     #valid_keys = range(5, 100)
     valid_keys = []
     for i in range(5, 100):
@@ -340,6 +365,37 @@ class FireflyLockLogic(Choice):
 
     default = option_basic
 
+class AbilityLock(Toggle):
+    """
+    Adds 9 items to the pool that unlock Crash's abilities
+    At minimum, crash is able to run around and jump
+    The locked abilities are:
+    - Crawl
+    - Slide
+    - Ground Spin
+    - Slide Spin
+    - Jump Spin
+    - High Jump Spin
+    - Slam
+    - Crouch Jump
+    - Slide Jump
+    """
+    display_name = "Ability Lock"
+
+class AbilityLockLogic(Choice):
+    """
+    This option determines how strict the logic is when Ability Lock is enabled
+    Lunatic: once a check becomes possible it will be considered in logic
+    Normal: gives some more leniency, a check will be in logic when
+    it's "easy" given your current abilities
+    """
+    display_name = "Ability Lock Logic"
+    option_normal = 0
+    option_lunatic = 1
+
+    default = option_normal
+
+
 # # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -348,9 +404,11 @@ class Crash2Options(PerGameCommonOptions):
     extra_crystals: AddExtraCrystals
     speedrun_logic: SpeedrunLogic
     death_link: DeathLink
+    death_link_amnesty: DeathLinkAmnesty
     wumpa_chance: WumpaFruitChance
     life_sanity: LifeSanity
-    life_count_checks: LifeCountChecks
+    life_count_checks_range: LifeCountChecksRange
+    life_count_checks_custom: LifeCountChecksCustom
     fruit_sanity: FruitSanity
     exclude_difficult_wumpas: ExcludeDifficultWumpas
     fill_wumpa_checks_locally_chance: FillWumpaChecksLocally
@@ -370,13 +428,15 @@ class Crash2Options(PerGameCommonOptions):
     jetboard_lock_logic: JetboardLockLogic
     polar_lock_logic: PolarLockLogic
     firefly_lock_logic: FireflyLockLogic
+    ability_lock : AbilityLock
+    ability_lock_logic : AbilityLockLogic
 
 #
 # # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
     OptionGroup(
         "Collection Checks",
-        [LifeSanity, LifeCountChecks, FruitSanity, ExcludeDifficultWumpas, FillWumpaChecksLocally],
+        [LifeSanity, LifeCountChecksRange, LifeCountChecksCustom, FruitSanity, ExcludeDifficultWumpas, FillWumpaChecksLocally],
     ),
     OptionGroup(
         "Warp Randomizer",
@@ -390,6 +450,10 @@ option_groups = [
         "Gimmick Lock",
         [GimmickLock, JetpackLockLogic, JetboardLockLogic, PolarLockLogic, FireflyLockLogic],
     ),
+    OptionGroup(
+        "Ability Lock",
+        [AbilityLock, AbilityLockLogic],
+    )
 ]
 
 # Finally, we can define some option presets if we want the player to be able to quickly choose a specific "mode".

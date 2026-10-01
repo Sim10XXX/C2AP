@@ -2886,7 +2886,7 @@ lifebundlestxt="""#level: Snow Go
 0-142
 #Bonus Stone Blocks
 1-117
-#level: Road To Ruin
+#level: Road to Ruin
 16
 #Death Route Safe Spot
 0-73
@@ -2923,10 +2923,10 @@ lifebundlestxt="""#level: Snow Go
 #In Between Crushers
 1-16C
 #level: Bee-Having
-23
-#
+24
+#Secret Area Above Platforms
 0-141
-#level: Piston It Away
+#level: Piston it Away
 10
 #Between Nitros
 0-F8
