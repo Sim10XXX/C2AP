@@ -60,8 +60,11 @@ namespace C2AP
         private static uint lastLevelId = 0;
         private static bool updateModLevelId = false;
         private static bool refreshing = false;
+        private static bool isActive = false;
         public static void Initialize()
         {
+            if (Helpers.GetOptionValue("ability_lock") != 1) return;
+            isActive = true;
             foreach (Ability ability in Enum.GetValues<Ability>())
             {
                 AbilityLockMods[ability] = null;
@@ -91,6 +94,7 @@ namespace C2AP
 
         public static void RefreshAbilityLock(SortedSet<Ability> unlockedAbilities)
         {
+            if (!isActive) return;
             if (refreshing) return;
             refreshing = true; // try to prevent this method from being spammed
 

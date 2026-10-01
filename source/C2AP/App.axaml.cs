@@ -126,7 +126,7 @@ public partial class App : Application
     public void Start()
     {
         Context = new MainWindowViewModel();
-        Context.ClientVersion = "v0.5.0-pre1";
+        Context.ClientVersion = "v0.5.0-pre1-1";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
         {
