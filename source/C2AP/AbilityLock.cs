@@ -59,6 +59,7 @@ namespace C2AP
         private static Timer LevelIdCheck = new Timer(1000);
         private static uint lastLevelId = 0;
         private static bool updateModLevelId = false;
+        private static bool refreshing = false;
         public static void Initialize()
         {
             foreach (Ability ability in Enum.GetValues<Ability>())
@@ -90,6 +91,9 @@ namespace C2AP
 
         public static void RefreshAbilityLock(SortedSet<Ability> unlockedAbilities)
         {
+            if (refreshing) return;
+            refreshing = true; // try to prevent this method from being spammed
+
             List<uint> modlines;
             if (updateModLevelId)
             {
@@ -137,7 +141,7 @@ namespace C2AP
                         }
                     }
                 }
-                Log.Logger.Information($"ModLines for ability {ability}: {string.Join(", ", modlines)}");
+                //Log.Logger.Information($"ModLines for ability {ability}: {string.Join(", ", modlines)}");
                 if (unlockedAbilities.Contains(ability))
                 {
                     if (AbilityLockMods[ability] != null)
@@ -166,6 +170,7 @@ namespace C2AP
             //{
                 
             //}
+            refreshing = false;
         }
 
         private static bool IsLevelIdOffset(uint levelId)
@@ -199,7 +204,7 @@ Normal: Slam + Slide + SlideJump
 
 //// Snow Go
 // Red Gem Early:
-Slam, Slide, SlideJump, HighJumpSpin
+both: Slam, Slide, SlideJump, HighJumpSpin
 // Box Gem:
 Slam || CrouchJump || Slide + SlideJump
 Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
@@ -228,11 +233,15 @@ Both: Slide + Crawl
 //// Crash Dash
 // Box Gem:
 
-Lunatic: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
-Normal: JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin
+1 Lunatic: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+1 Normal: JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin
 
-Lunatic: Slide || GroundSpin || JumpSpin
-Normal: GroundSpin || Slide + SlideSpin
+2 Lunatic: Slide || GroundSpin || JumpSpin
+2 Normal: GroundSpin || Slide + SlideSpin
+
+Lunatic : Slide || GroundSpin || JumpSpin
+Normal : (GroundSpin || Slide + SlideSpin) && (JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin)
+
  */
 
 

@@ -126,7 +126,7 @@ public partial class App : Application
     public void Start()
     {
         Context = new MainWindowViewModel();
-        Context.ClientVersion = "v0.4.1";
+        Context.ClientVersion = "v0.5.0-pre1";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
         {
@@ -189,6 +189,7 @@ public partial class App : Application
                 Log.Logger.Information("/debug_sendGoal - Sends a goal completion to the server.");
                 Log.Logger.Information("/debug_unlockAbilities - Unlocks all abilities");
                 Log.Logger.Information("/debug_lockAbilities - Locks all abilities");
+                Log.Logger.Information("/debug_unlock <ability name> - Unlocks the specified ability");
                 break;
             case "warps":
             case "warp":
@@ -558,7 +559,7 @@ public partial class App : Application
         Client.Connected += OnConnected;
         Client.Disconnected += OnDisconnected;
 
-        await Client.Connect(e.Host, "Crash2");
+        await Client.Connect(e.Host, "Crash 2");
         if (!Client.IsConnected)
         {
             Log.Logger.Error("Your host seems to be invalid.  Please confirm that you have entered it correctly.");

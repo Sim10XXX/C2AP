@@ -154,7 +154,7 @@ namespace C2AP
                     previousZeroes++;
                     if (previousZeroes >= 3)
                     {
-                        Log.Information($"Stopping at {i + FreeSpaceStart:X}");
+                        //Log.Information($"Stopping at {i + FreeSpaceStart:X}");
                         break;
                     }
                     if (previousZeroes == 1)

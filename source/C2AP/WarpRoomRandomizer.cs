@@ -159,7 +159,7 @@ namespace C2AP
                 return false;
             }
             
-            Log.Information($"Warp {warpRoom}:");
+            Log.Information($"\tWarp {warpRoom}:");
             for (int i = (warpRoom - 1) * 5; i < warpRoom * 5 && i < MontyHallDestinations.Length; ++i)
             {
 
