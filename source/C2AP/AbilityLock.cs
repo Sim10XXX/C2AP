@@ -222,6 +222,10 @@ Lunatic: nothing
 Normal: Slide || JumpSpin || GroundSpin
 // Bonus Part 1 Wumpa:
 Both: Slide || Crawl
+
+// other wumpa: 
+Normal: Slide || Crawl
+
 // Box Gem:
 Lunatic: nothing
 Normal: JumpSpin || GroundSpin || Slide + SlideJump || CrouchJump + HighJumpSpin
@@ -246,9 +250,257 @@ Both: Slide + Crawl
 Lunatic : Slide || GroundSpin || JumpSpin
 Normal : (GroundSpin || Slide + SlideSpin) && (JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin)
 
- */
+ 
 
 
+//// Snow Biz
+// Box Gem:
+
+both: Slam
+
+normal: Slide || GroundSpin || CrouchJump + HighJumpSpin
+normal: Slide + SlideJump || CrouchJump
+
+normal: GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+lunatic: GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slide
+
+Lunatic: Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slide )
+Normal: Slam + ( CrouchJump + HighJumpSpin || ( Slide || GroundSpin ) + ( Slide + SlideJump || CrouchJump ) + ( GroundSpin || JumpSpin ) ) 
+
+// Snow Biz Red Gem Path Around Arrow Crate Wumpa:
+Both: Sam
+
+//// Air Crash
+// Box Gem:
+
+both: Slam
+
+// Air Crash Bonus Big Jump Part 1-3
+// Air Crash Bonus Big Jump Life
+
+Lunatic: Slam || Slide + SlideJump
+Normal: Slam
+
+//// Bear It
+
+
+//// Crash Crush (lunatic only rn)
+// Box Gem:
+
+both: Slam
+
+// ALL:
+lunatic: nothing
+normal: Crawl || Slide
+
+// Crash Crush Bonus Below Block Wumpa:
+
+both: Crawl || Slide
+
+//// The Eel Deal
+// Box Gem:
+both: Slam
+
+// The Eel Deal Bonus End Wumpa:
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slam
+
+
+//// Komodo Bros:
+both: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+//// Plant Food
+// Yellow Gem:
+lunatic: nothing
+normal: Slide + SlideJump || JumpSpin
+
+// Box Gem:
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Plant Food Bonus Above Small Platform Wumpa
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Plant Food Bonus Platform Hops Part 1-3 Wumpa
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: ( Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin ) + ( Slam || Slide + SlideJump || CrouchJump )
+
+
+//// Sewer or Later
+// Exit (Crystal + Exit + Box Gem + Certain Wumpa):
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+
+// Box Gem:
+
+lunatic: Slide || Crawl || CrouchJump + HighJumpSpin
+normal: Slide || Crawl
+
+lunatic: Slide || CrouchJump + HighJumpSpin
+normal: Slide
+
+both: Slide
+
+both: Slam
+__
+lunatic: Slide + Slam
+normal: Slide + Slam
+
+// Sewer or Later Bonus Under Metal Boxes 1 Wumpa:
+
+both: Slide || Crawl
+
+// Sewer or Later Bonus Under Metal Boxes 2 Wumpa:
+
+lunatic: Slide || CrouchJump + HighJumpSpin
+normal: Slide
+
+// Sewer or Later Bonus Ending Wumpa:
+
+lunatic: Slide || CrouchJump + HighJumpSpin
+normal: Slide
+
+// Sewer or Later Left Split Wumpa:
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Sewer or Later Ending Wumpa:
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Sewer or Later Crystal:
+// Sewer or Later Regular Exit:
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+//// Bear Down
+///
+
+
+
+//// Road to Ruin
+// Secret Entrance Skip:
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin
+
+// Box Gem:
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin || RoadToRuinSecretEntrance
+
+// Road to Ruin Secret Entrance Cube Stash Wumpa:
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin || RoadToRuinSecretEntrance
+
+// Road to Ruin Death Route Wumpa Triangle Part 1-2 Wumpa:
+// Road to Ruin Death Route Backwards Wumpa:
+// Road to Ruin Death Route Gem Part 1-2 Wumpa:
+// Death Route Clear Gem:
+lunatic: nothing
+normal: JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin
+
+
+
+//// Hangin' Out
+// Everything onwards:
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Hangin' Out Second Wire Mesh Part 1-3 Wumpa:
+// Hangin' Out Second Drop Wumpa:
+// Hangin' Out Secret Drop Wumpa:
+// Hangin' Out Before Secret Exit Part 1-5 Life
+// Hangin' Out Secret Warp Wumpa:
+// Hangin' Out Secret Exit:
+// Hangin' Out Bonus Start Wumpa:
+// Hangin' Out Crystal
+// Hangin' Out Regular Exit:
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+
+// Get Past Bonus Boxes:
+lunatic: Slam || CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide
+normal: CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide
+
+// Box Gem:
+
+lunatic: nothing
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+lunatic: Slam || Slide
+normal: Slide || Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin )
+
+Lunatic: Slam || Slide
+Normal: Slide || Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin )
+
+// Hangin' Out Bonus Arrow Crates Wumpa:
+lunatic: Slam || CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide
+normal: CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide
+
+
+//// Cold Hard Crash
+// Roadblock:
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+lunatic: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin
+
+// Box Gem:
+
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+lunatic: nothing
+normal: Slide + SlideJump || CrouchJump
+
+lunatic: nothing
+normal: JumpSpin || CrouchJump || Slide + SlideJump || Slam
+
+
+// Cold Hard Crash Death Route Above Nitro Wumpa:
+// Cold Hard Crash Death Route Wumpa Triangle Part 1-2 Wumpa:
+// Cold Hard Crash Death Route Behind The Wall Wumpa:
+// Cold Hard Crash Death Route Outward Square Wumpa:
+// Cold Hard Crash Death Route Arrow Crate Wumpa:
+// Cold Hard Crash Death Route Jump Over Nitro Wumpa:
+// Cold Hard Crash Death Route Between Two Nitros Wumpa:
+// Cold Hard Crash Death Route Nitro Zigzag Part 1-2 Wumpa:
+// Cold Hard Crash Death Route Drop Down Wumpa:
+// Cold Hard Crash Death Route Drop Down "Impossible" Wumpas Wumpa:
+// Cold Hard Crash Drop Down Part 1-3 Wumpa:
+// Cold Hard Crash Drop Down Life:
+// Cold Hard Crash Clear Gem (Death Route):
+// Cold Hard Crash Crystal:
+// Cold Hard Crash Regular Exit:
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Cold Hard Crash Behind The Wall Part 1-6 Wumpa:
+lunatic: ( Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin ) + ( Slam || Slide + SlideJump || CrouchJump )
+normal: ( Slide || GroundSpin || JumpSpin ) + ( Slide + SlideJump || CrouchJump )
+
+// Cold Hard Crash In The Wall Part 1-2 Wumpa:
+// Cold Hard Crash Before Crusher Chain Wumpa:
+// Cold Hard Crash In Between Crushers Life:
+
+lunatic: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide || GroundSpin || JumpSpin
+
+
+
+
+
+
+
+
+// fix the ability lock for snow go + something else in discord i think
+/debug_unlock 
 //Crawl,
 //Slide,
 //GroundSpin,
@@ -257,4 +509,4 @@ Normal : (GroundSpin || Slide + SlideSpin) && (JumpSpin || CrouchJump + HighJump
 //HighJumpSpin,
 //Slam,
 //CrouchJump,
-//SlideJump
+//SlideJump*/
