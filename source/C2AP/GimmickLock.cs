@@ -276,25 +276,25 @@ namespace C2AP
                     lastLevelId = levelId;
                     break;
             }
-            delay = !delay;
-            if (delay && state == 1)
-            {
-                switch (levelId)
-                {
-                    case 0x1D00:
-                    case 0x2200:
-                    case 0x1700:
-                    case 0x2500:
-                        if (App.crashState.Polar == true) break;
-                        CrashEvent.EnqueueUniqueEvent(CrashEvent.EventType.BasicEvent, 56, [0], 0);
-                        break;
-                    //case 0x1200:
-                    //case 0x1A00:
-                    //    if (App.crashState.Jetpack == true) break;
-                    //    CrashEvent.EnqueueUniqueEvent(CrashEvent.EventType.BasicEvent, 21, [100], 0);
-                    //    break;
-                }
-            }
+            //delay = !delay;
+            //if (delay && state == 1)
+            //{
+            //    switch (levelId)
+            //    {
+            //        case 0x1D00:
+            //        case 0x2200:
+            //        //case 0x1700:
+            //        case 0x2500:
+            //            if (App.crashState.Polar == true) break;
+            //            CrashEvent.EnqueueUniqueEvent(CrashEvent.EventType.BasicEvent, 56, [0], 0);
+            //            break;
+            //        //case 0x1200:
+            //        //case 0x1A00:
+            //        //    if (App.crashState.Jetpack == true) break;
+            //        //    CrashEvent.EnqueueUniqueEvent(CrashEvent.EventType.BasicEvent, 21, [100], 0);
+            //        //    break;
+            //    }
+            //}
         }
     }
 }

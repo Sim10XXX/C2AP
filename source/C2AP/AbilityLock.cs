@@ -207,14 +207,30 @@ Lunatic: Slam
 Normal: Slam + Slide + SlideJump
 
 //// Snow Go
+// Roadblock:
+Lunatic: nothing
+Normal: Slide || GroundSpin || CrouchJump + HighJumpSpin
+
 // Red Gem Early:
 both: Slam, Slide, SlideJump, HighJumpSpin
 // Box Gem:
 Slam || CrouchJump || Slide + SlideJump
 Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
 
-Lunatic: Slam || Slide + SlideJump || CrouchJump + (HighJumpSpin || GroundSpin || JumpSpin)
-Normal: Slide + SlideJump || GroundSpin + (Slam || CrouchJump)
+Lunatic: Slam || Slide + SlideJump || CrouchJump + ( HighJumpSpin || GroundSpin || JumpSpin )
+Normal: Slide + SlideJump || GroundSpin + ( Slam || CrouchJump )
+
+// Snow Go Checkpoint 1 Wumpa:
+// Snow Go Above Bonus Wumpa:
+// Snow Go Bonus Part 1-5 Wumpa:
+// Snow Go 2D Exit Wumpa:
+// Snow Go Nitro Switch Wumpa: 
+// Snow Go Crystal:
+// Snow Go Regular Exit:
+Lunatic: nothing
+Normal: Slide || GroundSpin || CrouchJump + HighJumpSpin
+
+
 
 //// Hang Eight
 // Timer Gem:
@@ -250,7 +266,10 @@ Both: Slide + Crawl
 Lunatic : Slide || GroundSpin || JumpSpin
 Normal : (GroundSpin || Slide + SlideSpin) && (JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin)
 
- 
+
+// Crash Dash Bonus Part 1-5 Wumpa:
+Lunatic: nothing
+Normal: JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin
 
 
 //// Snow Biz
@@ -268,7 +287,9 @@ Lunatic: Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slide )
 Normal: Slam + ( CrouchJump + HighJumpSpin || ( Slide || GroundSpin ) + ( Slide + SlideJump || CrouchJump ) + ( GroundSpin || JumpSpin ) ) 
 
 // Snow Biz Red Gem Path Around Arrow Crate Wumpa:
-Both: Sam
+Both: Slam
+
+
 
 //// Air Crash
 // Box Gem:
@@ -282,20 +303,85 @@ Lunatic: Slam || Slide + SlideJump
 Normal: Slam
 
 //// Bear It
+// Roadblock:
+lunatic: nothing
+Normal: Slide + SlideJump
+
+//Box Gem:
+
+both: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+normal: GroundSpin || JumpSpin
+lunatic: same
+
+Lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+Normal: Slide + SlideJump + HighJumpSpin + GroundSpin
+
+// Bear It Checkpoint 1 Wumpa:
+// Bear It Checkpoint 2 Wumpa:
+// Bear It Before Checkpoint 3 Wumpa:
+//Bear It Ending Wumpa:
+lunatic: nothing
+Normal: Slide + SlideJump
+
+// Bear It Crystal:
+// Bear It Regular Exit:
+lunatic: nothing
+Normal: Slide + SlideJump + HighJumpSpin
 
 
-//// Crash Crush (lunatic only rn)
+
+//// Crash Crush
 // Box Gem:
 
-both: Slam
+lunatic: Slam
+normal: Slide + SlideJump + Slam
 
-// ALL:
-lunatic: nothing
-normal: Crawl || Slide
 
 // Crash Crush Bonus Below Block Wumpa:
 
-both: Crawl || Slide
+lunatic: Crawl || Slide
+normal: Crawl + Slide
+
+// Crash Crush Electric Fence Wumpa:
+// Crash Crush Narrow Path Wumpa:
+// Crash Crush Booster At The Split Wumpa:
+// Crash Crush Split Path Wumpa:
+// Crash Crush Split Path Electric Fence Wumpa:
+lunatic: nothing
+normal: Crawl || Slide
+
+// Crash Crush Split Path Electric Fence Jump Wumpa:
+lunatic: nothing
+normal: Slide + SlideJump
+
+// Crash Crush Boulder 2 Booster Wumpa:
+// Crash Crush Boulder 2 Around Mines Wumpa:
+// Crash Crush Boulder 2 Nitros Wumpa:
+// Crash Crush Boulder 3 Checkpoint Wumpa:
+// Crash Crush Boulder 3 Booster 1 Wumpa:
+// Crash Crush Boulder 3 Booster 2 Wumpa:
+// Crash Crush Bonus Secret Stash Life:
+// Crash Crush Bonus Secret Stash Part 1-3 Wumpa:
+// Crash Crush Bonus Jump 1 Wumpa:
+// Crash Crush Bonus Arrow Crate Wumpa:
+// Crash Crush Bonus Between Blocks Part 1-3 Wumpa:
+
+// Crash Crush After Bonus Wumpa:
+// Crash Crush Boulder 4 Booster Wumpa:
+// Crash Crush Boulder 4 Around Mines Wumpa:
+// Crash Crush Boulder 4 Ending Wumpa:
+// Crash Crush: Crystal
+// Crash Crush: Regular Exit    
+lunatic: nothing
+normal: Slide
+
+// Crash Crush Bonus Stone Blocks Life:
+// Crash Crush Bonus Top of the Blocks Wumpa:
+// Crash Crush Bonus Metal Boxes Wumpa:
+lunatic: nothing
+normal: Slide + SlideJump
+
 
 //// The Eel Deal
 // Box Gem:
@@ -379,7 +465,26 @@ lunatic: nothing
 normal: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
 
 //// Bear Down
-///
+// Box Gem
+
+lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Polar
+normal: Slide + SlideJump || Polar
+
+// Bear Down Before First Statues
+// Bear Down Uphill
+// Bear Down Before Second Statues
+// Bear Down First Checkpoint Before Metal Crates
+// Bear Down First Checkpoint Before TNT
+// Bear Down Second Checkpoint Ice
+// Bear Down Second Checkpoint Left Side
+// Bear Down Second Checkpoint Statues
+// Bear Down Third Checkpoint Uphill
+// Bear Down Ending Part 1-2
+// Bear Down: Crystal
+// Bear Down: Regular Exit
+// Bear Down: Secret Exit
+lunatic: nothing
+normal: Slide + SlideJump || Polar
 
 
 
@@ -402,6 +507,59 @@ normal: Slide + SlideJump + HighJumpSpin || RoadToRuinSecretEntrance
 // Death Route Clear Gem:
 lunatic: nothing
 normal: JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin
+
+//// Un-Bearable
+// Box Gem
+both: Slam
+
+lunatic: Slam
+normal: Slam + Slide
+
+lunatic: Slam
+normal: Slam + Slide + SlideJump + ( SlideSpin || Polar )
+
+// Un-Bearable First Bear Electric Fence
+Lunatic: Crawl || Slide
+Normal: Slide
+
+// Un-Bearable First Bear Before Wooden Fence
+// Un-Bearable First Bear Ending
+// Un-Bearable Second Bear Booster
+// Un-Bearable Secret Area Start
+// Un-Bearable Secret Area Big Wumpa Cross Part 1-2
+// Un-Bearable Secret Area High Platforms Jump
+// Un-Bearable Secret Area Upper Path Life
+// Un-Bearable Secret Area Between Turtles 1-2
+// Un-Bearable Secret Area Arrow Crate
+// Un-Bearable Secret Area Drop Down Part 2
+// Un-Bearable Secret Area Tight Bullet Section
+// Un-Bearable Secret Area Jump to Rats Part 1-2
+// Un-Bearable Secret Area After Rats Part 1-2
+// Un-Bearable Secret Area Around Aku Aku Crate
+// Un-Bearable Before Bonus
+// Un-Bearable Bonus Bottom Path Part 1-5
+// Un-Bearable Third Bear Booster 1-2
+// Un-Bearable Third Bear Electric Fence 1-2
+Lunatic: nothing
+Normal: Slide
+
+// Un-Bearable Secret Area Drop Down Part 1
+Lunatic: Slam || CrouchJump || Slide + SlideJump
+Normal: Slide + ( CrouchJump || SlideJump )
+
+// Un-Bearable Bonus Big Jump Life
+// Un-Bearable Bonus Jump Part 1-2
+Lunatic: nothing
+Normal: Slide + SlideJump
+
+// Un-Bearable Fourth Bear TNT
+// Un-Bearable Fourth Bear Around Electric Fences
+// Un-Bearable: Crystal
+// Un-Bearable: Secret Exit
+// Un-Bearable: Regular Exit
+Lunatic: nothing
+Normal: Slide + SlideJump + SlideSpin || Polar
+
 
 
 
@@ -443,6 +601,7 @@ lunatic: Slam || CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slid
 normal: CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide
 
 
+
 //// Cold Hard Crash
 // Roadblock:
 lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
@@ -461,6 +620,9 @@ normal: Slide + SlideJump || CrouchJump
 
 lunatic: nothing
 normal: JumpSpin || CrouchJump || Slide + SlideJump || Slam
+
+Lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+Normal: Slide + SlideJump || CrouchJump + HighJumpSpin
 
 
 // Cold Hard Crash Death Route Above Nitro Wumpa:
@@ -493,10 +655,137 @@ lunatic: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
 normal: Slide || GroundSpin || JumpSpin
 
 
+//// Ruination
+///
+// Box Gem:
+
+lunatic: Slam
+normal: Slam
+
+// Green Gem Path:
+
+lunatic: Slide + SlideJump || GreenGem
+normal: Slide + SlideJump + HighJumpSpin || GreenGem
+
+// Ruination Green Gem Path After First Ape Wumpa:
+// Ruination Green Gem Path After Second Ape Part 1-2 Wumpa:
+// Ruination Green Gem Path Big Square Part 1-3 Wumpa:
+// Ruination Green Gem Path After Third Ape Part 1-2 Wumpa:
+// Ruination: Clear Gem (Green Gem Path)
+
+lunatic: Slide + SlideJump || GreenGem
+normal: Slide + SlideJump + HighJumpSpin || GreenGem + JumpSpin 
 
 
 
+//// Piston It Away
 
+// Everything
+lunatic: nothing
+normal: Slide
+
+// Box Gem
+lunatic: nothing
+normal: Slide
+
+lunatic: Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slam
+normal: Slide + SlideJump + HighJumpSpin
+
+// Piston It Away By The Arrow Crates Part 1-2
+// Piston It Away Bonus Over Nitro Stack
+// Piston It Away Bonus Around ! Crate
+// Piston It Away Between Nitros Life
+// Piston It Away: Regular Exit
+// Piston It Away: Crystal
+// Piston It Away Death Route Over Nitros Part 1-3
+// Piston It Away Death Route Wumpa Square
+// Piston It Away Death Route Bouncing High Above
+lunatic: nothing
+normal: Slide
+
+// Piston It Away Bonus Final Jump*
+lunatic: nothing
+normal: Slide + SlideJump
+
+// Piston It Away: Clear Gem (Death Route)
+// Piston It Away Death Route Ending
+lunatic: nothing
+normal: Slide + ( SlideJump || CrouchJump )
+
+
+
+//// Night Fight
+// Box Gem
+lunatic: DoubleMask
+normal: Slide + ( CrouchJump || SlideJump || JumpSpin )
+
+
+// Night Fight: Clear Gem (Death Route)
+// Night Fight Bonus First Wumpa Chain Part 1-5
+// Night Fight Bonus Second Wumpa Chain Part 1-2
+// Night Fight: Crystal
+// Night Fight: Regular Exit
+lunatic: nothing
+normal: Slide
+
+// Night Fight Bonus Second Wumpa Chain Part 3-6 *********************************************************
+lunatic: nothing
+normal: Slide + Crawl
+
+
+
+//// Spaced Out
+// Everything
+lunatic: nothing
+normal: Slide || GroundSpin 
+
+lunatic: nothing   //Mask
+normal: Slide || GroundSpin
+
+lunatic: nothing
+normal: Slide
+
+// Box Gem
+lunatic: nothing
+normal: Slide || GroundSpin
+
+lunatic: Slam
+normal: Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin )
+
+normal: JumpSpin || CrouchJump + HighJumpSpin
+normal: Slide
+
+lunatic: Slam
+normal: Slam + Slide + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin )
+
+
+// Spaced Out Blue Gem Path Part 1-4 Life
+// Spaced Out High Above Moving Platform
+// Spaced Out Wumpa Chain Part 1-3
+// Spaced Out Jump Over Nitros
+// Spaced Out End of Big Screen
+// Spaced Out Bonus Next to Reinforced Crate Stack
+lunatic: nothing
+normal: Slide || GroundSpin 
+
+// Spaced Out Green Gem Path Part 1-2 Life
+// Spaced Out Yellow Gem Path Part 1-4 Life
+// Spaced Out Red Gem Path Part 1-3 Life
+// Spaced Out: Clear Gem (All Colored Gems Path)
+lunatic: nothing
+normal: Slide
+
+// Spaced Out High Above Moving Platform Life
+lunatic: CrouchJump || Slide + SlideJump
+normal: Slide + ( CrouchJump || SlideJump ) || GroundSpin + CrouchJump
+
+
+// Spaced Out Last Moving Platform
+// Spaced Out Ending
+// Spaced Out: Crystal
+// Spaced Out: Regular Exit
+lunatic: nothing
+normal: Slide
 
 
 // fix the ability lock for snow go + something else in discord i think
