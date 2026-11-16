@@ -251,7 +251,7 @@ public partial class App : Application
                 // 1625: kinda bugs out
                 // 1746: -
 
-                //// state 17
+                //// state 17: go to crouch animation
                 // 1525: prevents un-crouching
                 // 1687: something with transitioning from crawl to crouch
                 // 1754: prevents going from idle to crouch (you just slide instead)
@@ -264,7 +264,7 @@ public partial class App : Application
                 //// 1719: return causes the slide to crouch
                 // 835: slide from idle (also prevents crouching)
                 // 1425: slide from running
-                // 2876: ??
+                // 2876: slide from landing
 
                 //// state 20: slam
                 // 2078: slam (in some edge case state)
@@ -305,13 +305,27 @@ public partial class App : Application
                 // 2152: prevents spinning during a crouch/slide jump
                 // 2324: prevents spinning when falling in a regular jump
 
+
+                //// state 46:?
+
+
                 //// state 47
                 // 2949: gets rid of glitchy high jump with some weird side effects
                 // 3002: nothing?
+
+
+                //// state 48: ?
+                // 2964: ?
+
+                //// state 0x74: Dig
+                // 814: Idle -> Dig
+                // 1408: Running -> Dig
+                // 2855: Landing -> Dig
                 uint goolAddress = CrashObject.GetGoolBytecodeAddressFromObject(CrashObject.FindObjectAddress(0, 0));
                 Log.Logger.Information($"gool: {goolAddress:X}");
                 ulong offset = 0;
                 int val = 0;
+                int st = 0;
                 if (args.Length == 1)
                 {
                     break;
@@ -326,12 +340,26 @@ public partial class App : Application
                     {
                         val = 0x31894000;
                     }
+                    //else if (args[2] == "6")
+                    //{
+                    //    val = 0x3657C006;
+                    //}
+                    else if (int.TryParse(args[2], out st))
+                    {
+                        val = 0x3657C000 + st;
+                    }
+                    else
+                    {
+                        Log.Warning("Parse failed");
+                        val = 0;
+                    }
                 }
+                uint last = Memory.ReadUInt(goolAddress + offset * 4);
                 Memory.Write(goolAddress + offset * 4, val);
                 //Memory.Write(0x14a3e0 + 1658 * 4, Memory.ReadInt(0x14a3e0 + 1686 * 4));
                 //Memory.Write(0x14a3e0 + 1659 * 4, Memory.ReadInt(0x14a3e0 + 1687 * 4));
                 //Memory.Write(0x14a3e0 + 1660 * 4, Memory.ReadInt(0x14a3e0 + 1688 * 4));
-                Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {val:X}");
+                Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {last:X} --> {val:X}");
                 break;
             case "debug_receivedeathlink":
                 //break;

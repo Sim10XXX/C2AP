@@ -871,7 +871,7 @@ F-119
 2-32
 2-31
 2-30
-#before Checkpoint 3^
+#Before Checkpoint 3^
 3-48
 3-46
 3-45
