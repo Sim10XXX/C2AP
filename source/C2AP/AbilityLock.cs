@@ -21,7 +21,8 @@ namespace C2AP
         HighJumpSpin,
         Slam,
         CrouchJump,
-        SlideJump
+        SlideJump,
+        Dig
 
         //HighJump,
     }
@@ -31,27 +32,31 @@ namespace C2AP
         private static readonly Dictionary<Ability, Tuple<List<byte[]>, List<uint>>> AbilityToMod = new Dictionary<Ability, Tuple<List<byte[]>, List<uint>>>
         {
             { Ability.Crawl, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0], [0,0,0,0]], [1521, 1592]) },
-            { Ability.Slide, new Tuple<List<byte[]>, List<uint>>([[0x01,0x08,0xBE,0x16, 0x10, 0x44, 0x49, 0x35, 0x00, 0x40, 0x89, 0x31]], [1719]) },
+            //{ Ability.Slide, new Tuple<List<byte[]>, List<uint>>([[0x01,0x08,0xBE,0x16, 0x10, 0x44, 0x49, 0x35, 0x00, 0x40, 0x89, 0x31]], [1719]) },
+            { Ability.Slide, new Tuple<List<byte[]>, List<uint>>([[0x11,0xC0,0x57,0x36], [0x10, 0xC0, 0x57, 0x36], [0x11, 0xC0, 0x57, 0x36]], [835, 1425, 2876]) },
             { Ability.GroundSpin, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0], [0,0,0,0], [0,0,0,0]], [821, 1415, 2862]) },
             { Ability.SlideSpin, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0]], [1788]) },
             { Ability.JumpSpin, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0], [0,0,0,0]], [2062, 2324]) },
             { Ability.HighJumpSpin, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0]], [2152]) },
             { Ability.Slam, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0], [0,0,0,0]], [2078, 2340]) },
             { Ability.CrouchJump, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0]], [1656]) },
-            { Ability.SlideJump, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0]], [1810]) }
+            { Ability.SlideJump, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0]], [1810]) },
+            { Ability.Dig, new Tuple<List<byte[]>, List<uint>>([[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]], [814, 815, 1408, 1409, 2855, 2856]) },
         };
 
         private static readonly Dictionary<Ability, Tuple<List<byte[]>, List<uint>>> AbilityToOriginal = new Dictionary<Ability, Tuple<List<byte[]>, List<uint>>>
         {
             { Ability.Crawl, new Tuple<List<byte[]>, List<uint>>([[0x12,0xC0,0x57,0x36], [0x12,0xC0,0x67,0x37]], [1521, 1592]) },
-            { Ability.Slide, new Tuple<List<byte[]>, List<uint>>([[0x00, 0xE8, 0x14, 0x10, 0x55, 0xF1, 0xE1, 0x00, 0x1F, 0xDE, 0x15, 0x02]], [1719]) },
+            //{ Ability.Slide, new Tuple<List<byte[]>, List<uint>>([[0x00, 0xE8, 0x14, 0x10, 0x55, 0xF1, 0xE1, 0x00, 0x1F, 0xDE, 0x15, 0x02]], [1719]) }, 0x3657C000
+            { Ability.Slide, new Tuple<List<byte[]>, List<uint>>([[0x13,0xC0,0x57,0x36], [0x13, 0xC0, 0x57, 0x36], [0x13, 0xC0, 0x57, 0x36]], [835, 1425, 2876]) },
             { Ability.GroundSpin, new Tuple<List<byte[]>, List<uint>>([[0x2C, 0x40, 0x49, 0x35], [0x2C, 0x40, 0x49, 0x35], [0x2C, 0x40, 0x49, 0x35]], [821, 1415, 2862]) },
             { Ability.SlideSpin, new Tuple<List<byte[]>, List<uint>>([[0x16, 0x40, 0x49, 0x35]], [1788]) },
             { Ability.JumpSpin, new Tuple<List<byte[]>, List<uint>>([[0x2D, 0x40, 0x49, 0x35], [0x2D, 0x40, 0x49, 0x35]], [2062, 2324]) },
             { Ability.HighJumpSpin, new Tuple<List<byte[]>, List<uint>>([[0x2D, 0x40, 0x49, 0x35]], [2152]) },
             { Ability.Slam, new Tuple<List<byte[]>, List<uint>>([[0x14, 0xD0, 0x57, 0x36], [0x14, 0xD0, 0x57, 0x36]], [2078, 2340]) },
             { Ability.CrouchJump, new Tuple<List<byte[]>, List<uint>>([[0x18, 0xC4, 0x57, 0x36]], [1656]) },
-            { Ability.SlideJump, new Tuple<List<byte[]>, List<uint>>([[0x18, 0x44, 0x49, 0x35]], [1810]) }
+            { Ability.SlideJump, new Tuple<List<byte[]>, List<uint>>([[0x18, 0x44, 0x49, 0x35]], [1810]) },
+            { Ability.Dig, new Tuple<List<byte[]>, List<uint>>([[0x74,0x40,0x49,0x35], [0x0E,0x40,0x09,0x32], [0x74, 0x40, 0x49, 0x35], [0x0E, 0x40, 0x09, 0x32], [0x74, 0x40, 0x49, 0x35], [0x0E,0x40,0x09,0x32]], [814, 815, 1408, 1409, 2855, 2856]) },
         };
 
         private static Dictionary<Ability, CrashObjectMod?> AbilityLockMods = new();
@@ -213,6 +218,11 @@ Normal: Slide || GroundSpin || CrouchJump + HighJumpSpin
 
 // Red Gem Early:
 both: Slam, Slide, SlideJump, HighJumpSpin
+
+// Red Gem Normal:
+lunatic: SnowGoSecretEntrance
+normal: SnowGoSecretEntrance + Slide + JumpSpin
+
 // Box Gem:
 Slam || CrouchJump || Slide + SlideJump
 Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
@@ -229,6 +239,43 @@ Normal: Slide + SlideJump || GroundSpin + ( Slam || CrouchJump )
 // Snow Go Regular Exit:
 Lunatic: nothing
 Normal: Slide || GroundSpin || CrouchJump + HighJumpSpin
+
+
+
+// Snow Go Secret Entrance Stuff:
+
+
+// Snow Go Secret Entrance Jump 1-2
+// Snow Go Secret Entrance Down Stairs
+// Snow Go Secret Entrance Behind Wall Part 1-3
+// Snow Go Secret Entrance Above Penguin
+// Snow Go Secret Entrance High Above The Ice Part 1-2 Life
+// Snow Go Secret Entrance Metal Box 1-3
+// Snow Go Secret Entrance Arrow Crates Part 1-8
+// Snow Go Secret Entrance Arrow Crates Part 1-2 Life
+// Snow Go Secret Entrance Around Nitros Part 1,3
+// Snow Go Secret Entrance Next To Nitros Life
+// Snow Go Secret Entrance Ice Plat With Metal Box
+// Snow Go Secret Entrance Up Stairs Part 1-3
+// Snow Go Secret Entrance Drop Part 1-2
+lunatic: nothing
+normal: Slide + JumpSpin
+
+// Snow Go Secret Entrance Around Nitros Part 2
+lunatic: nothing
+normal: Slide + JumpSpin + SlideJump
+
+
+// Snow Go Secret Entrance Between 2 Walls
+lunatic: CrouchJump || Slide + SlideJump
+normal: Slide + JumpSpin + ( CrouchJump || SlideJump )
+
+// Snow Go Secret Entrance Secret Stash Life
+// Snow Go Secret Entrance Secret Stash Part 1-2*
+lunatic: CrouchJump || Slide + SlideJump || Slam
+normal: Slide + JumpSpin + ( CrouchJump || Slam )
+
+
 
 
 
@@ -602,6 +649,50 @@ normal: CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide
 
 
 
+//// Diggin' It
+// Roadblock:
+lunatic: nothing
+normal: Slide || Crawl
+
+lunatic: nothing
+normal: GroundSpin || JumpSpin
+
+// Box Gem
+
+lunatic: Slam
+normal: Slam + ( Slide || Crawl )
+
+lunatic: Slam
+normal: Slam + ( Slide || Crawl ) + ( GroundSpin || JumpSpin )
+
+// Diggin' It Third Booster
+// Diggin' It Bonus Start Line
+// Diggin' It Bonus First Arrow Crate
+// Diggin' It Bonus 2x4 1-4
+// Diggin' It Bonus Second Arrow Crate
+// Diggin' It Bonus Secret Stash Part 1-3 Life
+// Diggin' It Bonus Ending
+// Diggin' It Right Split 
+// Diggin' It Right Split Arrow Crate
+// Diggin' It Right Split 2x Booster
+lunatic: nothing
+normal: Slide || Crawl
+
+// Diggin' It Right Split Second Dig Part 1-2
+// Diggin' It Right Split 4x Booster Chain Part 1-2
+// Diggin' It: Regular Exit
+// Diggin' It: Crystal
+// Diggin' It: Clear Gem (Death Route)
+// Diggin' It Death Route Booster
+// Diggin' It Death Route Checkpoint
+lunatic: nothing
+normal: ( Slide || Crawl ) + ( GroundSpin || JumpSpin )
+
+// Diggin' It: Secret Exit
+lunatic: Slam
+normal Slam + ( Slide || Crawl ) + ( GroundSpin || JumpSpin )
+
+
 //// Cold Hard Crash
 // Roadblock:
 lunatic: Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
@@ -678,6 +769,43 @@ normal: Slide + SlideJump + HighJumpSpin || GreenGem + JumpSpin
 
 
 
+//// Bee-Having
+// Roadblock:
+lunatic: nothing
+normal: Slide + Dig
+
+lunatic: nothing // Mask
+normal: Slide + Dig
+
+// Box Gem:
+lunatic: nothing // Mask
+normal: Slide + Dig
+
+// Bee-Having Secret Area Big Jump Part 2
+// Bee-Having Secret Area Wumpa Triangle Part 1-2
+// Bee-Having Secret Area Wumpa Chain Part 1-3
+// Bee-Having Secret Area Above Platforms Life
+// Bee-Having Secret Area On The Metal Box
+// Bee-Having 2x Booster
+// Bee-Having Bonus Around Nitros Part 1-3
+// Bee-Having Bonus Between Metal Crates
+// Bee-Having 2x Booster After Bonus
+// Bee-Having Final Hive Part 1-2
+// Bee-Having: Regular Exit
+// Bee-Having: Crystal
+// Bee-Having: Purple Gem
+lunatic: nothing // Mask
+normal: Slide + Dig
+
+// Bee-Having Secret Area Big Jump Part 1
+// Bee-Having Secret Area Jump Over Metal Crate
+lunatic: nothing // Mask
+normal: Slide + Dig + SlideJump
+
+// Bee-Having Secret Area 1 Up
+lunatic: nothing // Mask
+normal: Slide + Dig + ( SlideJump || Slam || CrouchJump )
+
 //// Piston It Away
 
 // Everything
@@ -714,6 +842,31 @@ normal: Slide + ( SlideJump || CrouchJump )
 
 
 
+//// Rock It
+// Box Gem
+
+lunatic: Slam || JumpSpin || HighJumpSpin + ( CrouchJump || Slide + SlideJump ) || Jetpack
+normal: Slide + SlideJump + HighJumpSpin || Jetpack
+
+// Roadblock:
+lunatic: nothing
+normal: Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Jetpack
+
+
+// Rock It Wumpa Ring Part 1,3
+lunatic: nothing
+normal: Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Jetpack
+
+// Rock It Wumpa Ring Part 2
+lunatic: Slam || Slide + SlideJump + HighJumpSpin || Jetpack
+normal: Slam + Slide + SlideJump + HighJumpSpin || Jetpack
+
+// Rock It: Regular Exit
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin || Jetpack
+
+
+
 //// Night Fight
 // Box Gem
 lunatic: DoubleMask
@@ -728,9 +881,50 @@ normal: Slide + ( CrouchJump || SlideJump || JumpSpin )
 lunatic: nothing
 normal: Slide
 
-// Night Fight Bonus Second Wumpa Chain Part 3-6 *********************************************************
+// Night Fight Bonus Second Wumpa Chain Part 4-6
 lunatic: nothing
 normal: Slide + Crawl
+
+// Night Fight Bonus Second Wumpa Chain Part 3
+lunatic: Slide
+normal: Slide + Crawl
+
+
+//// Pack Attack
+//
+// Box Gem:
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin
+
+lunatic: JumpSpin || ( Slide + SlideJump + HighJumpSpin ) || Jetpack
+normal: Slide + SlideJump + HighJumpSpin + JumpSpin || Jetpack
+
+// Pack Attack At The Aku Aku Box
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin || Jetpack
+
+// Roadblock
+lunatic: nothing
+normal: CrouchJump || Slide + SlideJump
+
+lunatic: nothing
+normal: Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Pack Attack Third Checkpoint Part 1
+lunatic: nothing
+normal: Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin
+
+// Pack Attack Third Checkpoint Part 2
+lunatic: nothing
+normal: ( CrouchJump || Slide + SlideJump ) + ( Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin ) || Jetpack
+
+
+// Pack Attack: Regular Exit
+lunatic: nothing
+normal: Slide + SlideJump + HighJumpSpin || Jetpack
+
+// Pack Attack: Crystal
+both: Slide + SlideJump + HighJumpSpin || Jetpack
 
 
 
