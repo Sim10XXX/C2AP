@@ -479,7 +479,7 @@ def set_all_location_rules(world: Crash2World) -> None:
         return str_to_rule(tokenlist[0])
 
     # Ability Lock Rules
-    print("is_ut:",is_ut)
+    # print("is_ut:",is_ut)
     #is_ut = True
     if world.options.ability_lock:
         for entry in data.abilitylockrules:
@@ -498,7 +498,7 @@ def set_all_location_rules(world: Crash2World) -> None:
                 else:
                     glitchrule = glitchrule & Has("Lunacy")
                 rule = rule | glitchrule
-            print("Name:", entry["Name"], "rule:", rule)
+            # print("Name:", entry["Name"], "rule:", rule)
 
             if rule is None:
                 continue
@@ -538,6 +538,9 @@ def set_all_location_rules(world: Crash2World) -> None:
                     #world.set_rule(loc, rule)
                     #print("Rule set for", name_list[i])
 
+    for level in ["Air Crash", "Bear Down", "Un-Bearable", "Diggin' It", "Hangin' Out"]:
+        entrance = world.get_entrance(level + " to Warp Room 6")
+        entrance.access_rule = world.get_location(level + ": Secret Exit").access_rule
 
     # if world.options.ability_lock:
     #

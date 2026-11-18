@@ -391,7 +391,7 @@ class AbilityLockLogic(Choice):
     This option determines how strict the logic is when Ability Lock is enabled
     It is highly, highly recommended to keep this on Normal (Lunatic-level logic will still show up as yellow in trackers)
     Lunatic means that a check is in logic if it is possible (which can potentially require some crazy tech)
-    Gameover abuse is not considered in logic since it is technically missable (aka it could softlock a seed if it was in logic)
+    Gameover abuse is not considered in logic
     Also there is one edge case in Lunatic logic that is not covered yet which has a "one in a million" chance of making an impossible seed
     """
     display_name = "Ability Lock Logic"

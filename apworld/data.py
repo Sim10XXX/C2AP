@@ -469,7 +469,7 @@ abilitylockrules = [
             "Hangin' Out: Crystal",
             "Hangin' Out: Regular Exit"
         ],
-        "Lunatic": "",
+        "Lunatic": "DoubleMask",
         "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
         "Wumpa": [
             8,
@@ -895,12 +895,13 @@ abilitylockrules = [
                  "Spaced Out Wumpa Chain Part 1",
                  "Spaced Out Wumpa Chain Part 2",
                  "Spaced Out Wumpa Chain Part 3",
+                 "Spaced Out Below Nitros",
                  "Spaced Out Jump Over Nitros",
                  "Spaced Out End of Big Screen",
                  "Spaced Out Bonus Next to Reinforced Crate Stack"],
         "Lunatic": "",
         "Normal": "Slide || GroundSpin",
-        "Wumpa": [0, 0, 0, 0, 4, 8, 8, 8, 4, 10, 8]
+        "Wumpa": [0, 0, 0, 0, 4, 8, 8, 8, 5, 4, 10, 8]
     },
     {
         "Name": ["Spaced Out Green Gem Path Part 1 Life",
@@ -978,7 +979,6 @@ abilitylockrules = [
         "Normal": "Slide",
         "Wumpa": [3, 3, 3, 5, 5, 4, 5, 6, 0]
     }
-
 ]
 """
     {
