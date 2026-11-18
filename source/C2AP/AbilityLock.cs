@@ -982,6 +982,71 @@ lunatic: nothing
 normal: Slide
 
 
+
+//// Totally Bear
+
+//roadblock
+lunatic: nothing
+normal: Slide + SlideJump
+
+// box gem
+// Totally Bear: Regular Exit
+both: Polar
+
+// Totally Bear Start
+// Totally Bear Start Before Big Jump
+// Totally Bear First Checkpoint Uphill
+// Totally Bear First Checkpoint After Statues
+// Totally Bear First Checkpoint Before Big Jump
+// Totally Bear Before Second Checkpoint
+// Totally Bear Second Checkpoint Line
+// Totally Bear Second Checkpoint Before TNT
+// Totally Bear Second Checkpoint Under Metal Boxes
+// Totally Bear After Third Checkpoint
+// Totally Bear Third Checkpoint Uphill*
+// Totally Bear Ending
+lunatic: nothing
+normal: Slide + SlideJump || Polar
+
+
+
+//// Totally Fly
+//
+//Roadblock
+lunatic: nothing
+normal: Slide
+
+// Box gem
+lunatic: Slam
+normal: Slide + Slam
+
+// Totally Fly Before First Checkpoint
+// Totally Fly Fourth Firefly
+// Totally Fly Before Second Checkpoint
+// Totally Fly Bonus Over Nitros Part 1-2
+// Totally Fly Bonus Ending
+// Totally Fly After Reinforced Crates Part 1-2
+// Totally Fly: Regular Exit
+lunatic: nothing
+normal: Slide
+
+
+
+
+Or(
+    And(
+        Has(Slam), 
+        Has(Slide), 
+        Has(Crawl)
+    ), 
+    And(
+        Has(Slam), Has(Slide), Has(Crawl), Has(Lunacy)
+    )
+)
+
+
+
+
 // fix the ability lock for snow go + something else in discord i think
 /debug_unlock 
 //Crawl,
