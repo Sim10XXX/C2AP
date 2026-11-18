@@ -39,6 +39,9 @@ ITEM_NAME_TO_ID = {
     "Slam" : 24,
     "Crouch Jump" : 25,
     "Slide Jump" : 26,
+    "Dig" : 27,
+
+    "Lunacy" : 28, # Used to calculate glitched locations in UT
 }
 
 # Items should have a defined default classification.
@@ -71,6 +74,9 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Slam" : ItemClassification.progression | ItemClassification.useful,
     "Crouch Jump" : ItemClassification.progression | ItemClassification.useful,
     "Slide Jump" : ItemClassification.progression | ItemClassification.useful,
+    "Dig" : ItemClassification.progression | ItemClassification.useful,
+
+    "Lunacy" : ItemClassification.progression, # Used to calculate glitched locations in UT
 }
 
 
@@ -174,6 +180,7 @@ def create_all_items(world: Crash2World) -> None:
         itempool += [world.create_item("Slam")]
         itempool += [world.create_item("Crouch Jump")]
         itempool += [world.create_item("Slide Jump")]
+        itempool += [world.create_item("Dig")]
 
 
     # Some items may only exist if the player enables certain options.
@@ -224,7 +231,7 @@ def create_all_items(world: Crash2World) -> None:
     # You can just use this function directly to create as many filler items as you need to complete your itempool.
     itempool += [world.create_filler() for _ in range(needed_number_of_filler_items)]
 
-    itempool[3].deprioritized
+    #itempool[3].deprioritized
 
     # But... is that the right option for your game? Let's explore that.
     # For some games, the concepts of "regular itempool filler" and "additionally created filler" are different.

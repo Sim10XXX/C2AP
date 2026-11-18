@@ -1,3 +1,993 @@
+abilitylockrules = [
+    # Turtle Woods
+    {
+        "Name": "Turtle Woods: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam + Slide + SlideJump"
+    },
+    # Snow Go
+    {
+        "Name": "Snow Go: Red Gem",
+        "Lunatic": "Slam + Slide + SlideJump + HighJumpSpin || SnowGoSecretEntrance",
+        "Normal": "Slam + Slide + SlideJump + HighJumpSpin || SnowGoSecretEntrance + Slide + JumpSpin",
+        "Option": "red_gem_early"
+    },
+    {
+        "Name": "Snow Go: Red Gem",
+        "Lunatic": "SnowGoSecretEntrance",
+        "Normal": "SnowGoSecretEntrance + Slide + JumpSpin",
+        "Option": "!red_gem_early"
+    },
+    {
+        "Name" : "Snow Go: Clear Gem (Box Gem)",
+        "Lunatic": "Slam || Slide + SlideJump || CrouchJump + ( HighJumpSpin || GroundSpin || JumpSpin )",
+        "Normal": "Slide + SlideJump || GroundSpin + ( Slam || CrouchJump )"
+    },
+    {
+        "Name": ["Snow Go: Crystal",
+                 "Snow Go: Regular Exit",
+                 "Snow Go Checkpoint 1",
+                 "Snow Go Above Bonus",
+                 "Snow Go Bonus Part 1",
+                 "Snow Go Bonus Part 2",
+                 "Snow Go Bonus Part 3",
+                 "Snow Go Bonus Part 4",
+                 "Snow Go Bonus Part 5",
+                 "Snow Go 2D Exit",
+                 "Snow Go Nitro Switch",],
+        "Lunatic": "",
+        "Normal": "Slide || GroundSpin || CrouchJump + HighJumpSpin",
+        "Wumpa": [0,0,3,6,4,5,7,5,7,9,7]
+    },
+    {
+        "Name": ["Snow Go Secret Entrance Jump 1",
+                 "Snow Go Secret Entrance Jump 2",
+                 "Snow Go Secret Entrance Down Stairs",
+                 "Snow Go Secret Entrance Behind Wall Part 1",
+                 "Snow Go Secret Entrance Behind Wall Part 2",
+                 "Snow Go Secret Entrance Behind Wall Part 3",
+                 "Snow Go Secret Entrance Above Penguin",
+                 "Snow Go Secret Entrance High Above The Ice Part 1 Life",
+                 "Snow Go Secret Entrance High Above The Ice Part 2 Life",
+                 "Snow Go Secret Entrance Metal Box 1",
+                 "Snow Go Secret Entrance Metal Box 2",
+                 "Snow Go Secret Entrance Metal Box 3",
+                 "Snow Go Secret Entrance Arrow Crates Part 1",
+                 "Snow Go Secret Entrance Arrow Crates Part 2",
+                 "Snow Go Secret Entrance Arrow Crates Part 3",
+                 "Snow Go Secret Entrance Arrow Crates Part 4",
+                 "Snow Go Secret Entrance Arrow Crates Part 5",
+                 "Snow Go Secret Entrance Arrow Crates Part 6",
+                 "Snow Go Secret Entrance Arrow Crates Part 7",
+                 "Snow Go Secret Entrance Arrow Crates Part 8",
+                 "Snow Go Secret Entrance Arrow Crates Part 1 Life",
+                 "Snow Go Secret Entrance Arrow Crates Part 2 Life",
+                 "Snow Go Secret Entrance Around Nitros Part 1",
+                 "Snow Go Secret Entrance Around Nitros Part 3",
+                 "Snow Go Secret Entrance Next To Nitros Life",
+                 "Snow Go Secret Entrance Ice Plat With Metal Box",
+                 "Snow Go Secret Entrance Up Stairs Part 1",
+                 "Snow Go Secret Entrance Up Stairs Part 2",
+                 "Snow Go Secret Entrance Up Stairs Part 3",
+                 "Snow Go Secret Entrance Drop Part 1",
+                 "Snow Go Secret Entrance Drop Part 2"],
+        "Lunatic": "",
+        "Normal": "Slide + JumpSpin",
+        "Wumpa": [4, 6, 6, 10, 9, 10, 4, 0, 0, 4, 3, 3, 8, 7, 7, 8, 8, 8, 8, 8, 0, 0, 8, 7, 0, 12, 6, 7, 5, 8, 7]
+    },
+    {
+        "Name": "Snow Go Secret Entrance Around Nitros Part 2",
+        "Lunatic": "",
+        "Normal": "Slide + JumpSpin + SlideJump",
+        "Wumpa": [6]
+    },
+    {
+        "Name": "Snow Go Secret Entrance Between 2 Walls",
+        "Lunatic": "CrouchJump || Slide + SlideJump",
+        "Normal": "Slide + JumpSpin + ( CrouchJump || SlideJump )",
+        "Wumpa": [8]
+    },
+    {
+        "Name": ["Snow Go Secret Entrance Secret Stash Life",
+                 "Snow Go Secret Entrance Secret Stash Part 1*",
+                 "Snow Go Secret Entrance Secret Stash Part 2*"],
+        "Lunatic": "CrouchJump || Slide + SlideJump || Slam",
+        "Normal": "Slide + JumpSpin + ( CrouchJump || Slam )",
+        "Wumpa": [0, 6, 6]
+    },
+    # Hang Eight
+    {
+        "Name": "Hang Eight: Clear Gem (Timer)",
+        "Lunatic": "",
+        "Normal": "Slide || JumpSpin || GroundSpin"
+    },
+    {
+        "Name": "Hang Eight: Clear Gem (Box Gem)",
+        "Lunatic": "",
+        "Normal": "JumpSpin || GroundSpin || Slide + SlideJump || CrouchJump + HighJumpSpin"
+    },
+    {
+        "Name": "Hang Eight Bonus Part 1",
+        "Lunatic": "Slide || Crawl",
+        "Normal": "Slide || Crawl",
+        "Wumpa": 6
+    },
+    {
+        "Name": ["Hang Eight Bonus Part 2",
+                 "Hang Eight Bonus Part 3",
+                 "Hang Eight Bonus Part 4"],
+        "Lunatic": "",
+        "Normal": "Slide || Crawl",
+        "Wumpa": [4,6,6]
+    },
+    # The Pits
+    {
+        "Name": "The Pits: Clear Gem (Box Gem)",
+        "Lunatic": "Slam + Slide + Crawl",
+        "Normal": "Slam + Slide + Crawl"
+    },
+    {
+        "Name": "The Pits Bonus Part 4",
+        "Lunatic": "Slide || Crawl",
+        "Normal": "Slide || Crawl",
+        "Wumpa": 4
+    },
+    # Crash Dash
+    {
+        "Name": "Crash Dash: Clear Gem (Box Gem)",
+        "Lunatic": "Slide || GroundSpin || JumpSpin",
+        "Normal": "( GroundSpin || Slide + SlideSpin ) + ( JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin )"
+    },
+    {
+        "Name": ["Crash Dash Bonus Part 1",
+                 "Crash Dash Bonus Part 2",
+                 "Crash Dash Bonus Part 3",
+                 "Crash Dash Bonus Part 4",
+                 "Crash Dash Bonus Part 5"],
+        "Lunatic": "",
+        "Normal": "JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin",
+        "Wumpa": [5, 5, 5, 7, 6]
+    },
+    # Ripper Roo
+    # Snow Biz
+    {
+        "Name": "Snow Biz: Clear Gem (Box Gem)",
+        "Lunatic": "Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slide )",
+        "Normal": "Slam + ( CrouchJump + HighJumpSpin || ( Slide || GroundSpin ) + ( Slide + SlideJump || CrouchJump ) + ( GroundSpin || JumpSpin ) )"
+    },
+    {
+        "Name": "Snow Biz Red Gem Path Around Arrow Crate",
+        "Lunatic": "Slam",
+        "Normal": "Slam",
+        "Wumpa": 6
+    },
+    # Air Crash
+    {
+        "Name": "Air Crash: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam",
+    },
+    {
+        "Name": ["Air Crash Bonus Big Jump Part 1",
+                 "Air Crash Bonus Big Jump Part 2",
+                 "Air Crash Bonus Big Jump Part 3",
+                 "Air Crash Bonus Big Jump Life"],
+        "Lunatic": "Slam || Slide + SlideJump",
+        "Normal": "Slam",
+        "Wumpa": [6, 6, 6, 0]
+    },
+    # Bear It
+    {
+        "Name": "Bear It: Clear Gem (Box Gem)",
+        "Lunatic": "Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Polar",
+        "Normal": "Slide + SlideJump + HighJumpSpin + GroundSpin || Polar",
+    },
+    {
+        "Name": ["Bear It Checkpoint 1",
+                 "Bear It Checkpoint 2",
+                 "Bear It Before Checkpoint 3",
+                 "Bear It Ending"],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump || Polar",
+        "Wumpa": [2, 7, 3, 4]
+    },
+    {
+        "Name": ["Bear It: Crystal",
+                 "Bear It: Regular Exit"],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump + HighJumpSpin || Polar",
+    },
+    # Crash Crush
+    {
+        "Name": "Crash Crush: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slide + SlideJump + Slam",
+    },
+    {
+        "Name": "Crash Crush Bonus Below Block",
+        "Lunatic": "Crawl || Slide",
+        "Normal": "Crawl + Slide",
+        "Wumpa": 4
+    },
+    {
+        "Name": ["Crash Crush Electric Fence",
+                 "Crash Crush Narrow Path",
+                 "Crash Crush Booster At The Split",
+                 "Crash Crush Split Path",
+                 "Crash Crush Split Path Electric Fence"],
+        "Lunatic": "",
+        "Normal": "Crawl || Slide",
+        "Wumpa": [4, 3, 6, 6, 4]
+    },
+    {
+        "Name": "Crash Crush Split Path Electric Fence Jump",
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump",
+        "Wumpa": 7
+    },
+    {
+    "Name": ["Crash Crush Boulder 2 Booster",
+             "Crash Crush Boulder 2 Around Mines",
+             "Crash Crush Boulder 2 Nitros",
+             "Crash Crush Boulder 3 Checkpoint",
+             "Crash Crush Boulder 3 Booster 1",
+             "Crash Crush Boulder 3 Booster 2",
+             "Crash Crush Bonus Secret Stash Life",
+             "Crash Crush Bonus Secret Stash Part 1",
+             "Crash Crush Bonus Secret Stash Part 2",
+             "Crash Crush Bonus Secret Stash Part 3",
+             "Crash Crush Bonus Jump 1",
+             "Crash Crush Bonus Arrow Crate",
+             "Crash Crush Bonus Between Blocks Part 1",
+             "Crash Crush Bonus Between Blocks Part 2",
+             "Crash Crush Bonus Between Blocks Part 3",
+             "Crash Crush After Bonus",
+             "Crash Crush Boulder 4 Booster",
+             "Crash Crush Boulder 4 Around Mines",
+             "Crash Crush Boulder 4 Ending",
+             "Crash Crush: Crystal",
+             "Crash Crush: Regular Exit"],
+    "Lunatic": "",
+    "Normal": "Slide",
+    "Wumpa": [6, 5, 3, 9, 6, 6, 0, 6, 6, 9, 7, 6, 8, 8, 8, 3, 6, 4, 4, 0, 0]
+    },
+    {
+        "Name": ["Crash Crush Bonus Stone Blocks Life",
+                 "Crash Crush Bonus Top of the Blocks",
+                 "Crash Crush Bonus Metal Boxes"],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump",
+        "Wumpa": [0, 7, 5]
+    },
+    # The Eel Deal
+    {
+        "Name": "The Eel Deal: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam",
+    },
+    {
+        "Name": "The Eel Deal Bonus End",
+        "Lunatic": "",
+        "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slam",
+        "Wumpa": 6
+    },
+    # Komodo Bros
+    {
+        "Name": "Komodo Brothers Defeated",
+        "Lunatic": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+    },
+    # Plant Food
+    {
+        "Name": "Plant Food: Yellow Gem",
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump || JumpSpin",
+    },
+    {
+        "Name": [
+            "Plant Food: Clear Gem (Box Gem)",
+            "Plant Food Bonus Above Small Platform"
+        ],
+        "Lunatic": "Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Wumpa": [
+            0,
+            8
+        ]
+    },
+    {
+        "Name": [
+            "Plant Food Bonus Platform Hops Part 1",
+            "Plant Food Bonus Platform Hops Part 2",
+            "Plant Food Bonus Platform Hops Part 3"
+        ],
+        "Lunatic": "Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "( Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin ) + ( Slam || Slide + SlideJump || CrouchJump )",
+        "Wumpa": [
+            6,
+            7,
+            9
+        ]
+    },
+    # Sewer or Later
+    {
+        "Name": "Sewer or Later: Clear Gem (Box Gem)",
+        "Lunatic": "Slide + Slam",
+        "Normal": "Slide + Slam",
+    },
+    {
+        "Name": "Sewer or Later Bonus Under Metal Boxes 1",
+        "Lunatic": "Slide || Crawl",
+        "Normal": "Slide || Crawl",
+        "Wumpa": [
+            6
+        ]
+    },
+    {
+        "Name": [
+            "Sewer or Later Bonus Under Metal Boxes 2",
+            "Sewer or Later Bonus Ending"
+        ],
+        "Lunatic": "Slide || CrouchJump + HighJumpSpin",
+        "Normal": "Slide",
+        "Wumpa": [
+            4,
+            6
+        ]
+    },
+    {
+        "Name": [
+            "Sewer or Later Left Split",
+            "Sewer or Later Ending",
+            "Sewer or Later: Crystal",
+            "Sewer or Later: Regular Exit"
+        ],
+        "Lunatic": "",
+        "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Wumpa": [
+            6,
+            6,
+            0,
+            0
+        ]
+    },
+    # Bear Down
+    # Road to Ruin
+    {
+        "Name": [
+            "Road to Ruin: Clear Gem (Box Gem)",
+            "Road to Ruin Secret Entrance Cube Stash"
+        ],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump + HighJumpSpin || RoadToRuinSecretEntrance",
+        "Wumpa": [
+            0,
+            1
+        ]
+    },
+    {
+        "Name": [
+            "Road to Ruin Death Route Wumpa Triangle Part 1",
+            "Road to Ruin Death Route Wumpa Triangle Part 2",
+            "Road to Ruin Death Route Backwards",
+            "Road to Ruin Death Route Gem Part 1",
+            "Road to Ruin Death Route Gem Part 2",
+            "Road to Ruin: Clear Gem (Death Route)"
+        ],
+        "Lunatic": "",
+        "Normal": "JumpSpin || CrouchJump + HighJumpSpin || Slide + SlideJump + HighJumpSpin",
+        "Wumpa": [
+            5,
+            5,
+            4,
+            6,
+            6,
+            0
+        ]
+    },
+    # Un-Bearable
+    {
+        "Name": "Un-Bearable: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam + Slide + SlideJump + ( SlideSpin || Polar )",
+    },
+    {
+        "Name": ["Un-Bearable First Bear Electric Fence",
+                 "Un-Bearable First Bear Before Wooden Fence",
+                 "Un-Bearable First Bear Ending",
+                 "Un-Bearable Second Bear Booster",
+                 "Un-Bearable Secret Area Start",
+                 "Un-Bearable Secret Area Big Wumpa Cross Part 1",
+                 "Un-Bearable Secret Area Big Wumpa Cross Part 2",
+                 "Un-Bearable Secret Area High Platforms Jump",
+                 "Un-Bearable Secret Area Upper Path Life",
+                 "Un-Bearable Secret Area Between Turtles 1",
+                 "Un-Bearable Secret Area Between Turtles 2",
+                 "Un-Bearable Secret Area Arrow Crate",
+                 "Un-Bearable Secret Area Drop Down Part 2",
+                 "Un-Bearable Secret Area Tight Bullet Section",
+                 "Un-Bearable Secret Area Jump to Rats Part 1",
+                 "Un-Bearable Secret Area Jump to Rats Part 2",
+                 "Un-Bearable Secret Area After Rats Part 1",
+                 "Un-Bearable Secret Area After Rats Part 2",
+                 "Un-Bearable Secret Area Around Aku Aku Crate",
+                 "Un-Bearable Before Bonus",
+                 "Un-Bearable Bonus Bottom Path Part 1",
+                 "Un-Bearable Bonus Bottom Path Part 2",
+                 "Un-Bearable Bonus Bottom Path Part 3",
+                 "Un-Bearable Bonus Bottom Path Part 4",
+                 "Un-Bearable Bonus Bottom Path Part 5",
+                 "Un-Bearable Third Bear Booster 1",
+                 "Un-Bearable Third Bear Booster 2",
+                 "Un-Bearable Third Bear Electric Fence 1",
+                 "Un-Bearable Third Bear Electric Fence 2"],
+        "Lunatic": "",
+        "Normal": "Slide",
+        "Wumpa": [4, 6, 3, 6, 2, 8, 8, 8, 0, 5, 4, 9, 7, 2, 6, 6, 6, 6, 5, 6, 8, 8, 8, 8, 8, 6, 6, 3, 3]
+    },
+    {
+        "Name": "Un-Bearable Secret Area Drop Down Part 1",
+        "Lunatic": "Slam || CrouchJump || Slide + SlideJump",
+        "Normal": "Slide + ( CrouchJump || SlideJump )",
+        "Wumpa": [5]
+    },
+    {
+        "Name": ["Un-Bearable Bonus Big Jump Life",
+                 "Un-Bearable Bonus Jump Part 1",
+                 "Un-Bearable Bonus Jump Part 2"],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump",
+        "Wumpa": [0, 9, 8]
+    },
+    {
+        "Name": ["Un-Bearable Fourth Bear TNT",
+                 "Un-Bearable Fourth Bear Around Electric Fences",
+                 "Un-Bearable: Crystal",
+                 "Un-Bearable: Secret Exit",
+                 "Un-Bearable: Regular Exit"],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump + SlideSpin || Polar",
+        "Wumpa": [4, 6, 0, 0, 0]
+    },
+    # Tiny
+    # Hangin' Out
+    {
+        "Name": [
+            "Hangin' Out Second Wire Mesh Part 1",
+            "Hangin' Out Second Wire Mesh Part 2",
+            "Hangin' Out Second Wire Mesh Part 3",
+            "Hangin' Out Second Drop",
+            "Hangin' Out Secret Drop",
+            "Hangin' Out Before Secret Exit Part 1 Life",
+            "Hangin' Out Before Secret Exit Part 2 Life",
+            "Hangin' Out Before Secret Exit Part 3 Life",
+            "Hangin' Out Before Secret Exit Part 4 Life",
+            "Hangin' Out Before Secret Exit Part 5 Life",
+            "Hangin' Out Secret Warp*",
+            "Hangin' Out: Secret Exit",
+            "Hangin' Out Bonus Start",
+            "Hangin' Out: Crystal",
+            "Hangin' Out: Regular Exit"
+        ],
+        "Lunatic": "",
+        "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Wumpa": [
+            8,
+            8,
+            4,
+            2,
+            12,
+            0,
+            0,
+            0,
+            0,
+            0,
+            6,
+            0,
+            6,
+            0,
+            0
+        ]
+    },
+    {
+        "Name": "Hangin' Out: Clear Gem (Box Gem)",
+        "Lunatic": "Slam || Slide",
+        "Normal": "Slide || Slam + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin )",
+    },
+    {
+        "Name": "Hangin' Out Bonus Arrow Crates",
+        "Lunatic": "Slam || CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide",
+        "Normal": "CrouchJump + ( JumpSpin || GroundSpin || HighJumpSpin ) || Slide",
+        "Wumpa": [
+            10
+        ]
+    },
+    # Diggin' It
+    {
+        "Name": "Diggin' It: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam + ( Slide || Crawl ) + ( GroundSpin || JumpSpin )",
+        "Wumpa": [0]
+    },
+    {
+        "Name": ["Diggin' It Third Booster",
+                 "Diggin' It Bonus Start Line",
+                 "Diggin' It Bonus First Arrow Crate",
+                 "Diggin' It Bonus 2x4 1",
+                 "Diggin' It Bonus 2x4 2",
+                 "Diggin' It Bonus 2x4 3",
+                 "Diggin' It Bonus 2x4 4",
+                 "Diggin' It Bonus Second Arrow Crate",
+                 "Diggin' It Bonus Secret Stash Part 1 Life",
+                 "Diggin' It Bonus Secret Stash Part 2 Life",
+                 "Diggin' It Bonus Secret Stash Part 3 Life",
+                 "Diggin' It Bonus Ending",
+                 "Diggin' It Right Split",
+                 "Diggin' It Right Split Arrow Crate",
+                 "Diggin' It Right Split 2x Booster"],
+        "Lunatic": "",
+        "Normal": "Slide || Crawl",
+        "Wumpa": [6, 9, 7, 8, 8, 8, 8, 5, 0, 0, 0, 6, 7, 2, 5]
+    },
+    {
+        "Name": ["Diggin' It Right Split Second Dig Part 1",
+                 "Diggin' It Right Split Second Dig Part 2",
+                 "Diggin' It Right Split 4x Booster Chain Part 1",
+                 "Diggin' It Right Split 4x Booster Chain Part 2",
+                 "Diggin' It: Regular Exit",
+                 "Diggin' It: Crystal",
+                 "Diggin' It: Clear Gem (Death Route)",
+                 "Diggin' It Death Route Booster",
+                 "Diggin' It Death Route Checkpoint"],
+        "Lunatic": "",
+        "Normal": "( Slide || Crawl ) + ( GroundSpin || JumpSpin )",
+        "Wumpa": [4, 3, 6, 8, 0, 0, 0, 6, 5]
+    },
+    {
+        "Name": "Diggin' It: Secret Exit",
+        "Lunatic": "Slam",
+        "Normal": "Slam + ( Slide || Crawl ) + ( GroundSpin || JumpSpin )",
+        "Wumpa": [0]
+    },
+    # Cold Hard Crash
+    {
+        "Name": "Cold Hard Crash: Clear Gem (Box Gem)",
+        "Lunatic": "Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "Slide + SlideJump || CrouchJump + HighJumpSpin",
+    },
+    {
+        "Name": [
+            "Cold Hard Crash Death Route Above Nitro",
+            "Cold Hard Crash Death Route Wumpa Triangle Part 1",
+            "Cold Hard Crash Death Route Wumpa Triangle Part 2",
+            "Cold Hard Crash Death Route Behind The Wall",
+            "Cold Hard Crash Death Route Outward Square Part 1",
+            "Cold Hard Crash Death Route Outward Square Part 2",
+            "Cold Hard Crash Death Route Arrow Crate",
+            "Cold Hard Crash Death Route Jump Over Nitro",
+            "Cold Hard Crash Death Route Between Two Nitros",
+            "Cold Hard Crash Death Route Nitro Zigzag Part 1",
+            "Cold Hard Crash Death Route Nitro Zigzag Part 2",
+            "Cold Hard Crash Death Route Drop Down",
+            "Cold Hard Crash Death Route Drop Down \"Impossible\" Wumpas*",
+            "Cold Hard Crash Drop Down Part 1",
+            "Cold Hard Crash Drop Down Part 2",
+            "Cold Hard Crash Drop Down Part 3",
+            "Cold Hard Crash Drop Down Life",
+            "Cold Hard Crash: Clear Gem (Death Route)",
+            "Cold Hard Crash: Crystal",
+            "Cold Hard Crash: Regular Exit"
+        ],
+        "Lunatic": "Slam || Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Wumpa": [
+            4,
+            5,
+            4,
+            4,
+            7,
+            7,
+            5,
+            3,
+            2,
+            4,
+            5,
+            4,
+            4,
+            9,
+            6,
+            4,
+            0,
+            0,
+            0,
+            0
+        ]
+    },
+    {
+        "Name": [
+            "Cold Hard Crash Behind The Wall Part 1",
+            "Cold Hard Crash Behind The Wall Part 2",
+            "Cold Hard Crash Behind The Wall Part 3",
+            "Cold Hard Crash Behind The Wall Part 4",
+            "Cold Hard Crash Behind The Wall Part 5",
+            "Cold Hard Crash Behind The Wall Part 6"
+        ],
+        "Lunatic": "( Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin ) + ( Slam || Slide + SlideJump || CrouchJump )",
+        "Normal": "( Slide || GroundSpin || JumpSpin ) + ( Slide + SlideJump || CrouchJump )",
+        "Wumpa": [
+            6,
+            8,
+            8,
+            8,
+            7,
+            7
+        ]
+    },
+    {
+        "Name": [
+            "Cold Hard Crash In The Wall Part 1",
+            "Cold Hard Crash In The Wall Part 2",
+            "Cold Hard Crash Before Crusher Chain",
+            "Cold Hard Crash In Between Crushers Life"
+        ],
+        "Lunatic": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "Slide || GroundSpin || JumpSpin",
+        "Wumpa": [
+            6,
+            6,
+            7,
+            0
+        ]
+    },
+
+    # Ruination
+    {
+        "Name": "Ruination: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam",
+    },
+    {
+        "Name": [
+            "Ruination Green Gem Path After First Ape",
+            "Ruination Green Gem Path After Second Ape Part 1",
+            "Ruination Green Gem Path After Second Ape Part 2",
+            "Ruination Green Gem Path Big Square Part 1",
+            "Ruination Green Gem Path Big Square Part 2",
+            "Ruination Green Gem Path Big Square Part 3",
+            "Ruination Green Gem Path After Third Ape Part 1",
+            "Ruination Green Gem Path After Third Ape Part 2",
+            "Ruination: Clear Gem (Green Gem Path)"
+        ],
+        "Lunatic": "Slide + SlideJump || GreenGem",
+        "Normal": "Slide + SlideJump + HighJumpSpin || GreenGem + JumpSpin",
+        "Wumpa": [
+            10,
+            6,
+            6,
+            8,
+            8,
+            9,
+            5,
+            5,
+            0
+        ],
+        "Option": "ruination_skip_green"
+    },
+    {
+        "Name": [
+            "Ruination Green Gem Path After First Ape",
+            "Ruination Green Gem Path After Second Ape Part 1",
+            "Ruination Green Gem Path After Second Ape Part 2",
+            "Ruination Green Gem Path Big Square Part 1",
+            "Ruination Green Gem Path Big Square Part 2",
+            "Ruination Green Gem Path Big Square Part 3",
+            "Ruination Green Gem Path After Third Ape Part 1",
+            "Ruination Green Gem Path After Third Ape Part 2",
+            "Ruination: Clear Gem (Green Gem Path)"
+        ],
+        "Lunatic": "GreenGem",
+        "Normal": "GreenGem + JumpSpin",
+        "Wumpa": [
+            10,
+            6,
+            6,
+            8,
+            8,
+            9,
+            5,
+            5,
+            0
+        ],
+        "Option": "!ruination_skip_green"
+    },
+    # Bee-Having
+    {
+        "Name": "Bee-Having: Clear Gem (Box Gem)",
+        "Lunatic": "",
+        "Normal": "Slide + Dig",
+    },
+    {
+        "Name": ["Bee-Having Secret Area Big Jump Part 2",
+                 "Bee-Having Secret Area Wumpa Triangle Part 1",
+                 "Bee-Having Secret Area Wumpa Triangle Part 2",
+                 "Bee-Having Secret Area Wumpa Chain Part 1",
+                 "Bee-Having Secret Area Wumpa Chain Part 2",
+                 "Bee-Having Secret Area Wumpa Chain Part 3",
+                 "Bee-Having Secret Area Above Platforms Life",
+                 "Bee-Having Secret Area On The Metal Box",
+                 "Bee-Having 2x Booster",
+                 "Bee-Having Bonus Around Nitros Part 1",
+                 "Bee-Having Bonus Around Nitros Part 2",
+                 "Bee-Having Bonus Around Nitros Part 3",
+                 "Bee-Having Bonus Between Metal Crates",
+                 "Bee-Having 2x Booster After Bonus",
+                 "Bee-Having Final Hive Part 1",
+                 "Bee-Having Final Hive Part 2",
+                 "Bee-Having: Regular Exit",
+                 "Bee-Having: Crystal",
+                 "Bee-Having: Purple Gem"],
+        "Lunatic": "",
+        "Normal": "Slide + Dig",
+        "Wumpa": [7, 5, 4, 8, 9, 7, 0, 4, 8, 8, 7, 6, 8, 8, 4, 7, 0, 0, 0]
+    },
+    {
+        "Name": ["Bee-Having Secret Area Big Jump Part 1",
+                 "Bee-Having Secret Area Jump Over Metal Crate"],
+        "Lunatic": "",
+        "Normal": "Slide + Dig + SlideJump",
+        "Wumpa": [7, 7]
+    },
+    {
+        "Name": "Bee-Having Secret Area 1 Up",
+        "Lunatic": "",
+        "Normal": "Slide + Dig + ( SlideJump || Slam || CrouchJump )",
+        "Wumpa": [5]
+    },
+    # N. Gin
+    # Piston it Away
+    {
+        "Name": "Piston it Away: Clear Gem (Box Gem)",
+        "Lunatic": "Slide || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Slam",
+        "Normal": "Slide + SlideJump + HighJumpSpin",
+    },
+    {
+        "Name": ["Piston it Away By The Arrow Crates Part 1",
+                 "Piston it Away By The Arrow Crates Part 2",
+                 "Piston it Away Bonus Over Nitro Stack",
+                 "Piston it Away Bonus Around ! Crate",
+                 "Piston it Away Between Nitros Life",
+                 "Piston it Away: Regular Exit",
+                 "Piston it Away: Crystal",
+                 "Piston it Away Death Route Over Nitros Part 1",
+                 "Piston it Away Death Route Over Nitros Part 2",
+                 "Piston it Away Death Route Over Nitros Part 3",
+                 "Piston it Away Death Route Wumpa Square",
+                 "Piston it Away Death Route Bouncing High Above"],
+        "Lunatic": "",
+        "Normal": "Slide",
+        "Wumpa": [8, 8, 4, 8, 0, 0, 0, 9, 8, 7, 9, 8]
+    },
+    {
+        "Name": "Piston it Away Bonus Final Jump*",
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump",
+        "Wumpa": [9]
+    },
+    {
+        "Name": ["Piston it Away: Clear Gem (Death Route)",
+                 "Piston it Away Death Route Ending"],
+        "Lunatic": "",
+        "Normal": "Slide + ( SlideJump || CrouchJump )",
+        "Wumpa": [0, 5]
+    },
+    # Rock It
+    {
+        "Name": "Rock It: Clear Gem (Box Gem)",
+        "Lunatic": "Slam || JumpSpin || HighJumpSpin + ( CrouchJump || Slide + SlideJump ) || Jetpack",
+        "Normal": "Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Wumpa": [0]
+    },
+    {
+        "Name": ["Rock It Wumpa Ring Part 1",
+                 "Rock It Wumpa Ring Part 3"],
+        "Lunatic": "",
+        "Normal": "Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Jetpack",
+        "Wumpa": [6, 6]
+    },
+    {
+        "Name": "Rock It Wumpa Ring Part 2",
+        "Lunatic": "Slam || Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Normal": "Slam + Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Wumpa": [5]
+    },
+    {
+        "Name": "Rock It: Regular Exit",
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Wumpa": [0]
+    },
+    # Night Fight
+    {
+        "Name": "Night Fight: Clear Gem (Box Gem)",
+        "Lunatic": "DoubleMask",
+        "Normal": "Slide + ( CrouchJump || SlideJump || JumpSpin )",
+        "Wumpa": [0]
+    },
+    {
+        "Name": ["Night Fight: Clear Gem (Death Route)",
+                 "Night Fight Bonus First Wumpa Chain Part 1",
+                 "Night Fight Bonus First Wumpa Chain Part 2",
+                 "Night Fight Bonus First Wumpa Chain Part 3",
+                 "Night Fight Bonus First Wumpa Chain Part 4",
+                 "Night Fight Bonus First Wumpa Chain Part 5",
+                 "Night Fight Bonus Second Wumpa Chain Part 1",
+                 "Night Fight Bonus Second Wumpa Chain Part 2",
+                 "Night Fight: Crystal",
+                 "Night Fight: Regular Exit"],
+        "Lunatic": "",
+        "Normal": "Slide",
+        "Wumpa": [0, 5, 8, 6, 7, 8, 6, 7, 0, 0]
+    },
+    {
+        "Name": ["Night Fight Bonus Second Wumpa Chain Part 4",
+                 "Night Fight Bonus Second Wumpa Chain Part 5",
+                 "Night Fight Bonus Second Wumpa Chain Part 6"],
+        "Lunatic": "",
+        "Normal": "Slide + Crawl",
+        "Wumpa": [5, 6, 5]
+    },
+    {
+        "Name": "Night Fight Bonus Second Wumpa Chain Part 3",
+        "Lunatic": "Slide",
+        "Normal": "Slide + Crawl",
+        "Wumpa": [8]
+    },
+    # Pack Attack
+    {
+        "Name": "Pack Attack: Clear Gem (Box Gem)",
+        "Lunatic": "JumpSpin || ( Slide + SlideJump + HighJumpSpin ) || Jetpack",
+        "Normal": "Slide + SlideJump + HighJumpSpin + JumpSpin || Jetpack",
+        "Wumpa": [0]
+    },
+    {
+        "Name": "Pack Attack At The Aku Aku Box",
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Wumpa": [8]
+    },
+    {
+        "Name": "Pack Attack Third Checkpoint Part 1",
+        "Lunatic": "",
+        "Normal": "Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Wumpa": [6]
+    },
+    {
+        "Name": "Pack Attack Third Checkpoint Part 2",
+        "Lunatic": "",
+        "Normal": "( CrouchJump || Slide + SlideJump ) + ( Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin ) || Jetpack",
+        "Wumpa": [6]
+    },
+    {
+        "Name": "Pack Attack: Regular Exit",
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Wumpa": [0]
+    },
+    {
+        "Name": "Pack Attack: Crystal",
+        "Lunatic": "Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Normal": "Slide + SlideJump + HighJumpSpin || Jetpack",
+        "Wumpa": [0]
+    },
+    # Spaced Out
+    {
+        "Name": "Spaced Out: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slam + Slide + ( GroundSpin || JumpSpin || CrouchJump + HighJumpSpin )",
+        "Wumpa": [0]
+    },
+    {
+        "Name": ["Spaced Out Blue Gem Path Part 1 Life",
+                 "Spaced Out Blue Gem Path Part 2 Life",
+                 "Spaced Out Blue Gem Path Part 3 Life",
+                 "Spaced Out Blue Gem Path Part 4 Life",
+                 "Spaced Out High Above Moving Platform",
+                 "Spaced Out Wumpa Chain Part 1",
+                 "Spaced Out Wumpa Chain Part 2",
+                 "Spaced Out Wumpa Chain Part 3",
+                 "Spaced Out Jump Over Nitros",
+                 "Spaced Out End of Big Screen",
+                 "Spaced Out Bonus Next to Reinforced Crate Stack"],
+        "Lunatic": "",
+        "Normal": "Slide || GroundSpin",
+        "Wumpa": [0, 0, 0, 0, 4, 8, 8, 8, 4, 10, 8]
+    },
+    {
+        "Name": ["Spaced Out Green Gem Path Part 1 Life",
+                 "Spaced Out Green Gem Path Part 2 Life",
+                 "Spaced Out Yellow Gem Path Part 1 Life",
+                 "Spaced Out Yellow Gem Path Part 2 Life",
+                 "Spaced Out Yellow Gem Path Part 3 Life",
+                 "Spaced Out Yellow Gem Path Part 4 Life",
+                 "Spaced Out Red Gem Path Part 1 Life",
+                 "Spaced Out Red Gem Path Part 2 Life",
+                 "Spaced Out Red Gem Path Part 3 Life",
+                 "Spaced Out: Clear Gem (All Colored Gems Path)"],
+        "Lunatic": "",
+        "Normal": "Slide",
+        "Wumpa": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    },
+    {
+        "Name": "Spaced Out High Above Moving Platform Life",
+        "Lunatic": "CrouchJump || Slide + SlideJump",
+        "Normal": "Slide + ( CrouchJump || SlideJump ) || GroundSpin + CrouchJump",
+        "Wumpa": [0]
+    },
+    {
+        "Name": ["Spaced Out Last Moving Platform",
+                 "Spaced Out Ending",
+                 "Spaced Out: Crystal",
+                 "Spaced Out: Regular Exit"],
+        "Lunatic": "",
+        "Normal": "Slide",
+        "Wumpa": [4, 4, 0, 0]
+    },
+    # Totally Bear
+    {
+        "Name": ["Totally Bear: Clear Gem (Box Gem)",
+                 "Totally Bear: Regular Exit"],
+        "Lunatic": "Polar",
+        "Normal": "Polar",
+        "Wumpa": [0, 0]
+    },
+    {
+        "Name": ["Totally Bear Start",
+                 "Totally Bear Start Before Big Jump",
+                 "Totally Bear First Checkpoint Uphill",
+                 "Totally Bear First Checkpoint After Statues",
+                 "Totally Bear First Checkpoint Before Big Jump",
+                 "Totally Bear Before Second Checkpoint",
+                 "Totally Bear Second Checkpoint Line",
+                 "Totally Bear Second Checkpoint Before TNT",
+                 "Totally Bear Second Checkpoint Under Metal Boxes",
+                 "Totally Bear After Third Checkpoint",
+                 "Totally Bear Third Checkpoint Uphill*",
+                 "Totally Bear Ending"],
+        "Lunatic": "",
+        "Normal": "Slide + SlideJump || Polar",
+        "Wumpa": [3, 3, 4, 3, 3, 3, 7, 3, 2, 3, 7, 10]
+    },
+    # Totally Fly
+    {
+        "Name": "Totally Fly: Clear Gem (Box Gem)",
+        "Lunatic": "Slam",
+        "Normal": "Slide + Slam",
+        "Wumpa": [0]
+    },
+    {
+        "Name": ["Totally Fly Before First Checkpoint",
+                 "Totally Fly Fourth Firefly",
+                 "Totally Fly Before Second Checkpoint",
+                 "Totally Fly Bonus Over Nitros Part 1",
+                 "Totally Fly Bonus Over Nitros Part 2",
+                 "Totally Fly Bonus Ending",
+                 "Totally Fly After Reinforced Crates Part 1",
+                 "Totally Fly After Reinforced Crates Part 2",
+                 "Totally Fly: Regular Exit"],
+        "Lunatic": "",
+        "Normal": "Slide",
+        "Wumpa": [3, 3, 3, 5, 5, 4, 5, 6, 0]
+    }
+
+]
+"""
+    {
+        "Name" : "",
+        "Lunatic": "",
+        "Normal": "",
+    },
+"""
+
 fruitbundlestxt = """#level: Turtle Woods
 1E
 #Checkpoint 0
@@ -871,7 +1861,7 @@ F-119
 2-32
 2-31
 2-30
-#before Checkpoint 3^
+#Before Checkpoint 3^
 3-48
 3-46
 3-45

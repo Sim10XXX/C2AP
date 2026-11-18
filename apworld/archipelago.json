@@ -1,6 +1,6 @@
 {
 	"game": "Crash 2",
-	"minimum_ap_version": "0.6.5",
+	"minimum_ap_version": "0.6.8",
 	"world_version": "0.5.0",
 	"authors": ["Sim10XXX", "alexdass"]
 }

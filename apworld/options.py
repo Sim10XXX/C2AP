@@ -26,6 +26,7 @@ class LevelExitLocations(Toggle):
     """
     Add all 27 level exits as checks into the pool
     These are distinct from the secret exit checks
+    Exits from death routes or gem paths are considered as "regular exits"
     """
     display_name = "Level Exit Locations"
 
@@ -86,6 +87,7 @@ class LifeSanity(Toggle):
 
 class LifeCountChecksRange(FreeText):
     """
+    *KEEP DISABLED* (there is a bug with these checks that can cause them to not collect)
     Add checks for reaching certain life counts
     Logic uses crystal count in order to consider higher life counts as occurring later in the run
     This works like the Python Range function, so the first number is the start point,
@@ -98,10 +100,11 @@ class LifeCountChecksRange(FreeText):
     """
 
     display_name = "Life Count Checks (Range)"
-    default = "10, 31, 10"
+    default = "0, 0, 0"
 
 class LifeCountChecksCustom(OptionSet):
     """
+    *KEEP DISABLED* (there is a bug with these checks that can cause them to not collect)
     Add any custom values to the previous option
     These need to be written as strings. Valid values are in the range 5 - 99
     """
@@ -110,7 +113,7 @@ class LifeCountChecksCustom(OptionSet):
     valid_keys = []
     for i in range(5, 100):
         valid_keys.append(str(i))
-    default = ["10", "20", "30"]
+    default = []
 
 
 class FruitSanity(Choice):
@@ -118,7 +121,7 @@ class FruitSanity(Choice):
     Adds wumpa fruit checks
     This applies only to freestanding wumpa fruit (not fruit spawned from boxes/enemies)
     Full sanity adds a total of 2395 individual wumpa checks to the game
-    Fruit bundles condenses this into 404 grouped wumpa checks
+    Fruit bundles condenses this into 404 grouped wumpa checks (you still have to pick up all the same fruit as in full sanity)
     """
     display_name = "Fruit-Sanity"
 
@@ -130,7 +133,7 @@ class FruitSanity(Choice):
 class ExcludeDifficultWumpas(DefaultOnToggle):
     """
     Excludes particularly difficult/annoying wumpa fruit locations, which makes it so they won't contain useful/progression items
-    The specific location locations affected by this option are marked with a "*" in their name
+    The specific locations affected by this option are marked with a "*" in their name
     """
     display_name = "Exclude Difficult Wumpas"
 class FillWumpaChecksLocally(Range):
@@ -199,7 +202,7 @@ class TrapChance(Range):
 
     """
     Chance to replace a filler life/fruit with a trap
-    If playing with fruit sanity you should lower this chance because there will be a LOT of traps
+    If playing with fruit sanity you should use a low chance because otherwise there will be a LOT of traps
     """
     display_name = "Trap Chance"
 
@@ -284,7 +287,7 @@ class NoLivesTrapWeight(Range):
 class JetpackControlsTrapWeight(Range):
     """
     Relative chance for a trap to be a Jetpack Controls Trap
-    Just imagine you are in a jetpack level
+    Just imagine you are in a jetpack level :)
     """
     display_name = "Jetpack Controls Weight"
 
@@ -367,7 +370,7 @@ class FireflyLockLogic(Choice):
 
 class AbilityLock(Toggle):
     """
-    Adds 9 items to the pool that unlock Crash's abilities
+    Adds 10 items to the pool that unlock Crash's abilities
     At minimum, crash is able to run around and jump
     The locked abilities are:
     - Crawl
@@ -379,15 +382,17 @@ class AbilityLock(Toggle):
     - Slam
     - Crouch Jump
     - Slide Jump
+    - Dig
     """
     display_name = "Ability Lock"
 
 class AbilityLockLogic(Choice):
     """
     This option determines how strict the logic is when Ability Lock is enabled
-    Lunatic: once a check becomes possible it will be considered in logic
-    Normal: gives some more leniency, a check will be in logic when
-    it's "easy" given your current abilities
+    It is highly, highly recommended to keep this on Normal (Lunatic-level logic will still show up as yellow in trackers)
+    Lunatic means that a check is in logic if it is possible (which can potentially require some crazy tech)
+    Gameover abuse is not considered in logic since it is technically missable (aka it could softlock a seed if it was in logic)
+    Also there is one edge case in Lunatic logic that is not covered yet which has a "one in a million" chance of making an impossible seed
     """
     display_name = "Ability Lock Logic"
     option_normal = 0

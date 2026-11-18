@@ -1,11 +1,23 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from unittest import case
 
 from BaseClasses import CollectionState
+from rule_builder.options import OptionFilter
 from worlds.generic.Rules import add_rule, set_rule
 
 from . import locations
+
+from rule_builder.rules import Has, HasAll, HasAny, And, Or, CanReachEntrance, True_
+from .options import AbilityLockLogic, SpeedrunLogic
+
+from . import data
+#
+# import os, json
+#
+# with open(os.path.join(os.path.dirname(__file__), 'abilitylockrules.json'), 'r') as file:
+#     rule_table = json.loads(file.read())
 
 # from .regions import crystal_counts
 
@@ -64,7 +76,6 @@ def set_all_rules(world: Crash2World) -> None:
     # we need to define rules for our Entrances and Locations.
     # Note: Regions do not have rules, the Entrances connecting them do!
     # We'll do entrances first, then locations, and then finally we set our victory condition.
-
     set_all_entrance_rules(world)
     set_all_location_rules(world)
     set_completion_condition(world)
@@ -182,7 +193,7 @@ def set_all_location_rules(world: Crash2World) -> None:
     # # Wouldn't it also be better if in hard mode, it already knew it had to check Shield and Health Upgrade as well?
     # # Well, we can achieve this by doing the "if world.options.hard_mode" check outside the set_rule call,
     # # and instead having two *different* set_rule calls depending on which case we're in.
-
+    is_ut = getattr(world.multiworld, "generation_is_fake", False)
 
     # handle some general rules for item checks
     if world.options.fruit_sanity != 0 or world.options.life_sanity:
@@ -210,13 +221,13 @@ def set_all_location_rules(world: Crash2World) -> None:
                             #print(f"Location : {location.name}, gimmick : {gimmick}")
                             add_rule(location,
                                      lambda state, gimmick=gimmick: state.has(gimmick, world.player))
-            if world.options.ability_lock:
-                if "Hang Eight Bonus Part 1" in location.name:
-                    add_rule(location,
-                             lambda state: state.has_any(["Slide", "Crawl"], world.player))
-                if "The Pits Bonus Part 4" in location.name:
-                    add_rule(location,
-                             lambda state: state.has_all(["Slide", "Crawl"], world.player))
+            # if world.options.ability_lock:
+            #     if "Hang Eight Bonus Part 1" in location.name:
+            #         add_rule(location,
+            #                  lambda state: state.has_any(["Slide", "Crawl"], world.player))
+            #     if "The Pits Bonus Part 4" in location.name:
+            #         add_rule(location,
+            #                  lambda state: state.has_all(["Slide", "Crawl"], world.player))
             # location.name = location.name.replace("&", "")
             # location.name = location.name.replace("^", "")
             if "Secret Entrance" in location.name:
@@ -380,51 +391,218 @@ def set_all_location_rules(world: Crash2World) -> None:
                              lambda state: state.has("Fireflies", world.player))
 
 
+    def str_to_rule(item: str):
+        match item:
+            case "GroundSpin":
+                return Has("Ground Spin")
+            case "SlideSpin":
+                return Has("Slide Spin")
+            case "JumpSpin":
+                return Has("Jump Spin")
+            case "HighJumpSpin":
+                return Has("High Jump Spin")
+            case "CrouchJump":
+                return Has("Crouch Jump")
+            case "SlideJump":
+                return Has("Slide Jump")
+            case "SnowGoSecretEntrance":
+                return CanReachEntrance(entrance_name="Warp Room 6 to Snow Go Secret Entrance")
+            case "RoadToRuinSecretEntrance":
+                return CanReachEntrance(entrance_name="Warp Room 6 to Road to Ruin Secret Entrance")
+            case "GreenGem":
+                return Has("Green Gem")
+            case "Slam":
+                return Has("Slam")
+            case "Crawl":
+                return Has("Crawl")
+            case "Slide":
+                return Has("Slide")
+            case "Dig":
+                return Has("Dig")
+            case "Polar":
+                if world.options.gimmick_lock:
+                    if world.options.polar_lock_logic > 0:
+                        return Has("Polar")
+                return True_()
+            case "Jetpack":
+                if world.options.gimmick_lock:
+                    if world.options.jetpack_lock_logic > 0:
+                        return Has("Jetpack")
+                return True_()
+            case "DoubleMask":
+                # Need extra implementation here
+                return True_()
+            case _:
+                print("Rule parser: Unknown item:", item)
+        return Has(item)
 
+    def parse_rulestr(rulestr: str):
+        if rulestr == "":
+            return None
+        tokenlist = rulestr.split(" ")
+        #print("len : ", len(tokenlist))
+        return parse_or_rule(tokenlist)
 
+    def parse_or_rule(tokenlist: list):
+        # rule [ || rule ]
+        paren = 0
+        for i in range(len(tokenlist)):
+            if tokenlist[i] == "(":
+                paren += 1
+            elif tokenlist[i] == ")":
+                paren -= 1
+            elif tokenlist[i] == "||" and paren == 0:
+                rule = parse_and_rule(tokenlist[:i]) | parse_or_rule(tokenlist[i+1:])
+                return rule
+        return parse_and_rule(tokenlist)
+
+    def parse_and_rule(tokenlist: list):
+        paren = 0
+        for i in range(len(tokenlist)):
+            if tokenlist[i] == "(":
+                paren += 1
+            elif tokenlist[i] == ")":
+                paren -= 1
+            elif tokenlist[i] == "+" and paren == 0:
+                rule = parse_paren_rule(tokenlist[:i]) & parse_and_rule(tokenlist[i+1:])
+                return rule
+        return parse_paren_rule(tokenlist)
+
+    def parse_paren_rule(tokenlist: list):
+        if tokenlist[0] == "(":
+            return parse_or_rule(tokenlist[1:-1])
+        return parse_unit_rule(tokenlist)
+
+    def parse_unit_rule(tokenlist: list):
+        if len(tokenlist) != 1:
+            print("invalid length :", len(tokenlist))
+        return str_to_rule(tokenlist[0])
 
     # Ability Lock Rules
-
+    print("is_ut:",is_ut)
+    #is_ut = True
     if world.options.ability_lock:
-        if red_gem: # If red gem early is enabled
-            set_rule(world.get_location("Snow Go: Red Gem"),
-                     lambda state: state.has("Snow Go: Secret Entrance", world.player)) # might need more logic here if completing the secret path is hard with nothing
-            add_rule(world.get_location("Snow Go: Red Gem"),
-                     lambda state: state.has_all(["Slam", "Slide", "Slide Jump", "High Jump Spin"], world.player), "or")
-        add_rule(world.get_location("The Pits: Clear Gem (Box Gem)"),
-                 lambda state: state.has_all(["Slam", "Slide", "Crawl"], world.player))
-        if world.options.ability_lock_logic == 0:
-            # Normal Logic
-            add_rule(world.get_location("Turtle Woods: Clear Gem (Box Gem)"),
-                     lambda state: state.has_all(["Slam", "Slide", "Slide Jump"], world.player))
-            add_rule(world.get_location("Snow Go: Clear Gem (Box Gem)"),
-                     lambda state: state.has_all(["Slide", "Slide Jump"], world.player) or
-                                   (state.has("Ground Spin", world.player) and state.has_any(["Slam", "Crouch Jump"], world.player)))
-            add_rule(world.get_location("Hang Eight: Clear Gem (Timer)"),
-                     lambda state: state.has_any(["Slide", "Jump Spin", "Ground Spin"], world.player))
-            add_rule(world.get_location("Hang Eight: Clear Gem (Box Gem)"),
-                     lambda state: state.has("Jump Spin", world.player) or
-                                   state.has("Ground Spin", world.player) or
-                                   state.has_all(["Slide", "Slide Jump"], world.player) or
-                                   state.has_all(["Crouch Jump", "High Jump Spin"], world.player))
-            add_rule(world.get_location("Crash Dash: Clear Gem (Box Gem)"),
-                     lambda state: (state.has("Ground Spin", world.player) or
-                                    state.has_all(["Slide", "Slide Jump"], world.player)) and (
-                                    state.has("Jump Sping", world.player) or
-                                    state.has_all(["Crouch Jump", "High Jump Spin"], world.player) or
-                                    state.has_all(["Slide", "Slide Jump", "High Jump Spin"], world.player)
-                                   ))
+        for entry in data.abilitylockrules:
+            if world.options.ability_lock_logic == 0:
+                rulestr = entry["Normal"]
+                if is_ut:
+                    glitchedrulestr = entry["Lunatic"]
+            else:
+                rulestr = entry["Lunatic"]
+            #print(rulestr)
+            rule = parse_rulestr(rulestr)
+            if is_ut and world.options.ability_lock_logic == 0:
+                glitchrule = parse_rulestr(glitchedrulestr)
+                if glitchrule is None:
+                    glitchrule = Has("Lunacy")
+                else:
+                    glitchrule = glitchrule & Has("Lunacy")
+                rule = rule | glitchrule
+            print("Name:", entry["Name"], "rule:", rule)
 
-        else: #world.options.ability_lock_logic == 1
-            # Lunatic Logic
-            add_rule(world.get_location("Turtle Woods: Clear Gem (Box Gem)"),
-                     lambda state: state.has("Slam", world.player))
-            add_rule(world.get_location("Snow Go: Clear Gem (Box Gem)"),
-                     lambda state: state.has("Slam", world.player) or
-                                   state.has_all(["Slide", "Slide Jump"], world.player) or
-                                   (state.has("Crouch Jump", world.player) and state.has_any(["Ground Spin", "Jump Spin", "High Jump Spin"], world.player)))
-            add_rule(world.get_location("Crash Dash: Clear Gem (Box Gem)"),
-                     lambda state: state.has_any(["Slide", "Ground Spin", "Jump Spin"], world.player))
+            if rule is None:
+                continue
+            if entry.get("Option") is not None:
+                if entry["Option"] == "red_gem_early":
+                    if not red_gem:
+                        continue
+            name_list = entry["Name"]
+            if type(name_list) is str:
+                name_list = [name_list]
+            if entry.get("Wumpa") is None:
+                wumpa_list = [0] * len(name_list)
+            else:
+                wumpa_list = entry["Wumpa"]
+                if type(wumpa_list) is int:
+                    wumpa_list = [wumpa_list]
+
+            resolved_rule = rule.resolve(world)
+            for i in range(len(name_list)):
+                count = wumpa_list[i]
+                if count > 0:
+                    if world.options.fruit_sanity == 0:
+                        continue
+                    elif world.options.fruit_sanity == 1:
+                        loc = world.get_location(name_list[i] + " Bundle (" + str(count) + " Wumpas)")
+
+                        add_rule(loc, resolved_rule)
+                        #world.set_rule(loc, rule)
+                    else:
+                        for j in range(count):
+                            loc = world.get_location(name_list[i] + " Wumpa #" + str(j + 1))
+                            add_rule(loc, resolved_rule)
+                            #world.set_rule(loc, rule)
+                else:
+                    loc = world.get_location(name_list[i])
+                    add_rule(loc, resolved_rule)
+                    #world.set_rule(loc, rule)
+                    #print("Rule set for", name_list[i])
+
+
+    # if world.options.ability_lock:
+    #
+    #     world.set_rule(
+    #         world.get_location("The Pits: Clear Gem (Box Gem)"),
+    #         HasAll("Slam", "Slide", "Crawl")
+    #     )
+    #
+    #     ability_logic = world.options.ability_lock_logic
+    #
+    #     world.set_rule(
+    #         world.get_location("Turtle Woods: Clear Gem (Box Gem)"),
+    #         HasAll("Slam", "Slide", "Slide Jump", options=[OptionFilter(AbilityLockLogic, 0)]) |
+    #         Has("Slam", options=[OptionFilter(AbilityLockLogic, 1)])
+    #     )
+    #
+    #     if red_gem: # If red gem early is enabled
+    #         world.set_rule(
+    #             world.get_location("Snow Go: Red Gem"),
+    #             # might need more logic here if completing the secret path is hard with nothing
+    #             Has("Snow Go: Secret Entrance") | HasAll("Slam", "Slide", "Slide Jump", "High Jump Spin")
+    #         )
+    #
+    #     world.set_rule(
+    #         world.get_location("Snow Go: Clear Gem (Box Gem)"),
+    #         HasAll("Slide", "Slide Jump") |
+    #         (Has("Ground Spin", options=[OptionFilter(AbilityLockLogic, 0)]) &
+    #          HasAny("Slam", "Crouch Jump", options=[OptionFilter(AbilityLockLogic, 0)])) |
+    #         Has("Slam", options=[OptionFilter(AbilityLockLogic, 1)]) |
+    #         (Has("Crouch Jump", options=[OptionFilter(AbilityLockLogic, 1)]) &
+    #          HasAny("High Jump Spin", "Ground Spin", "Jump Spin", options=[OptionFilter(AbilityLockLogic, 1)]))
+    #     )
+    #
+    #     if world.options.ability_lock_logic == 0:
+    #         # Normal Logic
+    #         # add_rule(world.get_location("Turtle Woods: Clear Gem (Box Gem)"),
+    #         #          lambda state: state.has_all(["Slam", "Slide", "Slide Jump"], world.player))
+    #         add_rule(world.get_location("Snow Go: Clear Gem (Box Gem)"),
+    #                  lambda state: state.has_all(["Slide", "Slide Jump"], world.player) or
+    #                                (state.has("Ground Spin", world.player) and state.has_any(["Slam", "Crouch Jump"], world.player)))
+    #         add_rule(world.get_location("Hang Eight: Clear Gem (Timer)"),
+    #                  lambda state: state.has_any(["Slide", "Jump Spin", "Ground Spin"], world.player))
+    #         add_rule(world.get_location("Hang Eight: Clear Gem (Box Gem)"),
+    #                  lambda state: state.has("Jump Spin", world.player) or
+    #                                state.has("Ground Spin", world.player) or
+    #                                state.has_all(["Slide", "Slide Jump"], world.player) or
+    #                                state.has_all(["Crouch Jump", "High Jump Spin"], world.player))
+    #         add_rule(world.get_location("Crash Dash: Clear Gem (Box Gem)"),
+    #                  lambda state: (state.has("Ground Spin", world.player) or
+    #                                 state.has_all(["Slide", "Slide Jump"], world.player)) and (
+    #                                 state.has("Jump Spin", world.player) or
+    #                                 state.has_all(["Crouch Jump", "High Jump Spin"], world.player) or
+    #                                 state.has_all(["Slide", "Slide Jump", "High Jump Spin"], world.player)
+    #                                ))
+    #
+    #     else: #world.options.ability_lock_logic == 1
+    #         # Lunatic Logic
+    #         add_rule(world.get_location("Turtle Woods: Clear Gem (Box Gem)"),
+    #                  lambda state: state.has("Slam", world.player))
+    #         add_rule(world.get_location("Snow Go: Clear Gem (Box Gem)"),
+    #                  lambda state: state.has("Slam", world.player) or
+    #                                state.has_all(["Slide", "Slide Jump"], world.player) or
+    #                                (state.has("Crouch Jump", world.player) and state.has_any(["Ground Spin", "Jump Spin", "High Jump Spin"], world.player)))
+    #         add_rule(world.get_location("Crash Dash: Clear Gem (Box Gem)"),
+    #                  lambda state: state.has_any(["Slide", "Ground Spin", "Jump Spin"], world.player))
 
 
 
