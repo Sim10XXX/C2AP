@@ -235,7 +235,7 @@ public partial class App : Application
                 }
                 Log.Logger.Information($"{goolAdd + offset1 * 4:X} : {Memory.ReadInt(goolAdd + offset1 * 4):X}");
                 break;
-            case "gool":
+            case "debug_gool":
 
 
 
@@ -360,6 +360,21 @@ public partial class App : Application
                 //Memory.Write(0x14a3e0 + 1659 * 4, Memory.ReadInt(0x14a3e0 + 1687 * 4));
                 //Memory.Write(0x14a3e0 + 1660 * 4, Memory.ReadInt(0x14a3e0 + 1688 * 4));
                 Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {last:X} --> {val:X}");
+                break;
+            case "debug_state":
+                Timer checkState = new(35);
+                uint prevState = 0;
+                checkState.Elapsed += (sender, e) =>
+                 {
+                     uint crashAddress = CrashObject.FindObjectAddress(0, 0);
+                     uint state = Memory.ReadUInt(crashAddress + 0x1C);
+                     if (state != prevState)
+                     {
+                         Log.Information($"New State: {state:X}, {state}");
+                         prevState = state;
+                     }
+                 };
+                checkState.Start();
                 break;
             case "debug_receivedeathlink":
                 //break;
