@@ -10,7 +10,7 @@ general instructions.
 Important: As the mandatory client runs only on Windows, no other systems are supported.
 
 - [Duckstation](https://www.duckstation.org) - Detailed installation instructions for Duckstation can be found at the above link.
-- Archipelago version 0.6.5 or later.
+- Archipelago version 0.6.8 or later.
 - The [Crash 2 Archipelago Client and .apworld](https://github.com/Sim10XXX/C2AP/releases)
 - A legal Crash Bandicoot 2 Europe (PAL) ROM.  We cannot help with this step.
 ### Create a Config (.yaml) File
