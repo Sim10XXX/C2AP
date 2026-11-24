@@ -140,6 +140,11 @@ public partial class App : Application
             HandleCommand(a.Command);
         };
         Context.ConnectButtonEnabled = true;
+        Context.UnstuckClicked += (e, a) =>
+        {
+            EnqueueEvent(EventType.BasicEvent, 12, [], 0);
+        };
+        Context.UnstuckButtonEnabled = true;
         _hintsList = null;
         _hasSubmittedGoal = false;
         _useQuietHints = true;
@@ -415,8 +420,6 @@ public partial class App : Application
                         
                 };
                 shake.Start();
-
-
                 break;
             case "debug_state":
                 Timer checkState = new(35);
