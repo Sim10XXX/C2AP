@@ -13,8 +13,8 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.MessageLog.Messages;
-using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.Models;
+using Archipelago.MultiClient.Net.Packets;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -25,6 +25,7 @@ using Avalonia.Remote.Protocol.Viewport;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using Silk.NET.Core;
 //using Silk.NET.Core;
 using System;
 using System.Collections.Generic;
@@ -40,10 +41,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using static C2AP.CrashEvent;
+using Color = Avalonia.Media.Color;
 using Location = Archipelago.Core.Models.Location;
 using Timer = System.Timers.Timer;
-using Color = Avalonia.Media.Color;
-using Silk.NET.Core;
 
 namespace C2AP;
 
@@ -68,6 +69,7 @@ public partial class App : Application
     public static uint testValue = 0;
 
     private static Timer testTimer = new Timer();
+    private static bool testTimerSet = false;
     public class CrashState
     {
         public uint Crystals;
@@ -448,9 +450,13 @@ public partial class App : Application
                 }
                 //Memory.Write(Addresses.SecretEntranceFlags, 0);
                 //break;
-                testTimer.Elapsed += (s, ev) => CrashDeathLink.OnDeathLinkReceived(new("test"));
-                testTimer.Interval = delay;
-                testTimer.AutoReset = false;
+                if (!testTimerSet)
+                {
+                    testTimerSet = true;
+                    testTimer.Elapsed += (s, ev) => CrashDeathLink.OnDeathLinkReceived(new("test"));
+                    testTimer.Interval = delay;
+                    testTimer.AutoReset = false;
+                }
                 testTimer.Start();
 
                 crashAddress = CrashObject.FindObjectAddress(0, 0);
@@ -460,6 +466,13 @@ public partial class App : Application
                 //{
                 Log.Logger.Information($"crash address: {crashAddress + CrashObject.cacheOffset:X}");
 
+                break;
+            case "debug_sendevent":
+                if (args.Length == 1) break;
+                uint eventNum = uint.Parse(args[1]);
+                crashAddress = CrashObject.FindObjectAddress(0, 0);
+                if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset) break;
+                EnqueueEvent(EventType.BasicEvent, eventNum, [], 0);
                 break;
             //case "c":
             //    if (args.Length > 1) break;

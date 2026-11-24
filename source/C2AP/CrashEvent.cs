@@ -31,6 +31,7 @@ namespace C2AP
             //Event34,
             //Event21,
             //Event0,
+            CheckState,
         }
         private class Event
         {
@@ -45,6 +46,7 @@ namespace C2AP
         {
             { EventType.KillCrash, 0 },
             
+            
             { EventType.TakeOffJetpack, 1  },
             { EventType.LockInput, 3 },
             { EventType.InterruptCrash, 4 },
@@ -54,6 +56,7 @@ namespace C2AP
             { EventType.SyncGlobalValue, 9 },
             { EventType.GiveLife, 10 },
             { EventType.GiveWumpa, 10 },
+            { EventType.CheckState, 11 },
 
         };
         public static CustomHook sendEvent = new CustomHook(["nop"]);
@@ -216,6 +219,9 @@ namespace C2AP
                         {
                             //EnqueueEvent(EventType.LockInput);
                             EnqueueEvent(EventType.BasicEvent, 70, [100], 0);
+                            EnqueueEvent(EventType.BasicEvent, 0, [], 0);
+                            EnqueueEvent(EventType.BasicEvent, 0, [], 0);
+                            EnqueueEvent(EventType.CheckState, 12, [], 41);
                             //EnqueueEvent(EventType.UnlockInput);
                         }
 
@@ -266,11 +272,13 @@ namespace C2AP
                     Memory.WriteByte(Addresses.WumpaGlobalAddress, Memory.ReadByte(crashAddress + Addresses.WumpaOffset));
                     break;
                 case EventType.LockInput:
+                    Log.Information("Locking input");
                     InputLock.UnlockInput(InputFlag.All);
                     InputLock.LockInput(InputFlag.All);
                     CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0, 0, []);
                     break;
                 case EventType.UnlockInput:
+                    Log.Information("Unlocking input");
                     InputLock.LockInput(InputFlag.All);
                     InputLock.UnlockInput(InputFlag.All);
                     CallSendEvent(0, crashAddress + CrashObject.cacheOffset, 0, 0, []);
@@ -295,7 +303,14 @@ namespace C2AP
                     //    return false;
                     //}
                     break;
-
+                case EventType.CheckState:
+                    //debug_receivedeathlink
+                    Log.Logger.Information($"Checking crash state: {state}");
+                    if (state == ev.ResultState)
+                    {
+                        EnqueueEvent(EventType.BasicEvent, 12, [], 0);
+                    }
+                    break;
             }
             return true;
         }

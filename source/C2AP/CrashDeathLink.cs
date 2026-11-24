@@ -81,13 +81,11 @@ namespace C2AP
             
             if (lives == previousLives - 1)
             {
-                if (Traps.storedLives == 1) return;
+                if (Traps.storedLives >= 1) return;
 
-                if (pardonDeath <= 0)
-                {
-                    HandleDeath();
-                }
-                else pardonDeath = 0;
+                
+                HandleDeath();
+                
             }
             else
             {
@@ -106,6 +104,11 @@ namespace C2AP
         private static void HandleDeath()
         {
             if (deathLinkService == null) return;
+            if (pardonDeath > 0)
+            {
+                pardonDeath = 0;
+                return;
+            }
             deathCount++;
             if (amnesty != 0)
                 Log.Logger.Information($"{amnesty - deathCount} death(s) left before sending a DeathLink");
@@ -113,7 +116,7 @@ namespace C2AP
             {
                 deathCount = 0;
                 Log.Logger.Information("Sending DeathLink");
-                deathLinkService.SendDeathLink(new DeathLink(playerName));
+                deathLinkService.SendDeathLink(new DeathLink(playerName, $"{playerName} died in Crash 2"));
             }
         }
 
