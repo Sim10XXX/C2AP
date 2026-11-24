@@ -48,6 +48,7 @@ namespace C2AP
         {
             if (!App.Client.IsConnected) return;
             if (deathLinkService == null) return;
+            if (Helpers.IsInDemo()) return; 
             uint time = Memory.ReadUInt(Addresses.Timer);
 
 

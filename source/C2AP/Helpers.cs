@@ -58,6 +58,7 @@ namespace C2AP
             uint previousLifeCount = 0;
             checkLifeCount.Elapsed += (s, ev) =>
             {
+                if (IsInDemo()) return;
                 uint crashAddress = CrashObject.FindObjectAddress(0, 0);
                 if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
                 {
