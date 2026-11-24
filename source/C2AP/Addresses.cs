@@ -30,6 +30,7 @@ namespace C2AP
         public const uint InputsAddress = 0x00069BB8; //32 bits, each bit is an input
 
         public const uint LevelIdAddress = 0x6ce08; //32 bits (hopefully) // global 0
+        public const uint GlobalVariables = 0x6ce08;
 
         public const uint LevelExitsAddress = 0x6ce74; //64 bits
         public const uint SecretExitsAddress = 0x6ce79;
@@ -90,6 +91,10 @@ namespace C2AP
 
         public const uint ConnectionCheck = 0x0000E9C8;
 
+        public const uint ScreenX = GlobalVariables + 44 * 4;
+        public const uint ScreenY = GlobalVariables + 45 * 4;
+        public const uint ScreenXDelta = 0x0000E9C0;
+        public const uint ScreenYDelta = 0x0000E9C4;
         public static Dictionary<string, int> BitOfLocation = new Dictionary<string, int>
         {
             //crystals

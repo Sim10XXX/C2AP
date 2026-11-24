@@ -55,7 +55,7 @@ namespace C2AP
                 return;
             }
             App.crashState.LifeCountChecks = checks.ToArray();
-
+            uint previousLifeCount = 0;
             checkLifeCount.Elapsed += (s, ev) =>
             {
                 uint crashAddress = CrashObject.FindObjectAddress(0, 0);
@@ -63,14 +63,20 @@ namespace C2AP
                 {
                     uint lifeCount = Memory.ReadByte(crashAddress + Addresses.LivesOffset);
                     //Log.Information($"Life count: {lifeCount}");
-                    if (lifeCount > App.crashState.MaxLifeCount)
+                    //Log.Information($"Previous Life count: {previousLifeCount}");
+                    if (lifeCount != previousLifeCount)
                     {
                         for (uint i = 0; i < App.crashState.LifeCountChecks.Length; i++)
                         {
                             uint lifeCountCheck = App.crashState.LifeCountChecks[i];
-                            if (lifeCountCheck > App.crashState.MaxLifeCount)
+                            
+                            if (lifeCountCheck <= lifeCount)
                             {
-                                if (lifeCountCheck > lifeCount) break;
+                                if (!App.crashState.SentLifeCountChecks.Add(lifeCountCheck))
+                                {
+                                    //Log.Information($"Found {lifeCountCheck} in sent life counts");
+                                    continue;
+                                }
                                 App.Client.SendLocationAsync(new Location
                                 {
                                     Name = $"Collect {lifeCountCheck} Lives",
@@ -79,8 +85,9 @@ namespace C2AP
                                 //Log.Information($"Sent life count check for {lifeCountCheck} lives");
                             }
                         }
-                        App.crashState.MaxLifeCount = lifeCount;
+                        //App.crashState.MaxLifeCount = lifeCount;
                     }
+                    previousLifeCount = lifeCount;
                 }
             };
             checkLifeCount.Start();

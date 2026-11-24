@@ -61,6 +61,8 @@ public partial class App : Application
 
     private static uint _execCount;
 
+    private static bool _execActive;
+
     private static uint[] _execParam = [];
 
     public static uint testValue = 0;
@@ -71,8 +73,9 @@ public partial class App : Application
         public uint Crystals;
         public uint ClearGems;
 
-        public uint MaxLifeCount;
+        //public uint MaxLifeCount;
         public uint[] LifeCountChecks = [];
+        public SortedSet<uint> SentLifeCountChecks = [];
 
         public byte[] CrystalLocations = new byte[8];
         public byte[] GemLocations = new byte[8];
@@ -360,6 +363,58 @@ public partial class App : Application
                 //Memory.Write(0x14a3e0 + 1659 * 4, Memory.ReadInt(0x14a3e0 + 1687 * 4));
                 //Memory.Write(0x14a3e0 + 1660 * 4, Memory.ReadInt(0x14a3e0 + 1688 * 4));
                 Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {last:X} --> {val:X}");
+                break;
+            case "exec":
+                //uint globals = Addresses.LevelIdAddress;
+                if (_execActive)
+                {
+                    Traps.ResetChaos();
+                }
+                else
+                {
+                    Traps.ApplyChaos();
+                }
+                _execActive = !_execActive;
+                Log.Logger.Information($"x: {Memory.ReadUInt(Addresses.ScreenX)}, y: {Memory.ReadUInt(Addresses.ScreenY)}");
+                Log.Logger.Information($"dx: {Memory.ReadUInt(Addresses.ScreenXDelta)}, dy: {Memory.ReadUInt(Addresses.ScreenYDelta)}");
+
+                //uint screenXAddress = Addresses.LevelIdAddress + 44*4;
+                //uint screenYAddress = Addresses.LevelIdAddress + 45*4;
+                //Log.Logger.Information($"x: {Memory.ReadUInt(screenXAddress)}, y: {Memory.ReadUInt(screenYAddress)}");
+                ////Memory.Write(screenXAddress, 10);
+                ////Memory.Write(screenYAddress, 10);
+                ////Memory.Write(globals + 3*4, 1000);
+                //int dx = 3, dy = 2;
+                //int x = 0, y = 0;
+                //int xBound = 130;
+                //int yBound = 80;
+
+                uint rotx = 0;
+                uint rotz = 0;
+                //uint aframe = 20;
+                Timer shake = new(100);
+                shake.Elapsed += (sender, e) =>
+                {
+                    uint crashAddress = CrashObject.FindObjectAddress(0, 0);
+                    if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
+                    {
+                        rotx += 0x10;
+                        Memory.Write(crashAddress + 0x6C, rotx);
+                        rotz += 0x71;
+                        Memory.Write(crashAddress + 0x74, rotz);
+                        //aframe -= 0x1;
+                        //if (aframe < 0)
+                        //{
+                        //    aframe = 20;
+                        //}
+                        //Memory.Write(crashAddress + 0xEC, aframe);
+                        
+                    }
+                        
+                };
+                shake.Start();
+
+
                 break;
             case "debug_state":
                 Timer checkState = new(35);
@@ -805,7 +860,7 @@ public partial class App : Application
         //Client.LocationManager;
         //GameLocations
         //List<Location> locations = Client.CurrentSession.Locations.AllLocationsChecked.OfType<Location>().ToList();
-        uint maxLifeCount = 0;
+        //uint maxLifeCount = 0;
         foreach (long locationId in locationIds)
         {
             Location? location = (Location?)GameLocationsById.GetValueOrDefault(locationId);
@@ -835,12 +890,12 @@ public partial class App : Application
                 }
                 continue;
             }
-            if (locationId >= Helpers.lifeCountBaseId)
-            {
-                uint lifeCount = (uint)locationId - Helpers.lifeCountBaseId;
-                if (lifeCount > maxLifeCount) maxLifeCount = lifeCount;
-                continue;
-            }
+            //if (locationId >= Helpers.lifeCountBaseId)
+            //{
+            //    uint lifeCount = (uint)locationId - Helpers.lifeCountBaseId;
+            //    if (lifeCount > maxLifeCount) maxLifeCount = lifeCount;
+            //    continue;
+            //}
 
             if (location == null) continue;
             if (location.Address == 0/* || location.AddressBit == 0*/) continue;
@@ -879,7 +934,7 @@ public partial class App : Application
                 }
             }
         }
-        crashState.MaxLifeCount = maxLifeCount;
+        //crashState.MaxLifeCount = maxLifeCount;
         crashState.UnlockedAbilities.Clear();
         List<ItemInfo> items = Client.CurrentSession.Items.AllItemsReceived.ToList();
 

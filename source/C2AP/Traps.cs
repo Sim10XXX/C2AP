@@ -1,8 +1,11 @@
 ﻿using Archipelago.Core.Util;
+using DynamicData;
 using Serilog;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -17,6 +20,7 @@ namespace C2AP
             SmallCrash,
             NoLives,
             JetpackControls,
+            Chaos,
         }
         private static Timer? trapRefresh = null;
         private const int tickRate = 100;
@@ -117,7 +121,55 @@ namespace C2AP
             "nor $t2, $t2, $zero",
             "sw $t2, 0($t0)"
             ]);
-        
+        private const ushort chaosScreenXBound = 135;
+        private const ushort chaosScreenYBound = 75;
+        private static CustomHook chaosHook = new CustomHook([//"nop"]);
+            $"la $t0, 0x{Addresses.ScreenXDelta + Addresses.CacheOffset:X}",
+            $"la $t1, 0x{Addresses.ScreenX + Addresses.CacheOffset:X}",
+            "lw $t2, 0($t0)",
+            "lw $t3, 0($t1)",
+            "nop",
+            "addu $t3, $t3, $t2",
+            "sw $t3, 0($t1)",
+
+            $"addiu $t4, $t3, 0x{chaosScreenXBound:X}",
+            "blez $t4, flipx",
+            $"addiu $t4, $t3, 0x{-chaosScreenXBound:X}",
+            "bgez $t4, flipx",
+            "nop",
+            "beq $zero $zero, movey",
+
+
+            "flipx:",
+            "subu $t2, $zero, $t2",
+            "sw $t2, 0($t0)",
+
+            "movey:",
+
+            $"la $t0, 0x{Addresses.ScreenYDelta + Addresses.CacheOffset:X}",
+            $"la $t1, 0x{Addresses.ScreenY + Addresses.CacheOffset:X}",
+            "lw $t2, 0($t0)",
+            "lw $t3, 0($t1)",
+            "nop",
+            "addu $t3, $t3, $t2",
+            "sw $t3, 0($t1)",
+
+            $"addiu $t4, $t3, 0x{chaosScreenYBound:X}",
+            "blez $t4, flipy",
+            $"addiu $t4, $t3, 0x{-chaosScreenYBound:X}",
+            "bgez $t4, flipy",
+            "nop",
+            "beq $zero $zero, exit",
+
+            "flipy:",
+            "subu $t2, $zero, $t2",
+            "sw $t2, 0($t0)",
+
+            "exit:",
+
+            ]);
+        private static List<uint> chaosOldGool = new();
+        private static List<uint> chaosOldGoolIndex = new();
         private static List<Trap> activeTraps = new List<Trap>();
         private class Trap
         {
@@ -219,6 +271,7 @@ namespace C2AP
                 Log.Logger.Verbose($"applying trap {trap.type} with duration {trap.duration}");
                 if (trap.duration <= 0)
                 {
+                    bool removeTrap = true;
                     switch (trap.type)
                     {
                         case TrapType.BigCrash:
@@ -230,13 +283,17 @@ namespace C2AP
                             ResetCrashSize();
                             break;
                         case TrapType.NoLives:
-                            ResetNoLives();
+                            removeTrap = ResetNoLives();
                             break;
                         case TrapType.JetpackControls:
                             ResetJetpackControls();
                             break;
+                        case TrapType.Chaos:
+                            ResetChaos();
+                            break;
                     }
-                    activeTraps.Remove(trap);
+                    if (removeTrap)
+                        activeTraps.Remove(trap);
                 }
                 else
                 {
@@ -271,6 +328,9 @@ namespace C2AP
                             break;
                         case TrapType.JetpackControls:
                             ApplyJetpackControls();
+                            break;
+                        case TrapType.Chaos:
+                            ApplyChaos();
                             break;
                     }
                 }
@@ -317,36 +377,30 @@ namespace C2AP
                 }
             }
         }
-        private static void ResetNoLives()
+        private static bool ResetNoLives()
         {
+            byte levelid = Memory.ReadByte(Addresses.LevelIdAddress + 0x1);
+            if (levelid == 0x3B)
+            {
+                return false;
+            }
             if (storedLives != 0)
             {
+                if (storedLives > 99)
+                    storedLives = 99;
                 Memory.Write(Addresses.LivesGlobalAddress, storedLives);
                 if (crashAddress != 0 && crashAddress != CrashObject.cacheOffset)
                 {
-                    if (storedLives > 99)
-                        storedLives = 99;
                     Memory.Write(crashAddress + Addresses.LivesOffset, storedLives);
                 }
                 storedLives = 0;
             }
+            return true;
         }
         private static void ApplyJetpackControls()
         {
             if (jetpackControlsHook._freeAddress != 0)
             {
-                return;
-            }
-            if (BaseHooks.ApItemsHook == null) return;
-            if (CrashEvent.sendEvent == null) return;
-            if (BaseHooks.ApItemsHook._freeAddress == 0)
-            {
-                Log.Error("Traps must be initialized after BaseHooks");
-                return;
-            }
-            if (CrashEvent.sendEvent._freeAddress == 0)
-            {
-                Log.Error("Traps must be initialized after CrashFunction");
                 return;
             }
             //Log.Information($"Free add: {BaseHooks.ApItemsHook._hookSize + BaseHooks.ApItemsHook._freeAddress + CrashEvent.sendEvent._hookSize + 0x8 :X}");
@@ -357,6 +411,52 @@ namespace C2AP
         private static void ResetJetpackControls()
         {
             HookManager.RemoveHook(jetpackControlsHook);
+        }
+
+        public static void ApplyChaos()
+        {
+            if (chaosHook._freeAddress != 0)
+            {
+                return;
+            }
+            uint crashAddress = CrashObject.FindObjectAddress(0, 0);
+            if (crashAddress == 0 || crashAddress == CrashObject.cacheOffset)
+            {
+                return;
+            }
+            //if (chaosOldGool.Count() == 0)
+            //{
+            //    uint goolAddress = CrashObject.GetGoolBytecodeAddressFromObject(crashAddress);
+            //    for (uint i = 0; i < 5500 * 4; i += 4)
+            //    {
+            //        uint val = Memory.ReadUInt(goolAddress + i);
+            //        if (val >> 20 == 0x38C)
+            //        {
+            //            chaosOldGool.Add(val);
+            //            chaosOldGoolIndex.Add(i);
+            //        }
+            //    }
+            //    //List<uint> chaosNewGool = [.. chaosOldGool];
+            //    //Random.Shared.Shuffle(CollectionsMarshal.AsSpan(chaosNewGool));
+            //    int j = 0;
+            //    foreach (uint index in chaosOldGoolIndex)
+            //    {
+            //        Memory.Write(goolAddress + index, 0);
+            //        j++;
+            //    }
+            //}
+            //Log.Information($"Old gool: {chaosOldGool.Count()}");
+
+            Memory.Write(Addresses.ScreenXDelta, 2);
+            Memory.Write(Addresses.ScreenYDelta, 2);
+            HookManager.AddHook(chaosHook, 0x15A10);
+        }
+
+        public static void ResetChaos()
+        {
+            Memory.Write(Addresses.ScreenX, 0);
+            Memory.Write(Addresses.ScreenY, 0);
+            HookManager.RemoveHook(chaosHook);
         }
     }
 }

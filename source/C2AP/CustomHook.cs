@@ -145,6 +145,11 @@ namespace C2AP
                         rt = 0x1;
                         rs = EncodeRegister(instruction[1]);
                         break;
+                    case "blez":
+                        opcode = 0x6;
+                        rt = 0x0;
+                        rs = EncodeRegister(instruction[1]);
+                        break;
                     case "lui":
                         opcode = 0xF;
                         rs = 0;
@@ -321,7 +326,8 @@ namespace C2AP
                     case "beq":
                     case "bne":
                     case "bgez":
-                        if ((instruction[0] == "bgez" && instruction.Length != 3) ||
+                    case "blez":
+                        if (((instruction[0] == "bgez" || instruction[0] == "blez") && instruction.Length != 3) ||
                             (instruction[0] == "beq" || instruction[0] == "bne") && instruction.Length != 4)
                         {
                             Log.Error($"ConvertLabels: Invalid {instruction[0]} instruction format, length was {instruction.Length}");
@@ -515,6 +521,7 @@ namespace C2AP
                     case "beq":
                     case "bne":
                     case "bgez":
+                    case "blez":
                     case "addiu":
                     case "andi":
                     case "ori":
