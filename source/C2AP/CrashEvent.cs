@@ -177,10 +177,10 @@ namespace C2AP
                      */
                     
                     {
-                        if (state == 69 || state == 65) 
+                        if (state == 0 || state == 65 || state == 67 || state == 69) 
                             return false;
                         uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
-                        if (state == 30 || state == 38 || (state >= 66 && state <= 68) || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
+                        if (state == 30 || state == 38 || state >= 66 || state <= 68 || state == 70 || state == 100 || state == 105 || state == 117 || state == 118)
                         {
 
                             // these states need to be interrupted with event 39
