@@ -265,6 +265,7 @@ namespace C2AP
             //{
             //    return;
             //}
+            uint state = Memory.ReadUInt(crashAddress + 0x1C);
             foreach (Trap trap in activeTraps.ToList())
             {
                 trap.duration--;
@@ -276,9 +277,9 @@ namespace C2AP
                     {
                         case TrapType.BigCrash:
                         case TrapType.SmallCrash:
-                            if (GetCurrentCrashSize() > defaultCrashSize) // if crash is big
+                            if (GetCurrentCrashSize() > defaultCrashSize && state >= 11 && state <= 15) // if crash is big
                             {
-                                Memory.Write(crashAddress + 0x64, Memory.ReadFloat(crashAddress + 0x64) + 2E-40f);
+                                Memory.Write(crashAddress + 0x64, Memory.ReadInt(crashAddress + 0x64) + 160000);
                             }
                             ResetCrashSize();
                             break;
@@ -309,16 +310,22 @@ namespace C2AP
                                 trap.duration++;
                                 break;
                             }
-
+                            
+                            
+                            // states 11-15 are the hanging states
                             if (trap.duration + 1 == trapDuration)
                             {
-                                if (GetCurrentCrashSize() > defaultCrashSize) // if crash is big
+                                //Log.Information($"State: {state}");
+                                if (state >= 11 && state <= 15)
                                 {
-                                    Memory.Write(crashAddress + 0x64, Memory.ReadFloat(crashAddress + 0x64) + 4E-40f);
-                                }
-                                else if (GetCurrentCrashSize() == defaultCrashSize) // if crash is default size
-                                {
-                                    Memory.Write(crashAddress + 0x64, Memory.ReadFloat(crashAddress + 0x64) + 2E-40f);
+                                    if (GetCurrentCrashSize() > defaultCrashSize) // if crash is big
+                                    {
+                                        Memory.Write(crashAddress + 0x64, Memory.ReadInt(crashAddress + 0x64) + 320000);
+                                    }
+                                    else if (GetCurrentCrashSize() == defaultCrashSize) // if crash is default size
+                                    {
+                                        Memory.Write(crashAddress + 0x64, Memory.ReadInt(crashAddress + 0x64) + 160000);
+                                    }
                                 }
                             }
                             ApplyCrashSize(smallCrashSizeMult);
