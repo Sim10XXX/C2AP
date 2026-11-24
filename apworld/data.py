@@ -104,7 +104,7 @@ abilitylockrules = [
     {
         "Name": "Hang Eight: Clear Gem (Box Gem)",
         "Lunatic": "",
-        "Normal": "JumpSpin || GroundSpin || Slide + SlideJump || CrouchJump + HighJumpSpin"
+        "Normal": "Slide + Crawl + ( JumpSpin || GroundSpin || SlideJump || CrouchJump + HighJumpSpin )"
     },
     {
         "Name": "Hang Eight Bonus Part 1",
@@ -117,7 +117,7 @@ abilitylockrules = [
                  "Hang Eight Bonus Part 3",
                  "Hang Eight Bonus Part 4"],
         "Lunatic": "",
-        "Normal": "Slide || Crawl",
+        "Normal": "Slide + Crawl",
         "Wumpa": [4,6,6]
     },
     # The Pits
@@ -858,7 +858,7 @@ abilitylockrules = [
     {
         "Name": "Pack Attack Third Checkpoint Part 1",
         "Lunatic": "",
-        "Normal": "Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin",
+        "Normal": "Slide + ( SlideJump + HighJumpSpin || SlideSpin ) || GroundSpin || JumpSpin || CrouchJump + HighJumpSpin || Jetpack",
         "Wumpa": [6]
     },
     {

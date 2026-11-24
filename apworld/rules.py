@@ -533,6 +533,10 @@ def set_all_location_rules(world: Crash2World) -> None:
                             add_rule(loc, resolved_rule)
                             #world.set_rule(loc, rule)
                 else:
+                    if world.options.life_sanity == 0:
+                        if "Life" in name_list[i]:
+                            continue
+
                     loc = world.get_location(name_list[i])
                     add_rule(loc, resolved_rule)
                     #world.set_rule(loc, rule)
