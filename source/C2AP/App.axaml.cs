@@ -22,6 +22,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.OpenGL;
 using Avalonia.Remote.Protocol.Viewport;
+using DynamicData.Aggregation;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
@@ -35,6 +36,7 @@ using System.Linq;
 using System.Net;
 using System.Reactive.Concurrency;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
@@ -131,7 +133,7 @@ public partial class App : Application
     public void Start()
     {
         Context = new MainWindowViewModel();
-        Context.ClientVersion = "v0.5.0-pre3";
+        Context.ClientVersion = "v0.5.0";
         Context.ConnectClicked += Context_ConnectClicked;
         Context.CommandReceived += (e, a) =>
         {
@@ -145,12 +147,41 @@ public partial class App : Application
             EnqueueEvent(EventType.BasicEvent, 12, [], 0);
         };
         Context.UnstuckButtonEnabled = true;
+        Context.AutoscrollEnabled = true;
         _hintsList = null;
         _hasSubmittedGoal = false;
         _useQuietHints = true;
         //Log.Logger.Information("Hello World");
         Log.Logger.Information("This Archipelago Client is compatible only with the Crash Bandicoot 2 Europe (PAL) Release");
         Log.Logger.Information("Trying to play with a different version will not work and may release all of your locations at the start.");
+
+        string filename = $"C2APConnectionInfo.txt";
+        if (File.Exists(filename))
+        {
+            string[] lines = File.ReadAllLines(filename);
+            if (lines.Length != 7)
+            {
+                Log.Information("Incorrect C2APConnectionInfo.txt");
+                return;
+            }
+            for (int i = 0; i < lines.Length; i++)
+            {
+                int index = lines[i].IndexOf(':');
+                if (index != -1)
+                    lines[i] = lines[i].Substring(index + 1);
+                else
+                    lines[i] = "";
+                
+            }
+            Context.Host = lines[0];
+            Context.Slot = lines[1];
+            Context.Password = lines[2];
+            Context.AutoscrollEnabled = bool.Parse(lines[3]);
+            Context.OverlayEnabled = bool.Parse(lines[4]);
+            Context.SelectedLogLevel = lines[5];
+            Context.SelectedFontSize = lines[6];
+            
+        }
     }
 
 
@@ -370,6 +401,10 @@ public partial class App : Application
                 //Memory.Write(0x14a3e0 + 1659 * 4, Memory.ReadInt(0x14a3e0 + 1687 * 4));
                 //Memory.Write(0x14a3e0 + 1660 * 4, Memory.ReadInt(0x14a3e0 + 1688 * 4));
                 Log.Logger.Information($"wrote at {goolAddress + offset * 4:X}: {last:X} --> {val:X}");
+                break;
+            case "print":
+                uint crashAdd = CrashObject.FindObjectAddress(0, 0);
+                Log.Information($"Crash wumpa: {crashAdd + Addresses.WumpaOffset:X}, global wumpa: {Addresses.WumpaGlobalAddress:X}");
                 break;
             case "exec":
                 //uint globals = Addresses.LevelIdAddress;
@@ -623,6 +658,23 @@ public partial class App : Application
     }
     private async void Context_ConnectClicked(object? sender, ConnectClickedEventArgs e)
     {
+        string filename = $"C2APConnectionInfo.txt";
+        //Host:localhost:38281
+        if (File.Exists(filename))
+        {
+            File.Delete(filename);
+        }
+        using (FileStream fs = File.Create(filename))
+        {
+            string content = $"Host:{Context.Host}\n" +
+                $"Slot:{Context.Slot}\n" +
+                $"Password:{Context.Password}\n" +
+                $"AutoScroll:{Context.AutoscrollEnabled}\n" +
+                $"Overlay:{Context.OverlayEnabled}\n" +
+                $"LogLevel:{Context.SelectedLogLevel}\n" +
+                $"FontSize:{Context.SelectedFontSize}";
+            fs.Write(Encoding.UTF8.GetBytes(content));
+        }
 
         if (Client != null)
         {
@@ -656,7 +708,6 @@ public partial class App : Application
             Log.Logger.Warning("Duckstation not running, open Duckstation and launch the game before connecting!");
             return;
         }
-
         Client = new ArchipelagoClient(gameClient);
         //Client.ShouldSaveStateOnItemReceived = false;
 
@@ -666,7 +717,6 @@ public partial class App : Application
         //InputLock.Initialize();
         //InputLock.LockInput(InputFlag.Square);
         //Helpers.ClearHookMemory();
-
 
 
 
@@ -700,7 +750,7 @@ public partial class App : Application
         Client.MessageReceived += Client_MessageReceived;
         Client.ItemManager.ItemReceived += ItemReceived;
         Client.LocationManager.EnableLocationsCondition = () => Helpers.IsInGame() && Helpers.IsConnectionValid();
-        
+
         //if (Client.Options?.Count > 0)
         //{
         //    Client.MonitorLocations(GameLocations);
@@ -710,7 +760,7 @@ public partial class App : Application
         //{
         //    Log.Logger.Error("Failed to login.  Please check your host, name, and password.");
         //}
-
+        Helpers.slotName = e.Slot;
         if (Helpers.IsInGame())
         {
             SyncGameState();

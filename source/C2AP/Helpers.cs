@@ -33,7 +33,7 @@ namespace C2AP
 
         public const uint lifeCountBaseId = 1000;
 
-        private static string slotName = "";
+        public static string slotName = "";
 
         public static void StartCheckLifeCount()
         {
