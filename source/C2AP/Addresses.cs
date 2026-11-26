@@ -49,6 +49,7 @@ namespace C2AP
         //crash object
         public const uint LivesOffset = 0x145;
         public const uint WumpaOffset = 0x141;
+        public const uint StateOffset = 0x1C;
 
         // CHeOC (cortex head obs) gool file static data item offset
         public static readonly uint[] MontyHallWarpRoomInfoStaticDataOffset = {

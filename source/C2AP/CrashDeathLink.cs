@@ -1,5 +1,6 @@
 ﻿using Archipelago.Core.Util;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
+using DynamicData;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace C2AP
         private static uint previousLevelId = 0;
         private static uint amnesty = 0;
         private static uint deathCount = 0;
+        private static uint previousState = 0;
+        private static uint currentState = 0;
 
         public static void Initialize(string name)
         {
@@ -50,7 +53,7 @@ namespace C2AP
             if (deathLinkService == null) return;
             if (Helpers.IsInDemo()) return; 
             uint time = Memory.ReadUInt(Addresses.Timer);
-
+            
 
             uint levelId = Memory.ReadUInt(Addresses.LevelIdAddress);
             //Log.Logger.Information($"Level ID: {levelId:X}");
@@ -70,6 +73,12 @@ namespace C2AP
             {
                 previousLives = 0;
                 return;
+            }
+            uint state = Memory.ReadUInt(crashAddress + Addresses.StateOffset);
+            if (state != currentState)
+            {
+                previousState = currentState;
+                currentState = state;
             }
             uint lives = Memory.ReadByte(crashAddress + Addresses.LivesOffset);
             if (time < previousTime)
@@ -111,13 +120,44 @@ namespace C2AP
                 return;
             }
             deathCount++;
+            Log.Information($"Prevstate: {previousState}, Currstate: {currentState}");
             if (amnesty != 0)
                 Log.Logger.Information($"{amnesty - deathCount} death(s) left before sending a DeathLink");
             if (deathCount >= amnesty)
             {
                 deathCount = 0;
                 Log.Logger.Information("Sending DeathLink");
-                deathLinkService.SendDeathLink(new DeathLink(playerName, $"{playerName} died in Crash 2"));
+                string cause = previousState switch
+                {
+                    51 => "fell in a bottomless pit",
+                    //53 => "died",
+                    54 => "blew themselves up",
+                    56 => "was electrocuted",
+                    57 => "got caught in the blast",
+                    58 => "was incinerated",
+                    59 => "blown up by TNT",
+                    60 => "was eaten whole",
+                    61 => "tried to swim",
+                    63 => "couldn't outrun the boulder",
+                    64 => "was crushed into a pancake",
+                    90 => "was turned to ash",
+                    91 => "flew straight into an explosive",
+                    93 => "was overloaded with volts",
+                    98 => "couldn't catch up to Cortex",
+                    101 => "was eaten off the jetboard",
+                    102 => "jetboarded into an explosive",
+                    103 => "was sucked into a whirlpool",
+                    111 => "fell into cold water",
+                    112 => "rode straight into an explosive",
+                    113 => "tripped and fell off of Polar",
+                    114 => "slammed into a pillar",
+                    120 => "dug their own grave",
+                    121 => "was smashed into the ground",
+                    122 => "is allergic to bees",
+                    _ => $"died in {Addresses.IdToLevelName[Memory.ReadByte(Addresses.LevelIdAddress + 1)]}"
+                };
+                //Log.Information($"{playerName} {cause}");
+                deathLinkService.SendDeathLink(new DeathLink(playerName, $"{playerName} {cause}"));
             }
         }
 
